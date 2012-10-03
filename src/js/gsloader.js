@@ -50,7 +50,6 @@
                 };
             }
             Logger.call(this, options);
-            /* Be friendly about what you accept */
             if (/key=/.test(options.key)) {
                 this.log("You passed a key as a URL! Attempting to parse.");
                 options.key = options.key.match("key=([^&]*)")[1];
@@ -181,22 +180,17 @@
     Worksheet.prototype.parse = function(data, textStatus, jqXHR) {
         var _this = this;
         var $entries = $(data).children("feed").children("entry");
-        //var columnNames = [];
-/*$entries.eq(0).children().filter(function(idx) {
-            return /gsx:/.test(this.tagName);
-        }).each(function() {
-            columnNames.push(this.tagName.replace(":", "\\\\:"));
-        });*/
         if ($entries.length === 0) {
             _this.log("Missing data for " + _this.title + ", make sure you didn't forget column headers");
             _this.rows = [];
             return;
         }
-        //columnNames = columnNames.join(",")
         _this.rows = [];
         var row;
-        $entries.each(function() {
-            row = {}
+        $entries.each(function(idx, obj) {
+            row = {
+                "rowNumber": (idx + 1)
+            }
             $(this).children().each(function(idx, cell) {
                 if (Worksheet.COLUMN_NAME_REGEX.test(this.tagName)) {
                     row[this.tagName.replace(Worksheet.COLUMN_NAME_REGEX, "")] = this.textContent;

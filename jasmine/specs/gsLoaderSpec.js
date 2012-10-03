@@ -109,7 +109,8 @@ describe("GSLoader", function() {
             expect(spreadSheet.sheets[3].rows.length).toBe(5);
         });
 
-        function checkRow(row, environmentid, environmentname, ssourl, applicationurl, olrwdslurl){
+        function checkRow(row, rowNumber, environmentid, environmentname, ssourl, applicationurl, olrwdslurl){
+            expect(row["rowNumber"]).toBe(rowNumber);
         	expect(row["environmentid"]).toBe(environmentid);
         	expect(row["environmentname"]).toBe(environmentname);
         	expect(row["ssourl"]).toBe(ssourl);
@@ -124,7 +125,8 @@ describe("GSLoader", function() {
             });
             expect(spreadSheet.sheets.length).toBe(1);
             var rows = spreadSheet.sheets[0].rows;
-            checkRow(rows[0], "LOCAL", "Local", "http://d-ws.cengage.com/ssows/SSOws?WSDL", "http://localhost", "http://d-ws.cengage.com/olrws/OLRws?WSDL")
+            checkRow(rows[0], 1, "LOCAL", "Local", "http://d-ws.cengage.com/ssows/SSOws?WSDL", "http://localhost", "http://d-ws.cengage.com/olrws/OLRws?WSDL");
+            checkRow(rows[1], 2, "DEV", "Development", "http://d-ws.cengage.com/ssows/SSOws?WSDL", "http://qae-ng.cengage.com", "http://d-ws.cengage.com/olrws/OLRws?WSDL")
         });
 
         it("GSLoader.loadSpreadsheet calls success function after spreadsheet is loaded", function() {
