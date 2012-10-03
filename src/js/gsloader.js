@@ -1,7 +1,7 @@
 (function(attachTo, $) {
     /*
-    * String.format method
-    */
+     * String.format method
+     */
     String.prototype.format = function() {
         var str = this.toString();
         for (var i = 0; i < arguments.length; i++) {
@@ -12,13 +12,13 @@
     }
 
     /*
-    * Logger class
-    */
-    var Logger = function(options){
-		$.extend(this, {
-	        debug: false
-        }, options);
-    }
+     * Logger class
+     */
+    var Logger = function(options) {
+            $.extend(this, {
+                debug: false
+            }, options);
+        }
     Logger.prototype = {
         log: function(msg) {
             if (this.debug && typeof console !== "undefined" && typeof console.log !== "undefined") {
@@ -28,111 +28,187 @@
     };
 
     /*
-    * GSLoader class
-    */
+     * GSLoader class
+     */
     var GSLoader = function(options) {
-    	Logger.call(this, options);
-    }
+            Logger.call(this, options);
+        }
 
     GSLoader.prototype = new Logger();
 
-    GSLoader.loadSheet = function(options) {
+    GSLoader.loadSpreadsheet = function(options) {
         return new Spreadsheet(options).fetch();
     }
 
     /*
-    * Spreadsheet class
-    */
+     * Spreadsheet class
+     */
     var Spreadsheet = function(options) {
-	    /*if (!this || this === attachTo) {
-            return new Spreadsheet(options);
-        }*/
-        if (typeof(options) == "string") {
-            options = {
-                key: options
-            };
-        }
-        $.extend(this, {
-            key: "",
-            title: "",
-            sheets: [],
-            debug: false
-        }, options);
+            if (typeof(options) == "string") {
+                options = {
+                    key: options
+                };
+            }
+            Logger.call(this, options);
+            /* Be friendly about what you accept */
+            if (/key=/.test(options.key)) {
+                this.log("You passed a key as a URL! Attempting to parse.");
+                options.key = options.key.match("key=([^&]*)")[1];
+            }
+            $.extend(this, {
+                key: "",
+                title: "",
+                sheets: [],
+                wanted: [],
+                successCallBacks: [],
+                sheetsToLoad: 0
+            }, options);
 
-        /* Be friendly about what you accept */
-        if (/key=/.test(this.key)) {
-            this.log("You passed a key as a URL! Attempting to parse.");
-            this.key = this.key.match("key=([^&]*)")[1];
+            if (this.success) {
+                this.done(this.success);
+            }
+
         }
-    }
 
     Spreadsheet.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
-    Spreadsheet.WORKSHEET_ID_REGEX = ".{3}$"
+    Spreadsheet.WORKSHEET_ID_REGEX = /.{3}$/;
 
     Spreadsheet.prototype = new Logger();
 
-    /*function extendPrototype(addTo, methodName, handler) {
-        function add(method, handle) {
-            addTo.prototype[method] = function() {
-                handle.apply(this, arguments);
-                return this;
-            }
-        }
-        var methods = methodName;
-        if (typeof(methods) === 'string') {
-            methods = {};
-            methods[methodName] = handler;
-        }
-
-        $.each(methods, function(key, value) {
-            add(key, value);
-        })
-    }*/
-
     Spreadsheet.prototype.fetch = function() {
-        var $this = this;
+        var _this = this;
         $.ajax({
             url: Spreadsheet.PRIVATE_SHEET_URL.format(this.key)
         }).done(function(data, textStatus, jqXHR) {
-            $this.parseSheet.apply($this, arguments);
+            _this.parse.apply(_this, arguments);
         });
         return this;
     }
 
-    Spreadsheet.prototype.parseSheet = function(data, textStatus, jqXHR) {
-        var $this = this;
+    Spreadsheet.prototype.done = function(callBack) {
+        this.successCallBacks.push(callBack);
+        return this;
+    }
+
+    Spreadsheet.prototype.processSuccess = function() {
+        var _this = this;
+        _this.sheetsToLoad--;
+        if (_this.sheetsToLoad === 0) {
+            $.each(_this.successCallBacks, function(idx, fun) {
+                fun.apply(_this);
+            })
+        }
+    }
+
+    Spreadsheet.prototype.isWanted = function(sheetName) {
+        return (this.wanted.length === 0 || this.wanted.indexOf(sheetName) != -1);
+    }
+
+    Spreadsheet.prototype.parse = function(data, textStatus, jqXHR) {
+        var _this = this;
         var $feed = $(data).children("feed");
-        this.title = $feed.children("title").text();
+        _this.title = $feed.children("title").text();
         var worksheet;
-        var worksheetKey;
-        this.sheets = [];
-        $feed.children("entry").each(function(idx, obj){
+        var title;
+        _this.sheets = [];
+        $feed.children("entry").each(function(idx, obj) {
             var $worksheet = $(this);
-            worksheet = new Worksheet({
-                id: $worksheet.children("id").text().match(".{3}$")[0],
-                title: $worksheet.children("title").text()
-            });
-            $this.sheets.push(worksheet);
+            title = $worksheet.children("title").text();
+            if (_this.isWanted(title)) {
+                worksheet = new Worksheet({
+                    id: $worksheet.children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0],
+                    title: title,
+                    listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
+                    spreadsheet: _this
+                });
+                _this.sheets.push(worksheet);
+            }
         });
+        _this.sheetsToLoad = _this.sheets.length;
+        _this.fetchSheets();
+    }
+
+    Spreadsheet.prototype.fetchSheets = function() {
+        var _this = this;
+        $.each(this.sheets, function(idx, sheet) {
+            sheet.done(_this.processSuccess).fetch();
+        })
     }
 
 
     /*
-    * Worksheet class
-    */
+     * Worksheet class
+     */
 
-    var Worksheet = function(options){
-        $.extend(this, {
-            id: "",
-            title: "",
-            listFeed: ""
-        }, options);
+    var Worksheet = function(options) {
+            Logger.call(this, options);
+            $.extend(this, {
+                id: "",
+                title: "",
+                listFeed: "",
+                rows: [],
+                spreadsheet: null,
+                successCallBacks: []
+            }, options);
+        }
+
+    Worksheet.COLUMN_NAME_REGEX = /gsx:/;
+    Worksheet.prototype = new Logger();
+
+    Worksheet.prototype.fetch = function(callBack) {
+        var _this = this;
+        $.ajax({
+            url: this.listFeed
+        }).done(function(data, textStatus, jqXHR) {
+            _this.parse.apply(_this, arguments);
+            _this.processSuccess.apply(_this);
+        });
+        return this;
+    };
+
+    Worksheet.prototype.done = function(callBack) {
+        this.successCallBacks.push(callBack);
+        return this;
     }
 
-    Worksheet.prototype = new Logger();
+    Worksheet.prototype.processSuccess = function() {
+        var _this = this;
+        $.each(_this.successCallBacks, function(idx, fun) {
+            fun.apply(_this.spreadsheet, _this);
+        })
+    }
+
+    Worksheet.prototype.parse = function(data, textStatus, jqXHR) {
+        var _this = this;
+        var $entries = $(data).children("feed").children("entry");
+        //var columnNames = [];
+/*$entries.eq(0).children().filter(function(idx) {
+            return /gsx:/.test(this.tagName);
+        }).each(function() {
+            columnNames.push(this.tagName.replace(":", "\\\\:"));
+        });*/
+        if ($entries.length === 0) {
+            _this.log("Missing data for " + _this.title + ", make sure you didn't forget column headers");
+            _this.rows = [];
+            return;
+        }
+        //columnNames = columnNames.join(",")
+        _this.rows = [];
+        var row;
+        $entries.each(function() {
+            row = {}
+            $(this).children().each(function(idx, cell) {
+                if (Worksheet.COLUMN_NAME_REGEX.test(this.tagName)) {
+                    row[this.tagName.replace(Worksheet.COLUMN_NAME_REGEX, "")] = this.textContent;
+                }
+            });
+            _this.rows.push(row);
+        });
+        _this.spreadsheet.log("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
+    }
+
 
     $.extend(attachTo, {
         GSLoader: GSLoader
     });
-
 })(window, jQuery);

@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/">
+	<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full</id>
+	<updated>2012-09-25T16:02:57.548Z</updated>
+	<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+	<title type="text">DEV</title>
+	<link href="https://spreadsheets.google.com/ccc?key=0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c" rel="alternate" type="text/html"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full" rel="http://schemas.google.com/g/2005#feed" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full" rel="http://schemas.google.com/g/2005#post" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full" rel="self" type="application/atom+xml"/>
+	<author>
+		<name>vishal.4kadam</name>
+		<email>vishal.4kadam@gmail.com</email>
+	</author>
+	<openSearch:totalResults>6</openSearch:totalResults>
+	<openSearch:startIndex>1</openSearch:startIndex>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cokwr</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">ng_instructor@cengage.com</title>
+		<content type="text">token: 86ACCEE9D85514F009DDDB7FAB6EA5F3CC1B2869EAF3CE7AA9356740950747C1E6906F01740A5072FA2DEE883DAB2813537E11A45168AEA0, eisbns: 9781133354192, 9781133353997, 9781133354215, 9781133353706, 9781133354017, 9781133213444, 9781133214052, 9781133216100, 9781133216568</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cokwr" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cokwr/28j691ecdhi5bd" rel="edit" type="application/atom+xml"/>
+		<gsx:username>ng_instructor@cengage.com</gsx:username>
+		<gsx:token>86ACCEE9D85514F009DDDB7FAB6EA5F3CC1B2869EAF3CE7AA9356740950747C1E6906F01740A5072FA2DEE883DAB2813537E11A45168AEA0</gsx:token>
+		<gsx:eisbns>9781133354192, 9781133353997, 9781133354215, 9781133353706, 9781133354017, 9781133213444, 9781133214052, 9781133216100, 9781133216568</gsx:eisbns>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cpzh4</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">ng_instructor1@cengage.com</title>
+		<content type="text">token: 05A24F6A245C3AC08FD3BBBDC4EEB44BCF5ED6628EC5BAFC18E40B730AB06093D9890D9A0F0BBECFA87FF77ADB42469640AB7390D6BB1D20, eisbns:  9781133354192, 9781133353997, 9781133354017</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cpzh4" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cpzh4/2ccle8m5ge41e0" rel="edit" type="application/atom+xml"/>
+		<gsx:username>ng_instructor1@cengage.com</gsx:username>
+		<gsx:token>05A24F6A245C3AC08FD3BBBDC4EEB44BCF5ED6628EC5BAFC18E40B730AB06093D9890D9A0F0BBECFA87FF77ADB42469640AB7390D6BB1D20</gsx:token>
+		<gsx:eisbns>9781133354192, 9781133353997, 9781133354017</gsx:eisbns>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cre1l</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">ng_instructor2@cengage.com</title>
+		<content type="text">token: 25B18765BF0DFF10FE5DBC0FB1A2AE39722291B2EF19784EBDC5B1A5E7406A054AECD8BCC20F4797C80038E2F465A0E69280759F7E2851ED, eisbns:  9781133354192, 9781133354215, 9781133353706</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cre1l" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/cre1l/1loecolj0bkeho" rel="edit" type="application/atom+xml"/>
+		<gsx:username>ng_instructor2@cengage.com</gsx:username>
+		<gsx:token>25B18765BF0DFF10FE5DBC0FB1A2AE39722291B2EF19784EBDC5B1A5E7406A054AECD8BCC20F4797C80038E2F465A0E69280759F7E2851ED</gsx:token>
+		<gsx:eisbns>9781133354192, 9781133354215, 9781133353706</gsx:eisbns>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/chk2m</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">ng_student@cengage.com</title>
+		<content type="text">token: B16BF523C5688AC9329DDABCFD02C341BBE3F0707F7DF1FD5EAC18C4F6EAE6F23BEACADC8B54A17175E7E124B319EDFB, eisbns:  9781133354192, 9781133353997, 9781133354215, 9781133353706, 9781133354017, 9781133213444, 9781133214052, 9781133216100, 9781133216568</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/chk2m" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/chk2m/32aef9ooh9jegc" rel="edit" type="application/atom+xml"/>
+		<gsx:username>ng_student@cengage.com</gsx:username>
+		<gsx:token>B16BF523C5688AC9329DDABCFD02C341BBE3F0707F7DF1FD5EAC18C4F6EAE6F23BEACADC8B54A17175E7E124B319EDFB</gsx:token>
+		<gsx:eisbns>9781133354192, 9781133353997, 9781133354215, 9781133353706, 9781133354017, 9781133213444, 9781133214052, 9781133216100, 9781133216568</gsx:eisbns>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/ciyn3</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">ng_student1@cengage.com</title>
+		<content type="text">token: 368AAC2770931FB33CE1F9F876E5D218A2FCA3694DD02337185EE720D1BCC59E9D7D7CB2CE447E30B1E9518A9CD94D34, eisbns:  9781133354192, 9781133353997, 9781133354017</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/ciyn3" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/oda/private/full/ciyn3/2cclmkhf7p9381" rel="edit" type="application/atom+xml"/>
+		<gsx:username>ng_student1@cengage.com</gsx:username>
+		<gsx:token>368AAC2770931FB33CE1F9F876E5D218A2FCA3694DD02337185EE720D1BCC59E9D7D7CB2CE447E30B1E9518A9CD94D34</gsx:token>
+		<gsx:eisbns>9781133354192, 9781133353997, 9781133354017</gsx:eisbns>
+	</entry>
+</feed>

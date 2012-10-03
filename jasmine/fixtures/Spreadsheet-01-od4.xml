@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/">
+	<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full</id>
+	<updated>2012-09-25T16:02:57.548Z</updated>
+	<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+	<title type="text">Url Parameters</title>
+	<link href="https://spreadsheets.google.com/ccc?key=0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c" rel="alternate" type="text/html"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full" rel="http://schemas.google.com/g/2005#feed" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full" rel="http://schemas.google.com/g/2005#post" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full" rel="self" type="application/atom+xml"/>
+	<author>
+		<name>vishal.4kadam</name>
+		<email>vishal.4kadam@gmail.com</email>
+	</author>
+	<openSearch:totalResults>8</openSearch:totalResults>
+	<openSearch:startIndex>1</openSearch:startIndex>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cokwr</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">eISBN</title>
+		<content type="text">screentitle: ISBN, canpopulate: Y</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cokwr" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cokwr/aeihfgo7hod0" rel="edit" type="application/atom+xml"/>
+		<gsx:paramname>eISBN</gsx:paramname>
+		<gsx:screentitle>ISBN</gsx:screentitle>
+		<gsx:canpopulate>Y</gsx:canpopulate>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cpzh4</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">courseKey</title>
+		<content type="text">screentitle: Course Key</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cpzh4" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cpzh4/17kmni5egij534" rel="edit" type="application/atom+xml"/>
+		<gsx:paramname>courseKey</gsx:paramname>
+		<gsx:screentitle>Course Key</gsx:screentitle>
+		<gsx:canpopulate/>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cre1l</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">nodeId</title>
+		<content type="text">screentitle: Node Id</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cre1l" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/cre1l/3emoj6agl92hih" rel="edit" type="application/atom+xml"/>
+		<gsx:paramname>nodeId</gsx:paramname>
+		<gsx:screentitle>Node Id</gsx:screentitle>
+		<gsx:canpopulate/>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/chk2m</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">courseName</title>
+		<content type="text">screentitle: Course Name</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/chk2m" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/chk2m/338egpf9m85830" rel="edit" type="application/atom+xml"/>
+		<gsx:paramname>courseName</gsx:paramname>
+		<gsx:screentitle>Course Name</gsx:screentitle>
+		<gsx:canpopulate/>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/ciyn3</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">contentId</title>
+		<content type="text">screentitle: Content Id</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/ciyn3" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/ciyn3/jn1hb4no7hhpg" rel="edit" type="application/atom+xml"/>
+		<gsx:paramname>contentId</gsx:paramname>
+		<gsx:screentitle>Content Id</gsx:screentitle>
+		<gsx:canpopulate/>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/ckd7g</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">Row: 7</title>
+		<content type="text">_ciyn3: deploymentId, _ckd7g: Deployment Id</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/ckd7g" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/ckd7g/9c4ee0ghkfo" rel="edit" type="application/atom+xml"/>
+		<gsx:paramname/>
+		<gsx:screentitle/>
+		<gsx:canpopulate/>
+		<gsx:_ciyn3>deploymentId</gsx:_ciyn3>
+		<gsx:_ckd7g>Deployment Id</gsx:_ckd7g>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/clrrx</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">Row: 8</title>
+		<content type="text">_ciyn3: integrationType, _ckd7g: Integration Type</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/clrrx" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od4/private/full/clrrx/92gl35a3kmn" rel="edit" type="application/atom+xml"/>
+		<gsx:paramname/>
+		<gsx:screentitle/>
+		<gsx:canpopulate/>
+		<gsx:_ciyn3>integrationType</gsx:_ciyn3>
+		<gsx:_ckd7g>Integration Type</gsx:_ckd7g>
+	</entry>
+</feed>

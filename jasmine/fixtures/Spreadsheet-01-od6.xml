@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/">
+	<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full</id>
+	<updated>2012-09-25T16:02:57.548Z</updated>
+	<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+	<title type="text">Environments</title>
+	<link href="https://spreadsheets.google.com/ccc?key=0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c" rel="alternate" type="text/html"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full" rel="http://schemas.google.com/g/2005#feed" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full" rel="http://schemas.google.com/g/2005#post" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full" rel="self" type="application/atom+xml"/>
+	<author>
+		<name>vishal.4kadam</name>
+		<email>vishal.4kadam@gmail.com</email>
+	</author>
+	<openSearch:totalResults>8</openSearch:totalResults>
+	<openSearch:startIndex>1</openSearch:startIndex>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/bctkt</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">LOCAL</title>
+		<content type="text">environmentname: Local, ssourl: http://d-ws.cengage.com/ssows/SSOws?WSDL, applicationurl: http://localhost, olrwdslurl: http://d-ws.cengage.com/olrws/OLRws?WSDL</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/bctkt" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/bctkt/1f0mkegkcemf48" rel="edit" type="application/atom+xml"/>
+		<gsx:environmentid>LOCAL</gsx:environmentid>
+		<gsx:environmentname>Local</gsx:environmentname>
+		<gsx:ssourl>http://d-ws.cengage.com/ssows/SSOws?WSDL</gsx:ssourl>
+		<gsx:applicationurl>http://localhost</gsx:applicationurl>
+		<gsx:olrwdslurl>http://d-ws.cengage.com/olrws/OLRws?WSDL</gsx:olrwdslurl>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cokwr</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">DEV</title>
+		<content type="text">environmentname: Development, ssourl: http://d-ws.cengage.com/ssows/SSOws?WSDL, applicationurl: http://qae-ng.cengage.com, olrwdslurl: http://d-ws.cengage.com/olrws/OLRws?WSDL</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cokwr" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cokwr/9ep9pgdho0hbd" rel="edit" type="application/atom+xml"/>
+		<gsx:environmentid>DEV</gsx:environmentid>
+		<gsx:environmentname>Development</gsx:environmentname>
+		<gsx:ssourl>http://d-ws.cengage.com/ssows/SSOws?WSDL</gsx:ssourl>
+		<gsx:applicationurl>http://qae-ng.cengage.com</gsx:applicationurl>
+		<gsx:olrwdslurl>http://d-ws.cengage.com/olrws/OLRws?WSDL</gsx:olrwdslurl>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cpzh4</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">QAE</title>
+		<content type="text">environmentname: QAE, ssourl: http://s-ws.cengage.com/ssows/SSOws?WSDL, applicationurl: http://qae-ng.cengage.com, olrwdslurl: http://s-ws.cengage.com/olrws/OLRws?WSDL</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cpzh4" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cpzh4/9e013em7efi19" rel="edit" type="application/atom+xml"/>
+		<gsx:environmentid>QAE</gsx:environmentid>
+		<gsx:environmentname>QAE</gsx:environmentname>
+		<gsx:ssourl>http://s-ws.cengage.com/ssows/SSOws?WSDL</gsx:ssourl>
+		<gsx:applicationurl>http://qae-ng.cengage.com</gsx:applicationurl>
+		<gsx:olrwdslurl>http://s-ws.cengage.com/olrws/OLRws?WSDL</gsx:olrwdslurl>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/b8lvi</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">QAD</title>
+		<content type="text">environmentname: QAD, ssourl: http://s-ws.cengage.com/ssows/SSOws?WSDL, applicationurl: http://qad-ng.cengage.com, olrwdslurl: http://s-ws.cengage.com/olrws/OLRws?WSDL</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/b8lvi" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/b8lvi/349hb02clf2181" rel="edit" type="application/atom+xml"/>
+		<gsx:environmentid>QAD</gsx:environmentid>
+		<gsx:environmentname>QAD</gsx:environmentname>
+		<gsx:ssourl>http://s-ws.cengage.com/ssows/SSOws?WSDL</gsx:ssourl>
+		<gsx:applicationurl>http://qad-ng.cengage.com</gsx:applicationurl>
+		<gsx:olrwdslurl>http://s-ws.cengage.com/olrws/OLRws?WSDL</gsx:olrwdslurl>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/ba0fz</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">QAF</title>
+		<content type="text">environmentname: QAF, ssourl: http://s-ws.cengage.com/ssows/SSOws?WSDL, applicationurl: http://qaf.ng.cengage.com, olrwdslurl: http://s-ws.cengage.com/olrws/OLRws?WSDL</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/ba0fz" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/ba0fz/n934c32ihp483" rel="edit" type="application/atom+xml"/>
+		<gsx:environmentid>QAF</gsx:environmentid>
+		<gsx:environmentname>QAF</gsx:environmentname>
+		<gsx:ssourl>http://s-ws.cengage.com/ssows/SSOws?WSDL</gsx:ssourl>
+		<gsx:applicationurl>http://qaf.ng.cengage.com</gsx:applicationurl>
+		<gsx:olrwdslurl>http://s-ws.cengage.com/olrws/OLRws?WSDL</gsx:olrwdslurl>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/bbf0c</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">QA</title>
+		<content type="text">environmentname: QA, ssourl: http://s-ws.cengage.com/ssows/SSOws?WSDL, applicationurl: http://qa.ng.cengage.com, olrwdslurl: http://s-ws.cengage.com/olrws/OLRws?WSDL</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/bbf0c" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/bbf0c/3idn3p69ggfo1n" rel="edit" type="application/atom+xml"/>
+		<gsx:environmentid>QA</gsx:environmentid>
+		<gsx:environmentname>QA</gsx:environmentname>
+		<gsx:ssourl>http://s-ws.cengage.com/ssows/SSOws?WSDL</gsx:ssourl>
+		<gsx:applicationurl>http://qa.ng.cengage.com</gsx:applicationurl>
+		<gsx:olrwdslurl>http://s-ws.cengage.com/olrws/OLRws?WSDL</gsx:olrwdslurl>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cre1l</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">STAGE</title>
+		<content type="text">environmentname: Stage, ssourl: http://s-ws.cengage.com/ssows/SSOws?WSDL, applicationurl: http://s-ng.cengage.com, olrwdslurl: http://s-ws.cengage.com/olrws/OLRws?WSDL</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cre1l" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/cre1l/3h0o0i9okg0lih" rel="edit" type="application/atom+xml"/>
+		<gsx:environmentid>STAGE</gsx:environmentid>
+		<gsx:environmentname>Stage</gsx:environmentname>
+		<gsx:ssourl>http://s-ws.cengage.com/ssows/SSOws?WSDL</gsx:ssourl>
+		<gsx:applicationurl>http://s-ng.cengage.com</gsx:applicationurl>
+		<gsx:olrwdslurl>http://s-ws.cengage.com/olrws/OLRws?WSDL</gsx:olrwdslurl>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/chk2m</id>
+		<updated>2012-09-25T16:02:57.548Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">PROD</title>
+		<content type="text">environmentname: Production, ssourl: http://ws.cengage.com/ssows/SSOws?WSDL, applicationurl: http://mindtap.cengage.com, olrwdslurl: http://ws.cengage.com/olrws/OLRws?WSDL</content>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/chk2m" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/0AlpsUVqaDZHSdG4yR2hXZjJpbmRNS2s3RTU4eVQyQ2c/od6/private/full/chk2m/27kg5f35m55dfg" rel="edit" type="application/atom+xml"/>
+		<gsx:environmentid>PROD</gsx:environmentid>
+		<gsx:environmentname>Production</gsx:environmentname>
+		<gsx:ssourl>http://ws.cengage.com/ssows/SSOws?WSDL</gsx:ssourl>
+		<gsx:applicationurl>http://mindtap.cengage.com</gsx:applicationurl>
+		<gsx:olrwdslurl>http://ws.cengage.com/olrws/OLRws?WSDL</gsx:olrwdslurl>
+	</entry>
+</feed>
