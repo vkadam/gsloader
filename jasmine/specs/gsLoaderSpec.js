@@ -48,7 +48,7 @@ describe("GSLoader", function(){
 
 	describe("GSLoader.loadSheet", function(){
 		beforeEach(function(){
-			$.fixture("worksheets/spreadsheet01/private/full","src/test/fixtures/SpreadSheet-01.xml");
+			$.fixture("worksheets/spreadsheet01/private/full","jasmine/fixtures/SpreadSheet-01.xml");
 		});
 
 		it("GSLoader.loadSheet loads list of all worksheets", function(){

@@ -25,11 +25,10 @@
 				</executions>
 				<configuration>
 					<jsSrcDir>src/</jsSrcDir>
-					<jsTestSrcDir>src/test/specs</jsTestSrcDir>
+					<jsTestSrcDir>jasmine/</jsTestSrcDir>
 					<sourceIncludes>
-						<include>main/js/**/lib/*.js</include>
-					  	<include>main/js/**/*.js</include>
-					  	<include>test/lib/**/*.js</include>
+						<include>**/lib/*.js</include>
+					  	<include>**/*.js</include>
 					</sourceIncludes>
 				</configuration>
 			</plugin>
