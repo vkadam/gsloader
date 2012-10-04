@@ -1,5 +1,5 @@
 /**
-    Author: Vishal Kadam
+    Author: Vishal Kadam, Baraa
 */
 (function(attachTo, $) {
     /*
