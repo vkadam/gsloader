@@ -1,3 +1,6 @@
+/**
+    Author: Vishal Kadam
+*/
 (function(attachTo, $) {
     /*
      * String.format method
