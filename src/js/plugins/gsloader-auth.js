@@ -12,18 +12,24 @@
 
         setClientId: function(clientId) {
             this.CLIENT_ID = clientId;
+            return this;
         },
 
         onLoad: function(callback) {
             this.checkAuth();
+            if (callback) {
+                callback.apply(callback, this);
+            }
+            return this;
         },
 
         checkAuth: function() {
             gapi.auth.authorize({
                 'client_id': this.CLIENT_ID,
-                'scope': SCOPES,
+                'scope': this.SCOPES,
                 'immediate': true
             }, this.handleAuthResult);
+            return this;
         },
 
         handleAuthResult: function(authResult) {
@@ -31,13 +37,13 @@
                 GSLoader.log("Google Api Authentication Succeed", authResult)
             } else {
                 GSLoader.log("Authenticating Google Api")
-                // No access token could be retrieved, force the authorization flow.
                 gapi.auth.authorize({
                     'client_id': this.CLIENT_ID,
-                    'scope': SCOPES,
+                    'scope': this.SCOPES,
                     'immediate': false
                 }, this.handleAuthResult);
             }
+            return this;
         }
     }
 

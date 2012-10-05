@@ -9,10 +9,12 @@
 
         load: function() {
             gapi.client.load('drive', 'v2', this.onLoad);
+            return this;
         },
 
         onLoad: function() {
             GSLoader.auth.checkAuth();
+            return this;
         },
 
         createSpreadSheet: function(fileTitle, callback) {
@@ -28,6 +30,7 @@
             request.execute(function(resp) {
                 callback.apply(callback, arguments);
             });
+            return this;
         },
 
         getFiles: function(callback) {
@@ -50,6 +53,7 @@
                 }
             var initialRequest = gapi.client.drive.files.list();
             retrievePageOfFiles(initialRequest, []);
+            return this;
         }
     }
 
