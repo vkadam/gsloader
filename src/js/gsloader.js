@@ -1,6 +1,6 @@
-/**
-    Author: Vishal Kadam, Baraa
-*/
+/*
+ *    Author: Vishal Kadam
+ */
 (function(attachTo, $) {
     /*
      * String.format method
@@ -33,14 +33,24 @@
     /*
      * GSLoader class
      */
-    var GSLoader = function(options) {
+    var GSLoaderClass = function(options) {
             Logger.call(this, options);
         }
 
-    GSLoader.prototype = new Logger();
+    GSLoaderClass.prototype = new Logger();
 
-    GSLoader.loadSpreadsheet = function(options) {
+    GSLoaderClass.prototype.loadSpreadsheet = function(options) {
         return new Spreadsheet(options).fetch();
+    }
+
+    GSLoaderClass.prototype.enableLog = function() {
+        this.debug = true
+        return this;
+    }
+
+    GSLoaderClass.prototype.disableLog = function() {
+        this.debug = false
+        return this;
     }
 
     /*
@@ -54,7 +64,7 @@
             }
             Logger.call(this, options);
             if (/key=/.test(options.key)) {
-                this.log("You passed a key as a URL! Attempting to parse.");
+                GSLoader.log("You passed a key as a URL! Attempting to parse.");
                 options.key = options.key.match("key=([^&]*)")[1];
             }
             $.extend(this, {
@@ -75,68 +85,68 @@
     Spreadsheet.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
     Spreadsheet.WORKSHEET_ID_REGEX = /.{3}$/;
 
-    Spreadsheet.prototype = new Logger();
+    Spreadsheet.prototype = {
 
-    Spreadsheet.prototype.fetch = function() {
-        var _this = this;
-        $.ajax({
-            url: Spreadsheet.PRIVATE_SHEET_URL.format(this.key)
-        }).done(function(data, textStatus, jqXHR) {
-            _this.parse.apply(_this, arguments);
-        });
-        return this;
-    }
+        fetch: function() {
+            var _this = this;
+            $.ajax({
+                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.key)
+            }).done(function(data, textStatus, jqXHR) {
+                _this.parse.apply(_this, arguments);
+            });
+            return this;
+        },
 
-    Spreadsheet.prototype.done = function(callBack) {
-        this.successCallBacks.push(callBack);
-        return this;
-    }
+        done: function(callBack) {
+            this.successCallBacks.push(callBack);
+            return this;
+        },
 
-    Spreadsheet.prototype.processSuccess = function() {
-        var _this = this;
-        _this.sheetsToLoad--;
-        if (_this.sheetsToLoad === 0) {
-            $.each(_this.successCallBacks, function(idx, fun) {
-                fun.apply(_this);
+        processSuccess: function() {
+            var _this = this;
+            _this.sheetsToLoad--;
+            if (_this.sheetsToLoad === 0) {
+                $.each(_this.successCallBacks, function(idx, fun) {
+                    fun.apply(_this);
+                })
+            }
+        },
+
+        isWanted: function(sheetName) {
+            return (this.wanted.length === 0 || this.wanted.indexOf(sheetName) != -1);
+        },
+
+        parse: function(data, textStatus, jqXHR) {
+            var _this = this;
+            var $feed = $(data).children("feed");
+            _this.title = $feed.children("title").text();
+            var worksheet;
+            var title;
+            _this.sheets = [];
+            $feed.children("entry").each(function(idx, obj) {
+                var $worksheet = $(this);
+                title = $worksheet.children("title").text();
+                if (_this.isWanted(title)) {
+                    worksheet = new Worksheet({
+                        id: $worksheet.children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0],
+                        title: title,
+                        listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
+                        spreadsheet: _this
+                    });
+                    _this.sheets.push(worksheet);
+                }
+            });
+            _this.sheetsToLoad = _this.sheets.length;
+            _this.fetchSheets();
+        },
+
+        fetchSheets: function() {
+            var _this = this;
+            $.each(this.sheets, function(idx, sheet) {
+                sheet.done(_this.processSuccess).fetch();
             })
         }
-    }
-
-    Spreadsheet.prototype.isWanted = function(sheetName) {
-        return (this.wanted.length === 0 || this.wanted.indexOf(sheetName) != -1);
-    }
-
-    Spreadsheet.prototype.parse = function(data, textStatus, jqXHR) {
-        var _this = this;
-        var $feed = $(data).children("feed");
-        _this.title = $feed.children("title").text();
-        var worksheet;
-        var title;
-        _this.sheets = [];
-        $feed.children("entry").each(function(idx, obj) {
-            var $worksheet = $(this);
-            title = $worksheet.children("title").text();
-            if (_this.isWanted(title)) {
-                worksheet = new Worksheet({
-                    id: $worksheet.children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0],
-                    title: title,
-                    listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
-                    spreadsheet: _this
-                });
-                _this.sheets.push(worksheet);
-            }
-        });
-        _this.sheetsToLoad = _this.sheets.length;
-        _this.fetchSheets();
-    }
-
-    Spreadsheet.prototype.fetchSheets = function() {
-        var _this = this;
-        $.each(this.sheets, function(idx, sheet) {
-            sheet.done(_this.processSuccess).fetch();
-        })
-    }
-
+    };
 
     /*
      * Worksheet class
@@ -155,57 +165,58 @@
         }
 
     Worksheet.COLUMN_NAME_REGEX = /gsx:/;
-    Worksheet.prototype = new Logger();
+    Worksheet.prototype = {
+        fetch: function(callBack) {
+            var _this = this;
+            $.ajax({
+                url: this.listFeed
+            }).done(function(data, textStatus, jqXHR) {
+                _this.parse.apply(_this, arguments);
+                _this.processSuccess.apply(_this);
+            });
+            return this;
+        },
 
-    Worksheet.prototype.fetch = function(callBack) {
-        var _this = this;
-        $.ajax({
-            url: this.listFeed
-        }).done(function(data, textStatus, jqXHR) {
-            _this.parse.apply(_this, arguments);
-            _this.processSuccess.apply(_this);
-        });
-        return this;
+        done: function(callBack) {
+            this.successCallBacks.push(callBack);
+            return this;
+        },
+
+        processSuccess: function() {
+            var _this = this;
+            $.each(_this.successCallBacks, function(idx, fun) {
+                fun.apply(_this.spreadsheet, _this);
+            })
+        },
+
+        parse: function(data, textStatus, jqXHR) {
+            var _this = this;
+            var $entries = $(data).children("feed").children("entry");
+            if ($entries.length === 0) {
+                GSLoader.log("Missing data for " + _this.title + ", make sure you didn't forget column headers");
+                _this.rows = [];
+                return;
+            }
+            _this.rows = [];
+            var row;
+            $entries.each(function(idx, obj) {
+                row = {
+                    "rowNumber": (idx + 1)
+                }
+                $(this).children().each(function(idx, cell) {
+                    if (Worksheet.COLUMN_NAME_REGEX.test(this.tagName)) {
+                        row[this.tagName.replace(Worksheet.COLUMN_NAME_REGEX, "")] = this.textContent;
+                    }
+                });
+                _this.rows.push(row);
+            });
+            GSLoader.log("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
+        }
+
     };
 
-    Worksheet.prototype.done = function(callBack) {
-        this.successCallBacks.push(callBack);
-        return this;
-    }
-
-    Worksheet.prototype.processSuccess = function() {
-        var _this = this;
-        $.each(_this.successCallBacks, function(idx, fun) {
-            fun.apply(_this.spreadsheet, _this);
-        })
-    }
-
-    Worksheet.prototype.parse = function(data, textStatus, jqXHR) {
-        var _this = this;
-        var $entries = $(data).children("feed").children("entry");
-        if ($entries.length === 0) {
-            _this.log("Missing data for " + _this.title + ", make sure you didn't forget column headers");
-            _this.rows = [];
-            return;
-        }
-        _this.rows = [];
-        var row;
-        $entries.each(function(idx, obj) {
-            row = {
-                "rowNumber": (idx + 1)
-            }
-            $(this).children().each(function(idx, cell) {
-                if (Worksheet.COLUMN_NAME_REGEX.test(this.tagName)) {
-                    row[this.tagName.replace(Worksheet.COLUMN_NAME_REGEX, "")] = this.textContent;
-                }
-            });
-            _this.rows.push(row);
-        });
-        _this.spreadsheet.log("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
-    }
-
-
     $.extend(attachTo, {
-        GSLoader: GSLoader
+        GSLoader: new GSLoaderClass()
     });
-})(window, jQuery);
+
+})(window, jQuery)

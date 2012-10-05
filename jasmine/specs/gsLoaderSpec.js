@@ -17,6 +17,7 @@ describe("GSLoader", function() {
     });
 
     afterEach(function() {
+        GSLoader.disableLog();
         $.ajaxSetup({
             async: true
         });
@@ -24,7 +25,10 @@ describe("GSLoader", function() {
 
     describe("GSLoader logger", function() {
         var lastConsoleMessage = null;
-        var oldConsole = console || null;
+        var oldConsole = null;
+        if (typeof(console) !== 'undefined') {
+            oldConsole = console;
+        };
         beforeEach(function() {
             console = {
                 log: function(message) {
@@ -37,17 +41,17 @@ describe("GSLoader", function() {
             console = oldConsole;
         })
 
+        it("GSLoader.log api is available", function() {
+            expect(GSLoader.log).toBeDefined();
+        });
+
         it("GSLoader.log don't logs messages when debug is false (Default)", function() {
-            var gsLoader = new GSLoader();
-            gsLoader.log('some logger message');
+            GSLoader.log('some logger message');
             expect(lastConsoleMessage).toBeNull();
         });
 
-        it("GSLoader.log logs messages when debug is true", function() {
-            var gsLoader = new GSLoader({
-                debug: true
-            });
-            gsLoader.log('some logger message');
+        it("GSLoader.log logs messages when debug is enabled", function() {
+            GSLoader.enableLog().log('some logger message');
             expect(lastConsoleMessage).toBe('some logger message');
         });
     });
