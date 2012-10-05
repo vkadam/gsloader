@@ -15,10 +15,10 @@
             return this;
         },
 
-        onLoad: function(callback) {
+        onLoad: function(callback, context) {
             this.checkAuth();
             if (callback) {
-                callback.apply(callback, this);
+                callback.apply(context, this);
             }
             return this;
         },
@@ -34,9 +34,9 @@
 
         handleAuthResult: function(authResult) {
             if (authResult && !authResult.error) {
-                GSLoader.log("Google Api Authentication Succeed", authResult)
+                GSLoader.log("Google Api Authentication Succeed");
             } else {
-                GSLoader.log("Authenticating Google Api")
+                GSLoader.log("Authenticating Google Api");
                 gapi.auth.authorize({
                     'client_id': this.CLIENT_ID,
                     'scope': this.SCOPES,
