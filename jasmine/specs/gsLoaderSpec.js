@@ -10,10 +10,19 @@ describe("String Prototype", function() {
 
 describe("GSLoader", function() {
 
+    var spyOnGSLoaderDrive;
+    var spyOnAjax;
+
     beforeEach(function() {
+        spyOnGSLoaderDrive = spyOn(GSLoader.drive, 'createSpreadsheet').andReturn({
+            id: "spreadsheet02"
+        });
+
+        $.fixture("worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02.xml");
         $.ajaxSetup({
             async: false
         });
+        spyOnAjax = spyOn($, "ajax").andCallThrough();
     });
 
     afterEach(function() {
@@ -113,13 +122,13 @@ describe("GSLoader", function() {
             expect(spreadSheet.sheets[3].rows.length).toBe(5);
         });
 
-        function checkRow(row, rowNumber, environmentid, environmentname, ssourl, applicationurl, olrwdslurl){
+        function checkRow(row, rowNumber, environmentid, environmentname, ssourl, applicationurl, olrwdslurl) {
             expect(row["rowNumber"]).toBe(rowNumber);
-        	expect(row["environmentid"]).toBe(environmentid);
-        	expect(row["environmentname"]).toBe(environmentname);
-        	expect(row["ssourl"]).toBe(ssourl);
-        	expect(row["applicationurl"]).toBe(applicationurl);
-        	expect(row["olrwdslurl"]).toBe(olrwdslurl);
+            expect(row["environmentid"]).toBe(environmentid);
+            expect(row["environmentname"]).toBe(environmentname);
+            expect(row["ssourl"]).toBe(ssourl);
+            expect(row["applicationurl"]).toBe(applicationurl);
+            expect(row["olrwdslurl"]).toBe(olrwdslurl);
         }
 
         it("GSLoader.loadSpreadsheet loads row array with all column data for specified worksheet", function() {
@@ -144,4 +153,59 @@ describe("GSLoader", function() {
             expect(spySuccess.callCount).toBe(1);
         });
     });
+
+    describe("GSLoader.createSpreadsheet", function() {
+
+        it("GSLoader.createSpreadsheet call GSLoader.drive.createSpreadsheet", function() {
+            var spreadSheet = GSLoader.createSpreadsheet("Spreadsheet Title");
+            expect(spyOnGSLoaderDrive).toHaveBeenCalled();
+            expect(spreadSheet.title).toBe("Spreadsheet Title");
+        });
+
+    });
+
+    describe("GSLoader.Spreadsheet.createWorksheet", function() {
+        var spreadSheet;
+        beforeEach(function() {
+            spreadSheet = GSLoader.createSpreadsheet("Spreadsheet Title");
+            $.fixture("worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
+        });
+
+        it("GSLoader.Spreadsheet.createWorksheet post correct title", function() {
+            var wSheet = spreadSheet.createWorksheet("Worksheet Title");
+            expect(spyOnAjax.callCount).toBe(2);
+            expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
+            expect(spyOnAjax.mostRecentCall.args[0].contentType).toBe("application/atom+xml");
+            expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/worksheets/spreadsheet02/private/full");
+            expect(spyOnAjax.mostRecentCall.args[0].headers["GData-Version"]).toBe("3.0");
+            var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
+            expect($postData.length).toBe(1);
+            expect($postData[0].nodeName).toBe("ENTRY");
+            expect($postData.find("title").text()).toBe("Worksheet Title");
+        });
+
+        it("GSLoader.Spreadsheet.createWorksheet post correct row and column number", function() {
+            var wSheet = spreadSheet.createWorksheet({
+                title: "Worksheet Title",
+                rows: 10,
+                cols: 5
+            });
+            var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
+            expect($postData[0].nodeName).toBe("ENTRY");
+            expect($postData.find("title").text()).toBe("Worksheet Title");
+            expect($postData.children().filter(function(){return (this.nodeName === "GS:ROWCOUNT")}).text()).toBe("10");
+            expect($postData.children().filter(function(){return (this.nodeName === "GS:COLCOUNT")}).text()).toBe("5");
+        });
+
+        it("GSLoader.Spreadsheet.createWorksheet adds newly created worksheet to spreadsheetOjbect", function() {
+            var spreadSheet = GSLoader.createSpreadsheet("Spreadsheet Title");
+            expect(spreadSheet.sheets.length).toBe(0);
+            var wSheet = spreadSheet.createWorksheet("Worksheet Title");
+            expect(wSheet).toBeDefined();
+            expect(wSheet.title).toBe("Worksheet Title");
+            expect(spreadSheet.sheets.length).toBe(1);
+            expect(spreadSheet.sheets[0]).toBe(wSheet);
+        });
+    });
+
 });

@@ -54,6 +54,14 @@
     }
 
     /*
+     * Needs GSLoader.drive api
+     */
+    GSLoaderClass.prototype.createSpreadsheet = function(options) {
+        var spreadSheetObj = this.drive.createSpreadsheet(options);
+        return new Spreadsheet(spreadSheetObj.id).fetch();
+    }
+
+    /*
      * Spreadsheet class
      */
     var Spreadsheet = function(options) {
@@ -62,7 +70,6 @@
                     key: options
                 };
             }
-            Logger.call(this, options);
             if (/key=/.test(options.key)) {
                 GSLoader.log("You passed a key as a URL! Attempting to parse.");
                 options.key = options.key.match("key=([^&]*)")[1];
@@ -84,6 +91,7 @@
 
     Spreadsheet.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
     Spreadsheet.WORKSHEET_ID_REGEX = /.{3}$/;
+    Spreadsheet.WORKSHEET_CREATE_REQ = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><title>{0}</title><gs:rowCount>{1}</gs:rowCount><gs:colCount>{2}</gs:colCount></entry>';
 
     Spreadsheet.prototype = {
 
@@ -124,15 +132,8 @@
             var title;
             _this.sheets = [];
             $feed.children("entry").each(function(idx, obj) {
-                var $worksheet = $(this);
-                title = $worksheet.children("title").text();
-                if (_this.isWanted(title)) {
-                    worksheet = new Worksheet({
-                        id: $worksheet.children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0],
-                        title: title,
-                        listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
-                        spreadsheet: _this
-                    });
+                worksheet = _this.parseWorksheet(this)
+                if (_this.isWanted(worksheet.title)) {
                     _this.sheets.push(worksheet);
                 }
             });
@@ -140,11 +141,55 @@
             _this.fetchSheets();
         },
 
+        parseWorksheet: function(worksheetInfo) {
+            var $worksheet = $(worksheetInfo);
+            var title = $worksheet.children("title").text();
+            var worksheet = new Worksheet({
+                id: $worksheet.children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0],
+                title: title,
+                listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
+                spreadsheet: this
+            });
+            return worksheet;
+        },
+
         fetchSheets: function() {
             var _this = this;
             $.each(this.sheets, function(idx, sheet) {
                 sheet.done(_this.processSuccess).fetch();
             })
+        },
+
+        createWorksheet: function(options) {
+            if (typeof(options) === "string") {
+                options = {
+                    title: options
+                };
+            }
+            options = $.extend({
+                title: "",
+                rows: 20,
+                cols: 20
+            }, options);
+
+            var _this = this;
+            var worksheet;
+            $.ajax({
+                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.key),
+                type: "POST",
+                contentType: "application/atom+xml",
+                headers: {
+                    "GData-Version": "3.0"
+                },
+                data: Spreadsheet.WORKSHEET_CREATE_REQ.format(options.title, options.rows, options.cols)
+            }).done(function(data, textStatus, jqXHR) {
+                var entryNode = $(jqXHR.responseText).filter(function() {
+                    return this.nodeName === "ENTRY"
+                });
+                worksheet = _this.parseWorksheet(entryNode);
+                _this.sheets.push(worksheet);
+            });
+            return worksheet;
         }
     };
 
@@ -153,7 +198,6 @@
      */
 
     var Worksheet = function(options) {
-            Logger.call(this, options);
             $.extend(this, {
                 id: "",
                 title: "",
