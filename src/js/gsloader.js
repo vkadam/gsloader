@@ -70,15 +70,15 @@
     var Spreadsheet = function(options) {
             if (typeof(options) == "string") {
                 options = {
-                    key: options
+                    id: options
                 };
             }
-            if (/key=/.test(options.key)) {
-                GSLoader.log("You passed a key as a URL! Attempting to parse.");
-                options.key = options.key.match("key=([^&]*)")[1];
+            if (/id=/.test(options.id)) {
+                GSLoader.log("You passed a id as a URL! Attempting to parse.");
+                options.id = options.id.match("id=([^&]*)")[1];
             }
             $.extend(this, {
-                key: "",
+                id: "",
                 title: "",
                 sheets: [],
                 wanted: [],
@@ -101,7 +101,7 @@
         fetch: function() {
             var _this = this;
             $.ajax({
-                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.key)
+                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id)
             }).done(function(data, textStatus, jqXHR) {
                 _this.parse.apply(_this, arguments);
             });
@@ -178,7 +178,7 @@
             var _this = this;
             var worksheet;
             $.ajax({
-                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.key),
+                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id),
                 type: "POST",
                 contentType: "application/atom+xml",
                 headers: {

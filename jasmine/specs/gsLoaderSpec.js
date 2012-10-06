@@ -105,7 +105,7 @@ describe("GSLoader", function() {
 
         it("GSLoader.loadSpreadsheet only loads list of specified worksheets", function() {
             var spreadSheet = GSLoader.loadSpreadsheet({
-                key: "spreadsheet01",
+                id: "spreadsheet01",
                 wanted: ["Environments", "DEV"]
             });
             expect(spreadSheet.sheets.length).toBe(2);
@@ -115,7 +115,7 @@ describe("GSLoader", function() {
 
         it("GSLoader.loadSpreadsheet loads data for all worksheets", function() {
             var spreadSheet = GSLoader.loadSpreadsheet({
-                key: "spreadsheet01"
+                id: "spreadsheet01"
             });
             expect(spreadSheet.sheets.length).toBe(4);
             expect(spreadSheet.sheets[0].rows).toBeDefined();
@@ -136,7 +136,7 @@ describe("GSLoader", function() {
 
         it("GSLoader.loadSpreadsheet loads row array with all column data for specified worksheet", function() {
             var spreadSheet = GSLoader.loadSpreadsheet({
-                key: "spreadsheet01",
+                id: "spreadsheet01",
                 wanted: ["Environments"]
             });
             expect(spreadSheet.sheets.length).toBe(1);
@@ -148,7 +148,7 @@ describe("GSLoader", function() {
         it("GSLoader.loadSpreadsheet calls success function after spreadsheet is loaded", function() {
             var spySuccess = jasmine.createSpy("spreadsheetSuccess");
             var spreadSheet = GSLoader.loadSpreadsheet({
-                key: "spreadsheet01",
+                id: "spreadsheet01",
                 wanted: ["Environments", "DEV"],
                 success: spySuccess
             })
