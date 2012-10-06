@@ -81,7 +81,7 @@ describe("GSLoader", function() {
             var spreadSheet = GSLoader.loadSpreadsheet('spreadsheet01');
             expect(spreadSheet).toBeDefined();
             expect(spreadSheet.title).toBe("Mindtap Environment Settings");
-            expect(spreadSheet.sheets.length).toBe(4);
+            expect(spreadSheet.worksheets.length).toBe(4);
         });
 
         function checkWorksheet(worksheet, title, id, listFeed) {
@@ -98,9 +98,9 @@ describe("GSLoader", function() {
 
         it("GSLoader.loadSpreadsheet loads list of all worksheets with correct data", function() {
             var spreadSheet = GSLoader.loadSpreadsheet('spreadsheet01');
-            expect(spreadSheet.sheets.length).toBe(4);
-            checkWorksheet(spreadSheet.sheets[0], "Environments", "od6", "https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full");
-            checkWorksheet(spreadSheet.sheets[3], "DEV", "oda", "https://spreadsheets.google.com/feeds/list/spreadsheet01/oda/private/full");
+            expect(spreadSheet.worksheets.length).toBe(4);
+            checkWorksheet(spreadSheet.worksheets[0], "Environments", "od6", "https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full");
+            checkWorksheet(spreadSheet.worksheets[3], "DEV", "oda", "https://spreadsheets.google.com/feeds/list/spreadsheet01/oda/private/full");
         });
 
         it("GSLoader.loadSpreadsheet only loads list of specified worksheets", function() {
@@ -108,21 +108,21 @@ describe("GSLoader", function() {
                 id: "spreadsheet01",
                 wanted: ["Environments", "DEV"]
             });
-            expect(spreadSheet.sheets.length).toBe(2);
-            checkWorksheet(spreadSheet.sheets[0], "Environments", "od6", "https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full");
-            checkWorksheet(spreadSheet.sheets[1], "DEV", "oda", "https://spreadsheets.google.com/feeds/list/spreadsheet01/oda/private/full");
+            expect(spreadSheet.worksheets.length).toBe(2);
+            checkWorksheet(spreadSheet.worksheets[0], "Environments", "od6", "https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full");
+            checkWorksheet(spreadSheet.worksheets[1], "DEV", "oda", "https://spreadsheets.google.com/feeds/list/spreadsheet01/oda/private/full");
         });
 
         it("GSLoader.loadSpreadsheet loads data for all worksheets", function() {
             var spreadSheet = GSLoader.loadSpreadsheet({
                 id: "spreadsheet01"
             });
-            expect(spreadSheet.sheets.length).toBe(4);
-            expect(spreadSheet.sheets[0].rows).toBeDefined();
-            expect(spreadSheet.sheets[0].rows.length).toBe(8);
-            expect(spreadSheet.sheets[1].rows.length).toBe(7);
-            expect(spreadSheet.sheets[2].rows.length).toBe(6);
-            expect(spreadSheet.sheets[3].rows.length).toBe(5);
+            expect(spreadSheet.worksheets.length).toBe(4);
+            expect(spreadSheet.worksheets[0].rows).toBeDefined();
+            expect(spreadSheet.worksheets[0].rows.length).toBe(8);
+            expect(spreadSheet.worksheets[1].rows.length).toBe(7);
+            expect(spreadSheet.worksheets[2].rows.length).toBe(6);
+            expect(spreadSheet.worksheets[3].rows.length).toBe(5);
         });
 
         function checkRow(row, rowNumber, environmentid, environmentname, ssourl, applicationurl, olrwdslurl) {
@@ -139,8 +139,8 @@ describe("GSLoader", function() {
                 id: "spreadsheet01",
                 wanted: ["Environments"]
             });
-            expect(spreadSheet.sheets.length).toBe(1);
-            var rows = spreadSheet.sheets[0].rows;
+            expect(spreadSheet.worksheets.length).toBe(1);
+            var rows = spreadSheet.worksheets[0].rows;
             checkRow(rows[0], 1, "LOCAL", "Local", "http://d-ws.cengage.com/ssows/SSOws?WSDL", "http://localhost", "http://d-ws.cengage.com/olrws/OLRws?WSDL");
             checkRow(rows[1], 2, "DEV", "Development", "http://d-ws.cengage.com/ssows/SSOws?WSDL", "http://qae-ng.cengage.com", "http://d-ws.cengage.com/olrws/OLRws?WSDL")
         });
@@ -219,7 +219,7 @@ describe("GSLoader", function() {
 
         it("GSLoader.Spreadsheet.createWorksheet calls callback on ajax success with newly created worksheet", function() {
             GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
-                expect(spreadSheet.sheets.length).toBe(0);
+                expect(spreadSheet.worksheets.length).toBe(0);
                 var worksheet;
                 var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
                     worksheet = wSheet;
@@ -228,8 +228,8 @@ describe("GSLoader", function() {
                 expect(worksheetCallback).toHaveBeenCalled();
                 expect(worksheet).toBeDefined();
                 expect(worksheet.title).toBe("Worksheet Title");
-                expect(spreadSheet.sheets.length).toBe(1);
-                expect(spreadSheet.sheets[0]).toBe(worksheet);
+                expect(spreadSheet.worksheets.length).toBe(1);
+                expect(spreadSheet.worksheets[0]).toBe(worksheet);
             });
         });
 
@@ -282,12 +282,12 @@ describe("GSLoader", function() {
 
         it("GSLoader.Spreadsheet.createWorksheet adds newly created worksheet to spreadsheetOjbect", function() {
             GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
-                expect(spreadSheet.sheets.length).toBe(0);
+                expect(spreadSheet.worksheets.length).toBe(0);
                 var wSheet = spreadSheet.createWorksheet("Worksheet Title");
                 expect(wSheet).toBeDefined();
                 expect(wSheet.title).toBe("Worksheet Title");
-                expect(spreadSheet.sheets.length).toBe(1);
-                expect(spreadSheet.sheets[0]).toBe(wSheet);
+                expect(spreadSheet.worksheets.length).toBe(1);
+                expect(spreadSheet.worksheets[0]).toBe(wSheet);
             });
         });
     });

@@ -80,7 +80,7 @@
             $.extend(this, {
                 id: "",
                 title: "",
-                sheets: [],
+                worksheets: [],
                 wanted: [],
                 successCallbacks: [],
                 sheetsToLoad: 0
@@ -133,14 +133,14 @@
             _this.title = $feed.children("title").text();
             var worksheet;
             var title;
-            _this.sheets = [];
+            _this.worksheets = [];
             $feed.children("entry").each(function(idx, obj) {
                 worksheet = _this.parseWorksheet(this)
                 if (_this.isWanted(worksheet.title)) {
-                    _this.sheets.push(worksheet);
+                    _this.worksheets.push(worksheet);
                 }
             });
-            _this.sheetsToLoad = _this.sheets.length;
+            _this.sheetsToLoad = _this.worksheets.length;
             _this.fetchSheets();
         },
 
@@ -158,7 +158,7 @@
 
         fetchSheets: function() {
             var _this = this;
-            $.each(this.sheets, function(idx, sheet) {
+            $.each(this.worksheets, function(idx, sheet) {
                 sheet.done(_this.processSuccess).fetch();
             })
         },
@@ -192,7 +192,7 @@
                     return this.nodeName === "ENTRY"
                 });
                 worksheet = _this.parseWorksheet(entryNode);
-                _this.sheets.push(worksheet);
+                _this.worksheets.push(worksheet);
                 options.callback.apply(options.callbackContext, [worksheet]);
             });
             return worksheet;
