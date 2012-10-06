@@ -159,10 +159,20 @@ describe("GSLoader", function() {
 
     describe("GSLoader.createSpreadsheet", function() {
 
-        it("GSLoader.createSpreadsheet call GSLoader.drive.createSpreadsheet", function() {
+        it("GSLoader.createSpreadsheet call GSLoader.drive.createSpreadsheet and execute callback with correct context", function() {
+            var context = {
+                someapi: function() {}
+            }
             GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
                 expect(spyOnGSLoaderDrive).toHaveBeenCalled();
                 expect(spreadSheet.title).toBe("Spreadsheet Title");
+                expect(this).toBe(context);
+            }, context);
+        });
+
+        it("GSLoader.createSpreadsheet execute callback with GSLoader as context when context is not specified", function() {
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                expect(this).toBe(GSLoader);
             });
         });
 
