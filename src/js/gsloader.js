@@ -56,9 +56,12 @@
     /*
      * Needs GSLoader.drive api
      */
-    GSLoaderClass.prototype.createSpreadsheet = function(options) {
-        var spreadSheetObj = this.drive.createSpreadsheet(options);
-        return new Spreadsheet(spreadSheetObj.id).fetch();
+    GSLoaderClass.prototype.createSpreadsheet = function(options, callBack) {
+        var _this = this;
+        var spreadSheetObj = this.drive.createSpreadsheet(options, function(spreadSheetObj){
+           callBack.apply(_this, [new Spreadsheet(spreadSheetObj.id).fetch()]);
+        }, this);
+        return this;
     }
 
     /*

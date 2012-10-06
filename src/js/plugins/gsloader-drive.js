@@ -17,18 +17,20 @@
             return this;
         },
 
-        createSpreadsheet: function(fileTitle) {
+        createSpreadsheet: function(fileTitle, callback, callbackContext) {
             var request = gapi.client.request({
                 "path": "/drive/v2/files",
                 "method": "POST",
-                "callback": function(resp) {
-                    return resp;
-                },
                 "body": {
                     "title": fileTitle,
                     "mimeType": "application/vnd.google-apps.spreadsheet"
                 }
             });
+
+            request.execute(function(resp) {
+                callback.apply(callbackContext, [resp]);
+            });
+            return this;
         },
 
         getFiles: function(callback) {
