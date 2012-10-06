@@ -56,10 +56,10 @@
     /*
      * Needs GSLoader.drive api
      */
-    GSLoaderClass.prototype.createSpreadsheet = function(options, callBack, context) {
+    GSLoaderClass.prototype.createSpreadsheet = function(options, callback, context) {
         var _this = this;
         var spreadSheetObj = this.drive.createSpreadsheet(options, function(spreadSheetObj) {
-            callBack.apply(context || _this, [new Spreadsheet(spreadSheetObj.id).fetch()]);
+            callback.apply(context || _this, [new Spreadsheet(spreadSheetObj.id).fetch()]);
         }, this);
         return this;
     }
@@ -82,7 +82,7 @@
                 title: "",
                 sheets: [],
                 wanted: [],
-                successCallBacks: [],
+                successCallbacks: [],
                 sheetsToLoad: 0
             }, options);
 
@@ -108,8 +108,8 @@
             return this;
         },
 
-        done: function(callBack) {
-            this.successCallBacks.push(callBack);
+        done: function(callback) {
+            this.successCallbacks.push(callback);
             return this;
         },
 
@@ -117,7 +117,7 @@
             var _this = this;
             _this.sheetsToLoad--;
             if (_this.sheetsToLoad === 0) {
-                $.each(_this.successCallBacks, function(idx, fun) {
+                $.each(_this.successCallbacks, function(idx, fun) {
                     fun.apply(_this);
                 })
             }
@@ -163,7 +163,8 @@
             })
         },
 
-        createWorksheet: function(options) {
+        createWorksheet: function(options, callback, callbackContext) {
+            var _this = this;
             if (typeof(options) === "string") {
                 options = {
                     title: options
@@ -172,10 +173,11 @@
             options = $.extend({
                 title: "",
                 rows: 20,
-                cols: 20
+                cols: 20,
+                callback: callback || $.noop,
+                callbackContext: callbackContext || _this
             }, options);
 
-            var _this = this;
             var worksheet;
             $.ajax({
                 url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id),
@@ -191,6 +193,7 @@
                 });
                 worksheet = _this.parseWorksheet(entryNode);
                 _this.sheets.push(worksheet);
+                options.callback.apply(options.callbackContext, [worksheet]);
             });
             return worksheet;
         }
@@ -207,13 +210,13 @@
                 listFeed: "",
                 rows: [],
                 spreadsheet: null,
-                successCallBacks: []
+                successCallbacks: []
             }, options);
         }
 
     Worksheet.COLUMN_NAME_REGEX = /gsx:/;
     Worksheet.prototype = {
-        fetch: function(callBack) {
+        fetch: function(callback) {
             var _this = this;
             $.ajax({
                 url: this.listFeed
@@ -224,14 +227,14 @@
             return this;
         },
 
-        done: function(callBack) {
-            this.successCallBacks.push(callBack);
+        done: function(callback) {
+            this.successCallbacks.push(callback);
             return this;
         },
 
         processSuccess: function() {
             var _this = this;
-            $.each(_this.successCallBacks, function(idx, fun) {
+            $.each(_this.successCallbacks, function(idx, fun) {
                 fun.apply(_this.spreadsheet, _this);
             })
         },

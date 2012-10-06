@@ -217,6 +217,69 @@ describe("GSLoader", function() {
             }).text()).toBe("5");
         });
 
+        it("GSLoader.Spreadsheet.createWorksheet calls callback on ajax success with newly created worksheet", function() {
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                expect(spreadSheet.sheets.length).toBe(0);
+                var worksheet;
+                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
+                    worksheet = wSheet;
+                });
+                spreadSheet.createWorksheet("Worksheet Title", worksheetCallback);
+                expect(worksheetCallback).toHaveBeenCalled();
+                expect(worksheet).toBeDefined();
+                expect(worksheet.title).toBe("Worksheet Title");
+                expect(spreadSheet.sheets.length).toBe(1);
+                expect(spreadSheet.sheets[0]).toBe(worksheet);
+            });
+        });
+
+        it("GSLoader.Spreadsheet.createWorksheet calls callback when passed as attribute of options", function() {
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {});
+                spreadSheet.createWorksheet({
+                    title: "Worksheet Title",
+                    callback: worksheetCallback
+                });
+                expect(worksheetCallback).toHaveBeenCalled();
+            });
+        });
+
+        it("GSLoader.Spreadsheet.createWorksheet calls callback with specified context", function() {
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                var context = {};
+                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
+                    expect(this).toBe(context);
+                });
+                spreadSheet.createWorksheet("Worksheet Title", worksheetCallback, context);
+                expect(worksheetCallback).toHaveBeenCalled();
+            });
+        });
+
+        it("GSLoader.Spreadsheet.createWorksheet calls callback with specified context when passed as attribute of options", function() {
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                var context = {};
+                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
+                    expect(this).toBe(context);
+                });
+                spreadSheet.createWorksheet({
+                    title: "Worksheet Title",
+                    callback: worksheetCallback,
+                    callbackContext: context
+                });
+                expect(worksheetCallback).toHaveBeenCalled();
+            });
+        });
+
+        it("GSLoader.Spreadsheet.createWorksheet calls callback with spreasheet as context when context is not passed", function() {
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
+                    expect(this).toBe(spreadSheet);
+                });
+                spreadSheet.createWorksheet("Worksheet Title", worksheetCallback);
+                expect(worksheetCallback).toHaveBeenCalled();
+            });
+        });
+
         it("GSLoader.Spreadsheet.createWorksheet adds newly created worksheet to spreadsheetOjbect", function() {
             GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
                 expect(spreadSheet.sheets.length).toBe(0);
