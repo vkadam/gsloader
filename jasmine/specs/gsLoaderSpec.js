@@ -21,7 +21,7 @@ describe("GSLoader", function() {
             }]);
         });
 
-        $.fixture("worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02.xml");
+        $.fixture("GET worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02.xml");
         $.ajaxSetup({
             async: false
         });
@@ -70,11 +70,11 @@ describe("GSLoader", function() {
 
     describe("GSLoader.loadSpreadsheet", function() {
         beforeEach(function() {
-            $.fixture("worksheets/spreadsheet01/private/full", "jasmine/fixtures/Spreadsheet-01.xml");
-            $.fixture("feeds/list/spreadsheet01/od6/private/full", "jasmine/fixtures/Spreadsheet-01-od6.xml");
-            $.fixture("feeds/list/spreadsheet01/od4/private/full", "jasmine/fixtures/Spreadsheet-01-od4.xml");
-            $.fixture("feeds/list/spreadsheet01/od5/private/full", "jasmine/fixtures/Spreadsheet-01-od5.xml");
-            $.fixture("feeds/list/spreadsheet01/oda/private/full", "jasmine/fixtures/Spreadsheet-01-oda.xml");
+            $.fixture("GET worksheets/spreadsheet01/private/full", "jasmine/fixtures/Spreadsheet-01.xml");
+            $.fixture("GET feeds/list/spreadsheet01/od6/private/full", "jasmine/fixtures/Spreadsheet-01-od6.xml");
+            $.fixture("GET feeds/list/spreadsheet01/od4/private/full", "jasmine/fixtures/Spreadsheet-01-od4.xml");
+            $.fixture("GET feeds/list/spreadsheet01/od5/private/full", "jasmine/fixtures/Spreadsheet-01-od5.xml");
+            $.fixture("GET feeds/list/spreadsheet01/oda/private/full", "jasmine/fixtures/Spreadsheet-01-oda.xml");
         });
 
         it("GSLoader.loadSpreadsheet loads list of all worksheets", function() {
@@ -184,7 +184,7 @@ describe("GSLoader", function() {
             GSLoader.createSpreadsheet("Spreadsheet Title", function(sSheet) {
                 spreadSheet = sSheet;
             });
-            $.fixture("worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
+            $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
         });
 
         it("GSLoader.Spreadsheet.createWorksheet post correct title", function() {
