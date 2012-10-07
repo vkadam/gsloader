@@ -151,6 +151,8 @@
                 id: $worksheet.children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0],
                 title: title,
                 listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
+                cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
+                cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
                 spreadsheet: this
             });
             return worksheet;
@@ -208,6 +210,8 @@
                 id: "",
                 title: "",
                 listFeed: "",
+                cellsFeed: "",
+                cellsFeedEdit: "",
                 rows: [],
                 spreadsheet: null,
                 successCallbacks: []
@@ -215,6 +219,7 @@
         }
 
     Worksheet.COLUMN_NAME_REGEX = /gsx:/;
+
     Worksheet.prototype = {
         fetch: function(callback) {
             var _this = this;
@@ -261,6 +266,35 @@
                 _this.rows.push(row);
             });
             GSLoader.log("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
+        },
+
+        createHeaderRow: function(headerRowObj){
+            $.ajax({
+                url: "https://spreadsheets.google.com/feeds/cells/0AlpsUVqaDZHSdE9xQlZBVVVNTWJ0dkRxM2w0RktXb2c/od6/private/full/batch",
+                type: "POST",
+                contentType: "application/atom+xml",
+                headers: {
+                    "GData-Version": "3.0",
+                    "If-Match": "*"
+                },
+                data: '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006">'+
+  '<id>https://spreadsheets.google.com/feeds/cells/0AlpsUVqaDZHSdE9xQlZBVVVNTWJ0dkRxM2w0RktXb2c/od6/private/full</id>'+
+  '<entry>'+
+    '<batch:id>A1</batch:id>'+
+    '<batch:operation type="update"/>'+
+    '<id>https://spreadsheets.google.com/feeds/cells/0AlpsUVqaDZHSdE9xQlZBVVVNTWJ0dkRxM2w0RktXb2c/od6/private/full/R1C1</id>'+
+    '<gs:cell col="1" inputValue="Issue Key" row="1"/>'+
+  '</entry>'+
+  '<entry>'+
+    '<batch:id>B1</batch:id>'+
+    '<batch:operation type="update"/>'+
+    '<id>https://spreadsheets.google.com/feeds/cells/0AlpsUVqaDZHSdE9xQlZBVVVNTWJ0dkRxM2w0RktXb2c/od6/private/full/R1C2</id>'+
+    '<gs:cell col="2" inputValue="Summary" row="1"/>'+
+  '</entry>'+
+'</feed>'
+            }).done(function(data, textStatus, jqXHR) {
+                console.log(arguments, jqXHR.responseText);
+            }); 
         }
 
     };
