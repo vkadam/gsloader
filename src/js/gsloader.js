@@ -152,7 +152,6 @@
                 title: title,
                 listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
                 cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
-                cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
                 spreadsheet: this
             });
             return worksheet;
@@ -177,7 +176,9 @@
                 rows: 20,
                 cols: 20,
                 callback: callback || $.noop,
-                callbackContext: callbackContext || _this
+                callbackContext: callbackContext || _this,
+                headers:[],
+                rowData:[]
             }, options);
 
             var worksheet;
@@ -195,7 +196,16 @@
                 });
                 worksheet = _this.parseWorksheet(entryNode);
                 _this.worksheets.push(worksheet);
-                options.callback.apply(options.callbackContext, [worksheet]);
+                if (options.headers.length > 0 || options.rowData.length > 0) {
+                    var rowData = options.rowData;
+                    rowData.unshift(options.headers);
+                    worksheet.addRows(rowData, function(){
+                        options.callback.apply(options.callbackContext, [worksheet]);
+                    });
+                }
+                else {
+                    options.callback.apply(options.callbackContext, [worksheet]);
+                }
             });
             return worksheet;
         }
@@ -219,9 +229,14 @@
         }
 
     Worksheet.COLUMN_NAME_REGEX = /gsx:/;
+    /* cellsFeed, entries */
+    Worksheet.CELL_FEED_HEADER = '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>{0}</id>{1}</feed>';
+    /*  cellsFeed, row, col, value */
+    Worksheet.CELL_FEED_ENTRY = '<entry><batch:id>R{1}C{2}</batch:id><batch:operation type="update"/><id>{0}/R{1}C{2}</id><gs:cell row="{1}" col="{2}" inputValue="{3}"/>'+
+  '</entry>';
 
     Worksheet.prototype = {
-        fetch: function(callback) {
+        fetch: function() {
             var _this = this;
             $.ajax({
                 url: this.listFeed
@@ -268,33 +283,33 @@
             GSLoader.log("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
         },
 
-        createHeaderRow: function(headerRowObj){
+        addRows: function(rowData, callback){
+            var _this = this;
+            var entries = [];
+            var rowNo;
+            var colNo;
+
+            $.each(rowData, function(rowIdx, rowObj){
+                rowNo = rowIdx + 1;
+                $.each(rowObj, function(colIdx, colObj){
+                    colNo = colIdx+ 1;
+                    entries.push(Worksheet.CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, colObj));
+                });
+            })
+            var postData = Worksheet.CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
             $.ajax({
-                url: "https://spreadsheets.google.com/feeds/cells/0AlpsUVqaDZHSdE9xQlZBVVVNTWJ0dkRxM2w0RktXb2c/od6/private/full/batch",
+                url: this.cellsFeed + "/batch",
                 type: "POST",
                 contentType: "application/atom+xml",
                 headers: {
                     "GData-Version": "3.0",
                     "If-Match": "*"
                 },
-                data: '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006">'+
-  '<id>https://spreadsheets.google.com/feeds/cells/0AlpsUVqaDZHSdE9xQlZBVVVNTWJ0dkRxM2w0RktXb2c/od6/private/full</id>'+
-  '<entry>'+
-    '<batch:id>A1</batch:id>'+
-    '<batch:operation type="update"/>'+
-    '<id>https://spreadsheets.google.com/feeds/cells/0AlpsUVqaDZHSdE9xQlZBVVVNTWJ0dkRxM2w0RktXb2c/od6/private/full/R1C1</id>'+
-    '<gs:cell col="1" inputValue="Issue Key" row="1"/>'+
-  '</entry>'+
-  '<entry>'+
-    '<batch:id>B1</batch:id>'+
-    '<batch:operation type="update"/>'+
-    '<id>https://spreadsheets.google.com/feeds/cells/0AlpsUVqaDZHSdE9xQlZBVVVNTWJ0dkRxM2w0RktXb2c/od6/private/full/R1C2</id>'+
-    '<gs:cell col="2" inputValue="Summary" row="1"/>'+
-  '</entry>'+
-'</feed>'
+                data: postData
             }).done(function(data, textStatus, jqXHR) {
-                console.log(arguments, jqXHR.responseText);
+                callback.apply(this, arguments);
             }); 
+            return this;
         }
 
     };

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gd="http://schemas.google.com/g/2005" xmlns:gs="http://schemas.google.com/spreadsheets/2006">
+	<id>https://spreadsheets.google.com/feeds/worksheets/spreadsheet02/od7</id>
+	<updated>2012-10-05T18:28:40.790Z</updated>
+	<app:edited xmlns:app="http://www.w3.org/2007/app">2012-10-05T18:28:40.790Z</app:edited>
+	<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#worksheet"/>
+	<title>Worksheet Title</title>
+	<content src="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full" type="application/atom+xml;type=feed"/>
+	<link href="https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full" rel="http://schemas.google.com/spreadsheets/2006#cellsfeed" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/tq?key=spreadsheet02&amp;sheet=od7" rel="http://schemas.google.com/visualization/2008#visualizationApi" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/worksheets/spreadsheet02/private/full/od7" rel="self" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/worksheets/spreadsheet02/private/full/od7" rel="edit" type="application/atom+xml"/>
+	<gs:rowCount>50</gs:rowCount>
+	<gs:colCount>10</gs:colCount>
+</entry>

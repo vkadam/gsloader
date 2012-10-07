@@ -84,7 +84,7 @@ describe("GSLoader", function() {
             expect(spreadSheet.worksheets.length).toBe(4);
         });
 
-        function checkWorksheet(worksheet, title, id, listFeed) {
+        function checkWorksheet(worksheet, title, id, listFeed, cellsFeed) {
             if (title) {
                 expect(worksheet.title).toBe(title)
             };
@@ -94,13 +94,16 @@ describe("GSLoader", function() {
             if (listFeed) {
                 expect(worksheet.listFeed).toBe(listFeed)
             };
+            if (cellsFeed) {
+                expect(worksheet.cellsFeed).toBe(cellsFeed)
+            };
         }
 
         it("GSLoader.loadSpreadsheet loads list of all worksheets with correct data", function() {
             var spreadSheet = GSLoader.loadSpreadsheet('spreadsheet01');
             expect(spreadSheet.worksheets.length).toBe(4);
-            checkWorksheet(spreadSheet.worksheets[0], "Environments", "od6", "https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full");
-            checkWorksheet(spreadSheet.worksheets[3], "DEV", "oda", "https://spreadsheets.google.com/feeds/list/spreadsheet01/oda/private/full");
+            checkWorksheet(spreadSheet.worksheets[0], "Environments", "od6", "https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full", "https://spreadsheets.google.com/feeds/cells/spreadsheet01/od6/private/full");
+            checkWorksheet(spreadSheet.worksheets[3], "DEV", "oda", "https://spreadsheets.google.com/feeds/list/spreadsheet01/oda/private/full", "https://spreadsheets.google.com/feeds/cells/spreadsheet01/oda/private/full");
         });
 
         it("GSLoader.loadSpreadsheet only loads list of specified worksheets", function() {
@@ -179,42 +182,46 @@ describe("GSLoader", function() {
     });
 
     describe("GSLoader.Spreadsheet.createWorksheet", function() {
-        var spreadSheet;
         beforeEach(function() {
-            GSLoader.createSpreadsheet("Spreadsheet Title", function(sSheet) {
-                spreadSheet = sSheet;
+            $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7-post.xml");
+            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers){
+                return [200, "success", "", {} ]
             });
-            $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
         });
 
         it("GSLoader.Spreadsheet.createWorksheet post correct title", function() {
-            var wSheet = spreadSheet.createWorksheet("Worksheet Title");
-            expect(spyOnAjax.callCount).toBe(2);
-            expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
-            expect(spyOnAjax.mostRecentCall.args[0].contentType).toBe("application/atom+xml");
-            expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/worksheets/spreadsheet02/private/full");
-            expect(spyOnAjax.mostRecentCall.args[0].headers["GData-Version"]).toBe("3.0");
-            var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
-            expect($postData.length).toBe(1);
-            expect($postData[0].nodeName).toBe("ENTRY");
-            expect($postData.find("title").text()).toBe("Worksheet Title");
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                var wSheet = spreadSheet.createWorksheet("Worksheet Title");
+                expect(spyOnAjax.callCount).toBe(2);
+                expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
+                expect(spyOnAjax.mostRecentCall.args[0].contentType).toBe("application/atom+xml");
+                expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/worksheets/spreadsheet02/private/full");
+                expect(spyOnAjax.mostRecentCall.args[0].headers["GData-Version"]).toBe("3.0");
+                var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
+                expect($postData.length).toBe(1);
+                expect($postData[0].nodeName).toBe("ENTRY");
+                expect($postData.find("title").text()).toBe("Worksheet Title");
+            });
+
         });
 
         it("GSLoader.Spreadsheet.createWorksheet post correct row and column number", function() {
-            var wSheet = spreadSheet.createWorksheet({
-                title: "Worksheet Title",
-                rows: 10,
-                cols: 5
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                var wSheet = spreadSheet.createWorksheet({
+                    title: "Worksheet Title",
+                    rows: 10,
+                    cols: 5
+                });
+                var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
+                expect($postData[0].nodeName).toBe("ENTRY");
+                expect($postData.find("title").text()).toBe("Worksheet Title");
+                expect($postData.children().filter(function() {
+                    return (this.nodeName === "GS:ROWCOUNT")
+                }).text()).toBe("10");
+                expect($postData.children().filter(function() {
+                    return (this.nodeName === "GS:COLCOUNT")
+                }).text()).toBe("5");
             });
-            var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
-            expect($postData[0].nodeName).toBe("ENTRY");
-            expect($postData.find("title").text()).toBe("Worksheet Title");
-            expect($postData.children().filter(function() {
-                return (this.nodeName === "GS:ROWCOUNT")
-            }).text()).toBe("10");
-            expect($postData.children().filter(function() {
-                return (this.nodeName === "GS:COLCOUNT")
-            }).text()).toBe("5");
         });
 
         it("GSLoader.Spreadsheet.createWorksheet calls callback on ajax success with newly created worksheet", function() {
@@ -288,6 +295,72 @@ describe("GSLoader", function() {
                 expect(wSheet.title).toBe("Worksheet Title");
                 expect(spreadSheet.worksheets.length).toBe(1);
                 expect(spreadSheet.worksheets[0]).toBe(wSheet);
+            });
+        });
+
+        it("GSLoader.Spreadsheet.createWorksheet creates header from headers by making ajax call", function() {
+            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers){
+                return [200, "success", "", {} ]
+            });
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                expect(spreadSheet.worksheets.length).toBe(0);
+                spreadSheet.createWorksheet({
+                    title: "Worksheet Title",
+                    rows: 1,
+                    cols: 5,
+                    headers: ["Id", "Summary", "Points", "Issue Type", "Status"]
+                }, function(wSheet) {
+                    expect(wSheet).toBeDefined();
+                    expect(wSheet.rows.length).toBe(0);
+                });
+            });
+            expect(spyOnAjax.callCount).toBe(3);
+            expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
+            expect(spyOnAjax.mostRecentCall.args[0].contentType).toBe("application/atom+xml");
+            expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full/batch");
+            expect(spyOnAjax.mostRecentCall.args[0].headers["GData-Version"]).toBe("3.0");
+            expect(spyOnAjax.mostRecentCall.args[0].headers["If-Match"]).toBe("*");
+            var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
+            expect($postData.length).toBe(1);
+            expect($postData[0].nodeName).toBe("FEED");
+            expect($postData.children("id").text()).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full");
+        });
+
+        function checkRow(row, rowNumber, id, summary, points, issueType, status) {
+            expect(row["rowNumber"]).toBe(rowNumber);
+            expect(row["id"]).toBe(id);
+            expect(row["summary"]).toBe(summary);
+            expect(row["points"]).toBe(points);
+            expect(row["issueType"]).toBe(issueType);
+            expect(row["status"]).toBe(status);
+        }
+
+        xit("GSLoader.Spreadsheet.createWorksheet creates rows from passed data and fetch latest data", function() {
+            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers){
+                return [200, "success", "", {} ]
+            });
+            $.fixture("GET feeds/list/spreadsheet02/od7/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
+
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
+                expect(spreadSheet.worksheets.length).toBe(0);
+                spreadSheet.createWorksheet({
+                    title: "Worksheet Title",
+                    rows: 4,
+                    cols: 5,
+                    headers: ["Id", "Summary", "Points", "Issue Type", "Status"],
+                    rowData: [
+                        ["JT:001", "Allow adding rows from object", 3, "Story", "Backlog"],
+                        ["JT:002", "Cache user setting", 2, "Story", "Open"],
+                        ["JT:003", "Add javascript minify", 1, "Story", "Open"],
+                        ["JT:004", "Display spreadsheet list", 2, "Story", "Open"]
+                    ]
+                }, function(wSheet) {
+                    expect(wSheet).toBeDefined();
+                    expect(wSheet.rows.length).toBe(4);
+                    expect(spyOnAjax.mostRecentCall.args[0].url).toBe("");
+                    checkRow(wSheet.rows[1], 1, "JT:001", "Allow adding rows from object", 3, "Story", "Backlog");
+                    checkRow(wSheet.rows[2], 2, "JT:002", "Cache user setting", 2, "Story", "Open");
+                });
             });
         });
     });
