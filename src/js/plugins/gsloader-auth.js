@@ -33,17 +33,22 @@
         },
 
         handleAuthResult: function(authResult) {
+            var _this = this;
+            /* No idea but somewhere context is changed to window object so setting it back to auth object */
+            if (!(_this instanceof GSAuthClass)) {
+                _this = GSLoader.auth;
+            }
             if (authResult && !authResult.error) {
                 GSLoader.log("Google Api Authentication Succeed");
             } else {
                 GSLoader.log("Authenticating Google Api");
                 gapi.auth.authorize({
-                    'client_id': this.CLIENT_ID,
-                    'scope': this.SCOPES,
+                    'client_id': _this.CLIENT_ID,
+                    'scope': _this.SCOPES,
                     'immediate': false
-                }, this.handleAuthResult);
+                }, _this.handleAuthResult);
             }
-            return this;
+            return _this;
         }
     }
 
