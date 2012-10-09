@@ -14,6 +14,7 @@ describe("String Prototype", function() {
         expect("Some String <".encodeXML()).toBe("Some String &lt;");
         expect("Some String '".encodeXML()).toBe("Some String &apos;");
         expect('Some String "'.encodeXML()).toBe("Some String &quot;");
+        expect("Some String with \n newline".encodeXML()).toBe("Some String with &#10; newline");
     });
 
     it("String.encodeXML encodes ampersand before any another charaters", function() {
