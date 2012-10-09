@@ -303,8 +303,10 @@
                 rowNo = rowIdx + 1;
                 $.each(rowObj, function(colIdx, colObj) {
                     colNo = colIdx + 1;
-                    cellValue = colObj.encodeXML();
-                    entries.push(Worksheet.CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, cellValue));
+                    if (colObj !== null && typeof colObj !== "undefined"){
+                        cellValue = typeof colObj === "string" ? colObj.encodeXML() : colObj;
+                        entries.push(Worksheet.CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, cellValue));
+                    }
                 });
             })
             var postData = Worksheet.CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
