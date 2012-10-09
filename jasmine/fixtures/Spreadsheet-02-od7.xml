@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/">
+	<id>https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full</id>
+	<updated>2012-10-08T19:33:03.045Z</updated>
+	<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+	<title type="text">Basline</title>
+	<link href="https://spreadsheets.google.com/ccc?key=spreadsheet02" rel="alternate" type="text/html"/>
+	<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full" rel="http://schemas.google.com/g/2005#feed" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full" rel="http://schemas.google.com/g/2005#post" type="application/atom+xml"/>
+	<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full" rel="self" type="application/atom+xml"/>
+	<author>
+		<name>vishal.4kadam</name>
+		<email>vishal.4kadam@gmail.com</email>
+	</author>
+	<openSearch:totalResults>4</openSearch:totalResults>
+	<openSearch:startIndex>1</openSearch:startIndex>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cokwr</id>
+		<updated>2012-10-08T19:33:03.045Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">JT:001</title>
+		<content type="text">summary: Allow adding rows from object, points: 3, issuetype: Story, status: Backlog</content>
+		<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cokwr" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cokwr/1m4ai4mb5h278" rel="edit" type="application/atom+xml"/>
+		<gsx:id>JT:001</gsx:id>
+		<gsx:summary>Allow adding rows from object</gsx:summary>
+		<gsx:points>3</gsx:points>
+		<gsx:issuetype>Story</gsx:issuetype>
+		<gsx:status>Backlog</gsx:status>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cpzh4</id>
+		<updated>2012-10-08T19:33:03.045Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">JT:002</title>
+		<content type="text">summary: Cache user setting, points: 2, issuetype: Story, status: Open</content>
+		<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cpzh4" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cpzh4/3686o3cj14c" rel="edit" type="application/atom+xml"/>
+		<gsx:id>JT:002</gsx:id>
+		<gsx:summary>Cache user setting</gsx:summary>
+		<gsx:points>2</gsx:points>
+		<gsx:issuetype>Story</gsx:issuetype>
+		<gsx:status>Open</gsx:status>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cre1l</id>
+		<updated>2012-10-08T19:33:03.045Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">JT:003</title>
+		<content type="text">summary: Add javascript minify, points: 1, issuetype: Story, status: Open</content>
+		<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cre1l" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/cre1l/519256ehf6n" rel="edit" type="application/atom+xml"/>
+		<gsx:id>JT:003</gsx:id>
+		<gsx:summary>Add javascript minify</gsx:summary>
+		<gsx:points>1</gsx:points>
+		<gsx:issuetype>Story</gsx:issuetype>
+		<gsx:status>Open</gsx:status>
+	</entry>
+	<entry>
+		<id>https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/chk2m</id>
+		<updated>2012-10-08T19:33:03.045Z</updated>
+		<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#list"/>
+		<title type="text">JT:004</title>
+		<content type="text">summary: Display spreadsheet list, points: 2, issuetype: Story, status: Open</content>
+		<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/chk2m" rel="self" type="application/atom+xml"/>
+		<link href="https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full/chk2m/39o29bkfbg9" rel="edit" type="application/atom+xml"/>
+		<gsx:id>JT:004</gsx:id>
+		<gsx:summary>Display spreadsheet list</gsx:summary>
+		<gsx:points>2</gsx:points>
+		<gsx:issuetype>Story</gsx:issuetype>
+		<gsx:status>Open</gsx:status>
+	</entry>
+</feed>

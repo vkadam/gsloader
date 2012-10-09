@@ -1,9 +1,23 @@
 describe("String Prototype", function() {
     it("String.format returns formatted test", function() {
-        expect("Some String".format()).toBeDefined();
+        expect("Some String".format).toBeDefined();
         expect("Some String".format().length).toBe(11);
         expect("Some String {0} using {1} {2}".format("formatted", "String", "formatter")).toBe("Some String formatted using String formatter");
         expect("HERE word is used {0} and {0}".format("HERE")).toBe("HERE word is used HERE and HERE");
+    });
+
+    it("String.encodeXML encodes ampersand, less than, greater than double quotes and single quotes charaters", function() {
+        expect("Some String".encodeXML).toBeDefined();
+        expect("Some String".encodeXML()).toBe("Some String");
+        expect("Some String &".encodeXML()).toBe("Some String &amp;");
+        expect("Some String >".encodeXML()).toBe("Some String &gt;");
+        expect("Some String <".encodeXML()).toBe("Some String &lt;");
+        expect("Some String '".encodeXML()).toBe("Some String &apos;");
+        expect('Some String "'.encodeXML()).toBe("Some String &quot;");
+    });
+
+    it("String.encodeXML encodes ampersand before any another charaters", function() {
+        expect("Some String ' & > <".encodeXML()).toBe("Some String &apos; &amp; &gt; &lt;");
     });
 
 });
@@ -29,7 +43,6 @@ describe("GSLoader", function() {
     });
 
     afterEach(function() {
-        GSLoader.disableLog();
         $.ajaxSetup({
             async: true
         });
@@ -183,10 +196,15 @@ describe("GSLoader", function() {
 
     describe("GSLoader.Spreadsheet.createWorksheet", function() {
         beforeEach(function() {
+            GSLoader.enableLog();
             $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7-post.xml");
-            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers){
-                return [200, "success", "", {} ]
+            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers) {
+                return [200, "success", "", {}]
             });
+        });
+
+        afterEach(function() {
+            GSLoader.disableLog();
         });
 
         it("GSLoader.Spreadsheet.createWorksheet post correct title", function() {
@@ -298,70 +316,115 @@ describe("GSLoader", function() {
             });
         });
 
-        it("GSLoader.Spreadsheet.createWorksheet creates header from headers by making ajax call", function() {
-            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers){
-                return [200, "success", "", {} ]
-            });
-            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
-                expect(spreadSheet.worksheets.length).toBe(0);
-                spreadSheet.createWorksheet({
-                    title: "Worksheet Title",
-                    rows: 1,
-                    cols: 5,
-                    headers: ["Id", "Summary", "Points", "Issue Type", "Status"]
-                }, function(wSheet) {
-                    expect(wSheet).toBeDefined();
-                    expect(wSheet.rows.length).toBe(0);
-                });
-            });
-            expect(spyOnAjax.callCount).toBe(3);
-            expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
-            expect(spyOnAjax.mostRecentCall.args[0].contentType).toBe("application/atom+xml");
-            expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full/batch");
-            expect(spyOnAjax.mostRecentCall.args[0].headers["GData-Version"]).toBe("3.0");
-            expect(spyOnAjax.mostRecentCall.args[0].headers["If-Match"]).toBe("*");
-            var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
-            expect($postData.length).toBe(1);
-            expect($postData[0].nodeName).toBe("FEED");
-            expect($postData.children("id").text()).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full");
-        });
-
-        function checkRow(row, rowNumber, id, summary, points, issueType, status) {
-            expect(row["rowNumber"]).toBe(rowNumber);
-            expect(row["id"]).toBe(id);
-            expect(row["summary"]).toBe(summary);
-            expect(row["points"]).toBe(points);
-            expect(row["issueType"]).toBe(issueType);
-            expect(row["status"]).toBe(status);
-        }
-
-        xit("GSLoader.Spreadsheet.createWorksheet creates rows from passed data and fetch latest data", function() {
-            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers){
-                return [200, "success", "", {} ]
+        it("GSLoader.Spreadsheet.createWorksheet creates header from headers and rowData by making ajax call", function() {
+            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers) {
+                return [200, "success", "", {}]
             });
             $.fixture("GET feeds/list/spreadsheet02/od7/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
+            var cellFeed = "https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full";
 
-            GSLoader.createSpreadsheet("Spreadsheet Title", function(spreadSheet) {
-                expect(spreadSheet.worksheets.length).toBe(0);
-                spreadSheet.createWorksheet({
-                    title: "Worksheet Title",
-                    rows: 4,
-                    cols: 5,
-                    headers: ["Id", "Summary", "Points", "Issue Type", "Status"],
-                    rowData: [
-                        ["JT:001", "Allow adding rows from object", 3, "Story", "Backlog"],
-                        ["JT:002", "Cache user setting", 2, "Story", "Open"],
-                        ["JT:003", "Add javascript minify", 1, "Story", "Open"],
-                        ["JT:004", "Display spreadsheet list", 2, "Story", "Open"]
-                    ]
-                }, function(wSheet) {
-                    expect(wSheet).toBeDefined();
-                    expect(wSheet.rows.length).toBe(4);
-                    expect(spyOnAjax.mostRecentCall.args[0].url).toBe("");
-                    checkRow(wSheet.rows[1], 1, "JT:001", "Allow adding rows from object", 3, "Story", "Backlog");
-                    checkRow(wSheet.rows[2], 2, "JT:002", "Cache user setting", 2, "Story", "Open");
-                });
+            var spreasheet;
+            var worksheet;
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(sSheet) {
+                spreadSheet = sSheet
             });
+            expect(spreadSheet.worksheets.length).toBe(0);
+            var headerTitles = ["Id", "Summary", "Points", "Issue Type", "Status"];
+            var rowData = [
+                ["JT:001", "Allow adding rows from object", "3", "Story", "Backlog"],
+                ["JT:002", "Cache user setting", "2", "Story", "Open"],
+                ["JT:003", "Add javascript minify", "1", "Story", "Open"],
+                ["JT:004", "Display spreadsheet list", "2", "Story", "Open"],
+                ["JT:005", "Display & render list", "2", "Story's points", '"Open"']
+            ];
+            spreadSheet.createWorksheet({
+                title: "Worksheet Title",
+                rows: 1,
+                cols: 5,
+                headers: headerTitles,
+                rowData: rowData
+            }, function(wSheet) {
+                worksheet = wSheet;
+            });
+
+            waitsFor(function() {
+                return worksheet;
+            }, "Worksheet is created", 2000)
+            runs(function() {
+                expect(worksheet).toBeDefined();
+                expect(spyOnAjax.callCount).toBe(4);
+                var postCallArgs = spyOnAjax.calls[2].args[0];
+                expect(postCallArgs.type).toBe("POST");
+                expect(postCallArgs.contentType).toBe("application/atom+xml");
+                expect(postCallArgs.url).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full/batch");
+                expect(postCallArgs.headers["GData-Version"]).toBe("3.0");
+                expect(postCallArgs.headers["If-Match"]).toBe("*");
+                var $postData = $(postCallArgs.data);
+                expect($postData.length).toBe(1);
+                expect($postData[0].nodeName).toBe("FEED");
+                expect($postData.children("id").text()).toBe(cellFeed);
+                var entries = $postData.children("entry");
+                var entryIdx = 0;
+                /* At this time, rowData object is changed. Now it have header added to it;  */
+                $.each(rowData, function(rNo, rData) {
+                    for (var c = 0; c < rData.length; c++) {
+                        checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c]);
+                        entryIdx++;
+                    }
+                })
+            })
+
+        });
+
+        function checkCellEntry(entryObj, cellFeed, rowNo, colNo, value) {
+            var childs = {};
+            $(entryObj).children().each(function(idx, obj) {
+                childs[this.nodeName] = $(this);
+            });
+            var cellNo = "R{0}C{1}".format(rowNo, colNo);
+
+            expect(childs["BATCH:ID"].text()).toBe(cellNo);
+            expect(childs["BATCH:OPERATION"].attr("type")).toBe("update");
+            expect(childs["BATCH:OPERATION"].attr("type")).toBe("update");
+            expect(childs["ID"].text()).toBe(cellFeed + "/" + cellNo);
+            expect(childs["GS:CELL"].attr("row")).toBe(rowNo.toString());
+            expect(childs["GS:CELL"].attr("col")).toBe(colNo.toString());
+            expect(childs["GS:CELL"].attr("inputValue")).toBe(value);
+
+        }
+
+        it("GSLoader.Spreadsheet.createWorksheet creates rows from passed data and fetch latest data", function() {
+            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers) {
+                return [200, "success", "", {}]
+            });
+            $.fixture("GET feeds/list/spreadsheet02/od7/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
+            var spreadSheet;
+            var worksheet;
+            GSLoader.createSpreadsheet("Spreadsheet Title", function(sSheet) {
+                spreadSheet = sSheet;
+                expect(spreadSheet.worksheets.length).toBe(0);
+            });
+
+            spreadSheet.createWorksheet({
+                title: "Worksheet Title",
+                rows: 4,
+                cols: 5,
+                headers: ["Id", "Summary", "Points", "Issue Type", "Status"]
+            }, function(wSheet) {
+                worksheet = wSheet;
+            });
+            waitsFor(function() {
+                return worksheet;
+            }, "Worksheet is created", 2000)
+            runs(function() {
+                expect(worksheet).toBeDefined();
+                expect(worksheet.rows.length).toBe(4);
+                expect(spyOnAjax.callCount).toBe(4);
+                expect(spreadSheet.worksheets.length).toBe(1);
+                expect(spreadSheet.worksheets[0].rows.length).toBe(4);
+                expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full");
+            })
+
         });
     });
 

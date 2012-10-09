@@ -5,13 +5,21 @@
     /*
      * String.format method
      */
-    String.prototype.format = function() {
-        var str = this.toString();
-        for (var i = 0; i < arguments.length; i++) {
-            var reg = new RegExp("\\{" + i + "\\}", "gm");
-            str = str.replace(reg, arguments[i]);
+    if (!String.prototype.format) {
+        String.prototype.format = function() {
+            var str = this.toString();
+            for (var i = 0; i < arguments.length; i++) {
+                var reg = new RegExp("\\{" + i + "\\}", "gm");
+                str = str.replace(reg, arguments[i]);
+            }
+            return str;
         }
-        return str;
+    }
+
+    if (!String.prototype.encodeXML) {
+        String.prototype.encodeXML = function() {
+            return this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+        };
     }
 
     /*
@@ -23,7 +31,7 @@
             }, options);
         }
     Logger.prototype = {
-        log: function(msg) {
+        log: function() {
             if (this.debug && typeof console !== "undefined" && typeof console.log !== "undefined") {
                 console.log.apply(console, arguments);
             }
@@ -177,9 +185,11 @@
                 cols: 20,
                 callback: callback || $.noop,
                 callbackContext: callbackContext || _this,
-                headers:[],
-                rowData:[]
+                headers: [],
+                rowData: []
             }, options);
+
+            GSLoader.log("Creating worksheet for spreadsheet", this, "with options =", options);
 
             var worksheet;
             $.ajax({
@@ -195,15 +205,19 @@
                     return this.nodeName === "ENTRY"
                 });
                 worksheet = _this.parseWorksheet(entryNode);
+                /* Right now creating worksheet don't return the list feed url, so cretating it using cells feed */
+                worksheet.listFeed = worksheet.cellsFeed.replace("/cells/","/list/");
                 _this.worksheets.push(worksheet);
                 if (options.headers.length > 0 || options.rowData.length > 0) {
                     var rowData = options.rowData;
                     rowData.unshift(options.headers);
-                    worksheet.addRows(rowData, function(){
-                        options.callback.apply(options.callbackContext, [worksheet]);
+                    worksheet.addRows(rowData, function() {
+                        GSLoader.log("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
+                        worksheet.done(function(){
+                            options.callback.apply(options.callbackContext, [worksheet]);
+                        }).fetch();
                     });
-                }
-                else {
+                } else {
                     options.callback.apply(options.callbackContext, [worksheet]);
                 }
             });
@@ -221,19 +235,15 @@
                 title: "",
                 listFeed: "",
                 cellsFeed: "",
-                cellsFeedEdit: "",
                 rows: [],
                 spreadsheet: null,
                 successCallbacks: []
             }, options);
         }
 
-    Worksheet.COLUMN_NAME_REGEX = /gsx:/;
-    /* cellsFeed, entries */
-    Worksheet.CELL_FEED_HEADER = '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>{0}</id>{1}</feed>';
-    /*  cellsFeed, row, col, value */
-    Worksheet.CELL_FEED_ENTRY = '<entry><batch:id>R{1}C{2}</batch:id><batch:operation type="update"/><id>{0}/R{1}C{2}</id><gs:cell row="{1}" col="{2}" inputValue="{3}"/>'+
-  '</entry>';
+    Worksheet.COLUMN_NAME_REGEX = /gsx:/; /* cellsFeed, entries */
+    Worksheet.CELL_FEED_HEADER = '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>{0}</id>{1}</feed>'; /*  cellsFeed, row, col, value */
+    Worksheet.CELL_FEED_ENTRY = '<entry><batch:id>R{1}C{2}</batch:id><batch:operation type="update"/><id>{0}/R{1}C{2}</id><gs:cell row="{1}" col="{2}" inputValue="{3}"/>' + '</entry>';
 
     Worksheet.prototype = {
         fetch: function() {
@@ -283,17 +293,18 @@
             GSLoader.log("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
         },
 
-        addRows: function(rowData, callback){
+        addRows: function(rowData, callback) {
             var _this = this;
             var entries = [];
             var rowNo;
             var colNo;
-
-            $.each(rowData, function(rowIdx, rowObj){
+            var cellValue;
+            $.each(rowData, function(rowIdx, rowObj) {
                 rowNo = rowIdx + 1;
-                $.each(rowObj, function(colIdx, colObj){
-                    colNo = colIdx+ 1;
-                    entries.push(Worksheet.CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, colObj));
+                $.each(rowObj, function(colIdx, colObj) {
+                    colNo = colIdx + 1;
+                    cellValue = colObj.encodeXML();
+                    entries.push(Worksheet.CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, cellValue));
                 });
             })
             var postData = Worksheet.CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
@@ -308,7 +319,7 @@
                 data: postData
             }).done(function(data, textStatus, jqXHR) {
                 callback.apply(this, arguments);
-            }); 
+            });
             return this;
         }
 
