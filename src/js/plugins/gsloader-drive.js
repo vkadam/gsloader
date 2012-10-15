@@ -8,7 +8,7 @@
     GSDriveClass.prototype = {
 
         load: function() {
-            gapi.client.load('drive', 'v2', this.onLoad);
+            gapi.client.load("drive", "v2", this.onLoad);
             return this;
         },
 
@@ -40,7 +40,7 @@
                         var nextPageToken = resp.nextPageToken;
                         if (nextPageToken) {
                             request = gapi.client.drive.files.list({
-                                'pageToken': nextPageToken
+                                "pageToken": nextPageToken
                             });
                             retrievePageOfFiles(request, result);
                         } else {
