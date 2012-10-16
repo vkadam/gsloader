@@ -1,0 +1,10 @@
+{
+  "name": "gsloader",
+  "version": "0.0.1",
+  "dependencies": {
+    "grunt-jasmine-runner": "0.5.9"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
+}

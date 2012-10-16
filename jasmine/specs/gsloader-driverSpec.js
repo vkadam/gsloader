@@ -10,8 +10,7 @@ describe("gsloader drive", function() {
     });
 
     xit("createSpreadsheet return deferred request object", function() {
-    	var reqObj = GSLoader.drive.createSpreadsheet();
-    	expect(reqObj).toBe(jasmine.any($.Deferred));
-
+		var reqObj = GSLoader.drive.createSpreadsheet();
+		expect(reqObj).toBe(jasmine.any($.Deferred));
     })
 });

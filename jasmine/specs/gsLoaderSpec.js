@@ -65,6 +65,7 @@ describe("GSLoader", function() {
 
         afterEach(function() {
             console = oldConsole;
+            GSLoader.disableLog()
         })
 
         it("GSLoader.log api is available", function() {
@@ -197,7 +198,7 @@ describe("GSLoader", function() {
 
     describe("GSLoader.Spreadsheet.createWorksheet", function() {
         beforeEach(function() {
-            GSLoader.enableLog();
+            // GSLoader.enableLog();
             $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7-post.xml");
             $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers) {
                 return [200, "success", "", {}]

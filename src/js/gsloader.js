@@ -5,6 +5,7 @@
     /*
      * String.format method
      */
+    "use strict";
     if (!String.prototype.format) {
         String.prototype.format = function() {
             var str = this.toString();
@@ -45,7 +46,10 @@
             Logger.call(this, options);
         }
 
+
     GSLoaderClass.prototype = new Logger();
+
+    var GSLoader = attachTo.GSLoader = new GSLoaderClass();
 
     GSLoaderClass.prototype.loadSpreadsheet = function(options) {
         return new Spreadsheet(options).fetch();
@@ -204,16 +208,15 @@
                 var entryNode = $(jqXHR.responseText).filter(function() {
                     return this.nodeName === "ENTRY"
                 });
-                worksheet = _this.parseWorksheet(entryNode);
-                /* Right now creating worksheet don't return the list feed url, so cretating it using cells feed */
-                worksheet.listFeed = worksheet.cellsFeed.replace("/cells/","/list/");
+                worksheet = _this.parseWorksheet(entryNode); /* Right now creating worksheet don't return the list feed url, so cretating it using cells feed */
+                worksheet.listFeed = worksheet.cellsFeed.replace("/cells/", "/list/");
                 _this.worksheets.push(worksheet);
                 if (options.headers.length > 0 || options.rowData.length > 0) {
                     var rowData = options.rowData;
                     rowData.unshift(options.headers);
                     worksheet.addRows(rowData, function() {
                         GSLoader.log("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
-                        worksheet.done(function(){
+                        worksheet.done(function() {
                             options.callback.apply(options.callbackContext, [worksheet]);
                         }).fetch();
                     });
@@ -252,7 +255,7 @@
                 url: this.listFeed
             }).done(function(data, textStatus, jqXHR) {
                 _this.parse.apply(_this, arguments);
-                _this.processSuccess.apply(_this);
+                _this.processSuccess.apply(_this, []);
             });
             return this;
         },
@@ -265,7 +268,7 @@
         processSuccess: function() {
             var _this = this;
             $.each(_this.successCallbacks, function(idx, fun) {
-                fun.apply(_this.spreadsheet, _this);
+                fun.apply(_this.spreadsheet, [_this]);
             })
         },
 
@@ -303,7 +306,7 @@
                 rowNo = rowIdx + 1;
                 $.each(rowObj, function(colIdx, colObj) {
                     colNo = colIdx + 1;
-                    if (colObj !== null && typeof colObj !== "undefined"){
+                    if (colObj !== null && typeof colObj !== "undefined") {
                         cellValue = typeof colObj === "string" ? colObj.encodeXML() : colObj;
                         entries.push(Worksheet.CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, cellValue));
                     }
@@ -324,11 +327,10 @@
             });
             return this;
         }
-
     };
 
-    $.extend(attachTo, {
-        GSLoader: new GSLoaderClass()
-    });
+    // $.extend(attachTo, {
+    //     GSLoader: GSLoader
+    // });
 
 })(window, jQuery)

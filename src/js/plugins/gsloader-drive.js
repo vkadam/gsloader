@@ -1,8 +1,9 @@
 /*
  *    Author: Vishal Kadam
  */
-(function($) {
+(function(_attachTo, $) {
 
+    "use strict";
     var GSDriveClass = function() {}
 
     GSDriveClass.prototype = {
@@ -13,7 +14,7 @@
         },
 
         onLoad: function() {
-            GSLoader.auth.checkAuth();
+            _attachTo.auth.checkAuth();
             return this;
         },
 
@@ -46,7 +47,7 @@
                         } else {
                             if (callback) {
                                 callback.apply(callback, result);
-                            };
+                            }
                             return result;
                         }
                     });
@@ -57,8 +58,8 @@
         }
     }
 
-    $.extend(GSLoader, {
+    $.extend(_attachTo, {
         drive: new GSDriveClass()
     });
 
-})(jQuery);
+})(GSLoader, jQuery);

@@ -1,8 +1,8 @@
 /*
  *    Author: Vishal Kadam
  */
-(function($) {
-
+(function(_attachTo, $) {
+    "use strict";
     var GSAuthClass = function() {
             this.CLIENT_ID = null;
             this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
@@ -36,12 +36,12 @@
             var _this = this;
             /* No idea but somewhere context is changed to window object so setting it back to auth object */
             if (!(_this instanceof GSAuthClass)) {
-                _this = GSLoader.auth;
+                _this = _attachTo.auth;
             }
             if (authResult && !authResult.error) {
-                GSLoader.log("Google Api Authentication Succeed");
+                _attachTo.log("Google Api Authentication Succeed");
             } else {
-                GSLoader.log("Authenticating Google Api");
+                _attachTo.log("Authenticating Google Api");
                 gapi.auth.authorize({
                     'client_id': _this.CLIENT_ID,
                     'scope': _this.SCOPES,
@@ -52,8 +52,8 @@
         }
     }
 
-    $.extend(GSLoader, {
+    $.extend(_attachTo, {
         auth: new GSAuthClass()
     });
 
-})(jQuery);
+})(GSLoader, jQuery);
