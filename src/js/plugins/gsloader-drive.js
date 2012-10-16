@@ -4,7 +4,7 @@
 (function(_attachTo, $) {
 
     "use strict";
-    var GSDriveClass = function() {}
+    var GSDriveClass = function() {};
 
     GSDriveClass.prototype = {
 
@@ -51,15 +51,15 @@
                             return result;
                         }
                     });
-                }
+                };
             var initialRequest = gapi.client.drive.files.list();
             retrievePageOfFiles(initialRequest, []);
             return this;
         }
-    }
+    };
 
     $.extend(_attachTo, {
         drive: new GSDriveClass()
     });
 
-})(GSLoader, jQuery);
+}(GSLoader, jQuery));

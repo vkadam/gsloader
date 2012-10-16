@@ -1,6 +1,8 @@
-/*
- *    Author: Vishal Kadam
- */
+/*! Gsloader - v0.0.1 - 2012-10-16
+* https://github.com/vkadam/gsloader
+* Copyright (c) 2012 Vishal Kadam; Licensed MIT */
+;
+/**********************************/
 (function(attachTo, $) {
     /*
      * String.format method
@@ -328,4 +330,124 @@
         }
     };
 
-}(window, jQuery));
+}(window, jQuery));;
+/**********************************/
+(function(_attachTo, $) {
+
+    "use strict";
+    var GSDriveClass = function() {};
+
+    GSDriveClass.prototype = {
+
+        load: function() {
+            gapi.client.load("drive", "v2", this.onLoad);
+            return this;
+        },
+
+        onLoad: function() {
+            _attachTo.auth.checkAuth();
+            return this;
+        },
+
+        createSpreadsheet: function(fileTitle, callback, callbackContext) {
+            var request = gapi.client.request({
+                "path": "/drive/v2/files",
+                "method": "POST",
+                "body": {
+                    "title": fileTitle,
+                    "mimeType": "application/vnd.google-apps.spreadsheet"
+                }
+            });
+
+            request.execute(function(resp) {
+                callback.apply(callbackContext, [resp]);
+            });
+            return this;
+        },
+
+        getFiles: function(callback) {
+            var retrievePageOfFiles = function(request, result) {
+                    request.execute(function(resp) {
+                        result = result.concat(resp.items);
+                        var nextPageToken = resp.nextPageToken;
+                        if (nextPageToken) {
+                            request = gapi.client.drive.files.list({
+                                "pageToken": nextPageToken
+                            });
+                            retrievePageOfFiles(request, result);
+                        } else {
+                            if (callback) {
+                                callback.apply(callback, result);
+                            }
+                            return result;
+                        }
+                    });
+                };
+            var initialRequest = gapi.client.drive.files.list();
+            retrievePageOfFiles(initialRequest, []);
+            return this;
+        }
+    };
+
+    $.extend(_attachTo, {
+        drive: new GSDriveClass()
+    });
+
+}(GSLoader, jQuery));;
+/**********************************/
+(function(_attachTo, $) {
+    "use strict";
+    var GSAuthClass = function() {
+            this.CLIENT_ID = null;
+            this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
+        };
+
+    GSAuthClass.prototype = {
+
+        setClientId: function(clientId) {
+            this.CLIENT_ID = clientId;
+            return this;
+        },
+
+        onLoad: function(callback, context) {
+            this.checkAuth();
+            if (callback) {
+                callback.apply(context, this);
+            }
+            return this;
+        },
+
+        checkAuth: function() {
+            gapi.auth.authorize({
+                'client_id': this.CLIENT_ID,
+                'scope': this.SCOPES,
+                'immediate': true
+            }, this.handleAuthResult);
+            return this;
+        },
+
+        handleAuthResult: function(authResult) {
+            var _this = this;
+            /* No idea but somewhere context is changed to window object so setting it back to auth object */
+            if (!(_this instanceof GSAuthClass)) {
+                _this = _attachTo.auth;
+            }
+            if (authResult && !authResult.error) {
+                _attachTo.log("Google Api Authentication Succeed");
+            } else {
+                _attachTo.log("Authenticating Google Api");
+                gapi.auth.authorize({
+                    'client_id': _this.CLIENT_ID,
+                    'scope': _this.SCOPES,
+                    'immediate': false
+                }, _this.handleAuthResult);
+            }
+            return _this;
+        }
+    };
+
+    $.extend(_attachTo, {
+        auth: new GSAuthClass()
+    });
+
+}(GSLoader, jQuery));

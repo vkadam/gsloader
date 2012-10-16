@@ -6,7 +6,7 @@
     var GSAuthClass = function() {
             this.CLIENT_ID = null;
             this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
-        }
+        };
 
     GSAuthClass.prototype = {
 
@@ -50,10 +50,10 @@
             }
             return _this;
         }
-    }
+    };
 
     $.extend(_attachTo, {
         auth: new GSAuthClass()
     });
 
-})(GSLoader, jQuery);
+}(GSLoader, jQuery));
