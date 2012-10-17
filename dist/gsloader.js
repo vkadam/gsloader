@@ -1,9 +1,9 @@
-/*! Gsloader - v0.0.1 - 2012-10-16
+/*! Gsloader - v0.0.1 - 2012-10-17
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2012 Vishal Kadam; Licensed MIT */
 ;
 /**********************************/
-(function(attachTo, $) {
+(function(_attachTo, $) {
     /*
      * String.format method
      */
@@ -50,8 +50,8 @@
 
 
     GSLoaderClass.prototype = new Logger();
-
-    var GSLoader = attachTo.GSLoader = new GSLoaderClass();
+    
+    var GSLoader = new GSLoaderClass();
 
     GSLoaderClass.prototype.loadSpreadsheet = function(options) {
         return new Spreadsheet(options).fetch();
@@ -330,8 +330,13 @@
         }
     };
 
+    $.extend(_attachTo, {
+        GSLoader: GSLoader
+    });
+
 }(window, jQuery));;
 /**********************************/
+/*global GSLoader:false, gapi:false*/
 (function(_attachTo, $) {
 
     "use strict";
@@ -395,6 +400,7 @@
 
 }(GSLoader, jQuery));;
 /**********************************/
+/*global GSLoader:false, gapi:false*/
 (function(_attachTo, $) {
     "use strict";
     var GSAuthClass = function() {
@@ -427,8 +433,7 @@
         },
 
         handleAuthResult: function(authResult) {
-            var _this = this;
-            /* No idea but somewhere context is changed to window object so setting it back to auth object */
+            var _this = this; /* No idea but somewhere context is changed to window object so setting it back to auth object */
             if (!(_this instanceof GSAuthClass)) {
                 _this = _attachTo.auth;
             }

@@ -1,6 +1,7 @@
 /*
  *    Author: Vishal Kadam
  */
+/*global GSLoader:false, gapi:false*/
 (function(_attachTo, $) {
     "use strict";
     var GSAuthClass = function() {
@@ -33,8 +34,7 @@
         },
 
         handleAuthResult: function(authResult) {
-            var _this = this;
-            /* No idea but somewhere context is changed to window object so setting it back to auth object */
+            var _this = this; /* No idea but somewhere context is changed to window object so setting it back to auth object */
             if (!(_this instanceof GSAuthClass)) {
                 _this = _attachTo.auth;
             }

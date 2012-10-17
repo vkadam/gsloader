@@ -1,6 +1,7 @@
 /*
  *    Author: Vishal Kadam
  */
+/*global GSLoader:false, gapi:false*/
 (function(_attachTo, $) {
 
     "use strict";

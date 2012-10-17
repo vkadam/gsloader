@@ -1,7 +1,7 @@
 /*
  *    Author: Vishal Kadam
  */
-(function(attachTo, $) {
+(function(_attachTo, $) {
     /*
      * String.format method
      */
@@ -48,8 +48,8 @@
 
 
     GSLoaderClass.prototype = new Logger();
-
-    var GSLoader = attachTo.GSLoader = new GSLoaderClass();
+    
+    var GSLoader = new GSLoaderClass();
 
     GSLoaderClass.prototype.loadSpreadsheet = function(options) {
         return new Spreadsheet(options).fetch();
@@ -327,5 +327,9 @@
             return this;
         }
     };
+
+    $.extend(_attachTo, {
+        GSLoader: GSLoader
+    });
 
 }(window, jQuery));
