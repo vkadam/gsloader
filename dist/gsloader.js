@@ -354,20 +354,28 @@
             return this;
         },
 
-        createSpreadsheet: function(fileTitle, callback, callbackContext) {
+        createSpreadsheet: function(options) {
+            var csRequest = {},
+                _options = $.extend({
+                    title: "",
+                    context: csRequest
+                }, options),
+                deferred = $.Deferred();
+
             var request = gapi.client.request({
                 "path": "/drive/v2/files",
                 "method": "POST",
                 "body": {
-                    "title": fileTitle,
+                    "title": _options.title,
                     "mimeType": "application/vnd.google-apps.spreadsheet"
                 }
             });
-
+            
+            deferred.promise(csRequest);
             request.execute(function(resp) {
-                callback.apply(callbackContext, [resp]);
+                deferred.resolveWith(_options.context, [resp]);
             });
-            return this;
+            return csRequest;
         },
 
         getFiles: function(callback) {
