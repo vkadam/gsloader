@@ -35,13 +35,14 @@
                     "mimeType": "application/vnd.google-apps.spreadsheet"
                 }
             });
-            
+
             deferred.promise(csRequest);
+            
             request.execute(function(resp) {
                 deferred.resolveWith(_options.context, [resp]);
             });
             return csRequest;
-        },
+        }/*,
 
         getFiles: function(callback) {
             var retrievePageOfFiles = function(request, result) {
@@ -64,7 +65,7 @@
             var initialRequest = gapi.client.drive.files.list();
             retrievePageOfFiles(initialRequest, []);
             return this;
-        }
+        }*/
     };
 
     $.extend(_attachTo, {
