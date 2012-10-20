@@ -1,4 +1,4 @@
-/*! Gsloader - v0.0.1 - 2012-10-17
+/*! Gsloader - v0.0.1 - 2012-10-19
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2012 Vishal Kadam; Licensed MIT */
 ;
@@ -50,11 +50,34 @@
 
 
     GSLoaderClass.prototype = new Logger();
-    
+
     var GSLoader = new GSLoaderClass();
 
+    function sanitizeOptions(options, attribName){
+        var opts;
+        if (typeof(options) === "string") {
+            opts = {};
+            opts[attribName] = options;
+        }
+        return opts || options;
+    }
+
     GSLoaderClass.prototype.loadSpreadsheet = function(options) {
-        return new Spreadsheet(options).fetch();
+        var lsRequest = {},
+            deferred = $.Deferred();
+        options = sanitizeOptions(options, "id");
+        var spreadSheet = new Spreadsheet({
+            id: options.id,
+            wanted: options.wanted
+        });
+
+        deferred.promise(lsRequest);
+        spreadSheet.fetch().done(function(){
+            deferred.resolveWith(lsRequest, [spreadSheet]);
+        });
+
+        return lsRequest;
+        //return new Spreadsheet(options).fetch();
     };
 
     GSLoaderClass.prototype.enableLog = function() {
@@ -70,39 +93,56 @@
     /*
      * Needs GSLoader.drive api
      */
-    GSLoaderClass.prototype.createSpreadsheet = function(options, callback, context) {
+    GSLoaderClass.prototype.createSpreadsheet = function(options) {
         var _this = this;
-        var spreadSheetObj = this.drive.createSpreadsheet(options, function(spreadSheetObj) {
-            callback.apply(context || _this, [new Spreadsheet(spreadSheetObj.id).fetch()]);
-        }, this);
-        return this;
+        var csRequest = {},
+            _options = $.extend({
+                title: "",
+                context: csRequest
+            }, options),
+            deferred = $.Deferred();
+
+        function spreadSheetCreated(spreadSheetObj) {
+            var spreadSheet = new Spreadsheet({
+                id: spreadSheetObj.id,
+                title: spreadSheetObj.title
+            });
+            //spreadSheet.fetch();
+            spreadSheet.fetch().done(function(){
+                deferred.resolveWith(_options.context, [spreadSheet]);
+            });
+        }
+
+        this.drive.createSpreadsheet({
+            title: _options.title
+        }).done(spreadSheetCreated);
+
+        deferred.promise(csRequest);
+        return csRequest;
     };
 
     /*
      * Spreadsheet class
      */
     var Spreadsheet = function(options) {
-            if (typeof(options) === "string") {
-                options = {
-                    id: options
-                };
-            }
-            if (/id=/.test(options.id)) {
+            options = sanitizeOptions(options, "id");
+            if (options && /id=/.test(options.id)) {
                 GSLoader.log("You passed a id as a URL! Attempting to parse.");
                 options.id = options.id.match("id=([^&]*)")[1];
             }
             $.extend(this, {
                 id: "",
                 title: "",
-                worksheets: [],
-                wanted: [],
-                successCallbacks: [],
-                sheetsToLoad: 0
-            }, options);
+                wanted: []
+                //successCallbacks: [],
+            }, options, {
+                sheetsToLoad: [],
+                worksheets: []
+            });
 
-            if (this.success) {
-                this.done(this.success);
-            }
+            // if (this.success) {
+            //     this.done(this.success);
+            // }
         };
 
     Spreadsheet.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
@@ -112,32 +152,30 @@
     Spreadsheet.prototype = {
 
         fetch: function() {
-            var _this = this;
-            $.ajax({
-                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id)
-            }).done(function(data, textStatus, jqXHR) {
-                _this.parse.apply(_this, arguments);
-            });
-            return this;
-        },
+            var _this = this,
+                deferred = $.Deferred(),
+                fetchReq = {};
 
-        done: function(callback) {
-            this.successCallbacks.push(callback);
-            return this;
-        },
-
-        processSuccess: function() {
-            var _this = this;
-            _this.sheetsToLoad--;
-            if (_this.sheetsToLoad === 0) {
-                $.each(_this.successCallbacks, function(idx, fun) {
-                    fun.apply(_this);
+                deferred.promise(fetchReq);
+                
+                $.ajax({
+                    url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id)
+                }).done(function(data, textStatus, jqXHR) {
+                    _this.parse(data, textStatus, jqXHR);
+                    var worksheetReqs = _this.fetchSheets();
+                    if (worksheetReqs.length > 0){
+                        $.when.apply($, worksheetReqs).done(function() {
+                            deferred.resolveWith(fetchReq, [_this]);
+                        });
+                    } else {
+                        deferred.resolveWith(fetchReq, [_this]);
+                    }
                 });
-            }
+            return fetchReq;
         },
 
         isWanted: function(sheetName) {
-            return (this.wanted.length === 0 || this.wanted.indexOf(sheetName) !== -1);
+            return (this.wanted === "*" || (this.wanted instanceof Array && this.wanted.indexOf(sheetName) !== -1));
         },
 
         parse: function(data, textStatus, jqXHR) {
@@ -149,12 +187,11 @@
             _this.worksheets = [];
             $feed.children("entry").each(function(idx, obj) {
                 worksheet = _this.parseWorksheet(this);
+                _this.worksheets.push(worksheet);
                 if (_this.isWanted(worksheet.title)) {
-                    _this.worksheets.push(worksheet);
+                    _this.sheetsToLoad.push(worksheet);
                 }
             });
-            _this.sheetsToLoad = _this.worksheets.length;
-            _this.fetchSheets();
         },
 
         parseWorksheet: function(worksheetInfo) {
@@ -171,25 +208,27 @@
         },
 
         fetchSheets: function() {
-            var _this = this;
-            $.each(this.worksheets, function(idx, sheet) {
-                sheet.done(_this.processSuccess).fetch();
+            var fetchReqs = [];
+            $.each(this.sheetsToLoad, function(idx, worksheet) {
+                fetchReqs.push(worksheet.fetch());
             });
+            return fetchReqs;
         },
 
-        createWorksheet: function(options, callback, callbackContext) {
-            var _this = this;
-            if (typeof(options) === "string") {
-                options = {
-                    title: options
-                };
-            }
+        createWorksheet: function(options) {
+             var _this = this,
+                deferred = $.Deferred(),
+                cwsReq = {};
+
+                deferred.promise(cwsReq);
+
+            options = sanitizeOptions(options, "title");
             options = $.extend({
                 title: "",
                 rows: 20,
                 cols: 20,
-                callback: callback || $.noop,
-                callbackContext: callbackContext || _this,
+                context: cwsReq,
+                // callbackContext: callbackContext || _this,
                 headers: [],
                 rowData: []
             }, options);
@@ -209,23 +248,24 @@
                 var entryNode = $(jqXHR.responseText).filter(function() {
                     return this.nodeName === "ENTRY";
                 });
-                worksheet = _this.parseWorksheet(entryNode); /* Right now creating worksheet don't return the list feed url, so cretating it using cells feed */
-                worksheet.listFeed = worksheet.cellsFeed.replace("/cells/", "/list/");
+                // Right now creating worksheet don't return the list feed url, so cretating it using cells feed 
+                worksheet = _this.parseWorksheet(entryNode);
                 _this.worksheets.push(worksheet);
+                worksheet.listFeed = worksheet.cellsFeed.replace("/cells/", "/list/");
                 if (options.headers.length > 0 || options.rowData.length > 0) {
                     var rowData = options.rowData;
                     rowData.unshift(options.headers);
-                    worksheet.addRows(rowData, function() {
+                    worksheet.addRows(rowData).done(function() {
                         GSLoader.log("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
-                        worksheet.done(function() {
-                            options.callback.apply(options.callbackContext, [worksheet]);
-                        }).fetch();
+                        worksheet.fetch().done(function() {
+                            deferred.resolveWith(options.context, [worksheet]);
+                        });
                     });
                 } else {
-                    options.callback.apply(options.callbackContext, [worksheet]);
+                    deferred.resolveWith(options.context, [worksheet]);
                 }
             });
-            return worksheet;
+            return cwsReq;
         }
     };
 
@@ -240,8 +280,8 @@
                 listFeed: "",
                 cellsFeed: "",
                 rows: [],
-                spreadsheet: null,
-                successCallbacks: []
+                spreadsheet: null
+                //successCallbacks: []
             }, options);
         };
 
@@ -251,17 +291,20 @@
 
     Worksheet.prototype = {
         fetch: function() {
-            var _this = this;
+            var _this = this,
+                deferred = $.Deferred(),
+                fetchReq = {};
+                deferred.promise(fetchReq);
             $.ajax({
                 url: this.listFeed
-            }).done(function(data, textStatus, jqXHR) {
+            }).done(function() {
                 _this.parse.apply(_this, arguments);
-                _this.processSuccess.apply(_this, []);
+                deferred.resolveWith(fetchReq, [_this]);
             });
-            return this;
+            return fetchReq;
         },
 
-        done: function(callback) {
+        /*done: function(callback) {
             this.successCallbacks.push(callback);
             return this;
         },
@@ -271,7 +314,7 @@
             $.each(_this.successCallbacks, function(idx, fun) {
                 fun.apply(_this.spreadsheet, [_this]);
             });
-        },
+        },*/
 
         parse: function(data, textStatus, jqXHR) {
             var _this = this;
@@ -297,12 +340,17 @@
             GSLoader.log("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
         },
 
-        addRows: function(rowData, callback) {
-            var _this = this;
-            var entries = [];
-            var rowNo;
-            var colNo;
-            var cellValue;
+        addRows: function(rowData) {
+            var _this = this,
+            entries = [],
+            rowNo,
+            colNo,
+            cellValue,
+            deferred = $.Deferred(),
+            arReq = {};
+            
+            deferred.promise(arReq);
+
             $.each(rowData, function(rowIdx, rowObj) {
                 rowNo = rowIdx + 1;
                 $.each(rowObj, function(colIdx, colObj) {
@@ -324,9 +372,9 @@
                 },
                 data: postData
             }).done(function(data, textStatus, jqXHR) {
-                callback.apply(this, arguments);
+                deferred.resolveWith(arReq, [data, textStatus, jqXHR]);
             });
-            return this;
+            return arReq;
         }
     };
 
@@ -370,13 +418,14 @@
                     "mimeType": "application/vnd.google-apps.spreadsheet"
                 }
             });
-            
+
             deferred.promise(csRequest);
+            
             request.execute(function(resp) {
                 deferred.resolveWith(_options.context, [resp]);
             });
             return csRequest;
-        },
+        }/*,
 
         getFiles: function(callback) {
             var retrievePageOfFiles = function(request, result) {
@@ -399,7 +448,7 @@
             var initialRequest = gapi.client.drive.files.list();
             retrievePageOfFiles(initialRequest, []);
             return this;
-        }
+        }*/
     };
 
     $.extend(_attachTo, {

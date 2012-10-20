@@ -287,7 +287,7 @@ describe("GSLoader", function() {
 
     describe("GSLoader.Spreadsheet.createWorksheet", function() {
         var spreadSheet;
-        function createSpreadsheetThenAsserts(test){
+        function createSpreadsheetAndThen(test){
             var reqObj = GSLoader.createSpreadsheet().done(function(sSheet){
                 spreadSheet = sSheet;
             });
@@ -315,7 +315,7 @@ describe("GSLoader", function() {
         });
 
         it("GSLoader.Spreadsheet.createWorksheet returns jQuery Deferred object", function() {
-            createSpreadsheetThenAsserts(function(){
+            createSpreadsheetAndThen(function(){
                 var reqObj = spreadSheet.createWorksheet();
                 expect(reqObj.done).toBeDefined();
                 expect(reqObj.resolve).not.toBeDefined();
@@ -323,7 +323,7 @@ describe("GSLoader", function() {
         });
 
         it("GSLoader.Spreadsheet.createWorksheet post correct title", function() {
-            createSpreadsheetThenAsserts(function(){
+            createSpreadsheetAndThen(function(){
                 var wSheet = spreadSheet.createWorksheet("Worksheet Title");
                 expect(spyOnAjax.callCount).toBe(2);
                 expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
@@ -339,7 +339,7 @@ describe("GSLoader", function() {
         });
 
         it("GSLoader.Spreadsheet.createWorksheet post correct row and column number", function() {
-            createSpreadsheetThenAsserts(function(){
+            createSpreadsheetAndThen(function(){
                 var wSheet = spreadSheet.createWorksheet({
                     title: "Worksheet Title",
                     rows: 10,
@@ -357,24 +357,31 @@ describe("GSLoader", function() {
             });
         });
 
-        it("GSLoader.Spreadsheet.createWorksheet calls callback on ajax success with newly created worksheet", function() {
-            createSpreadsheetThenAsserts(function(){
+        it("GSLoader.Spreadsheet.createWorksheet, on success notifies done callbacks with newly created worksheet", function() {
+            createSpreadsheetAndThen(function(){
                 expect(spreadSheet.worksheets.length).toBe(0);
                 var worksheet;
                 var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
                     worksheet = wSheet;
                 });
-                spreadSheet.createWorksheet("Worksheet Title", worksheetCallback);
-                expect(worksheetCallback).toHaveBeenCalled();
-                expect(worksheet).toBeDefined();
-                expect(worksheet.title).toBe("Worksheet Title");
-                expect(spreadSheet.worksheets.length).toBe(1);
-                expect(spreadSheet.worksheets[0]).toBe(worksheet);
+                spreadSheet.createWorksheet("Worksheet Title").done(worksheetCallback);
+                
+                waitsFor(function(){
+                    return worksheet;
+                }, "Worksheet should be created", 1000);
+                
+                runs(function(){
+                    expect(worksheetCallback).toHaveBeenCalled();
+                    expect(worksheet).toBeDefined();
+                    expect(worksheet.title).toBe("Worksheet Title");
+                    expect(spreadSheet.worksheets.length).toBe(1);
+                    expect(spreadSheet.worksheets[0]).toBe(worksheet);
+                });
             });
         });
 
-        it("GSLoader.Spreadsheet.createWorksheet calls callback when passed as attribute of options", function() {
-            createSpreadsheetThenAsserts(function(){
+        /*it("GSLoader.Spreadsheet.createWorksheet calls callback when passed as attribute of options", function() {
+            createSpreadsheetAndThen(function(){
                 var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {});
                 spreadSheet.createWorksheet({
                     title: "Worksheet Title",
@@ -382,21 +389,32 @@ describe("GSLoader", function() {
                 });
                 expect(worksheetCallback).toHaveBeenCalled();
             });
-        });
+        });*/
 
-        it("GSLoader.Spreadsheet.createWorksheet calls callback with specified context", function() {
-            createSpreadsheetThenAsserts(function(){
-                var context = {};
+        it("GSLoader.Spreadsheet.createWorksheet on success notifies done callbacks with specified context", function() {
+            createSpreadsheetAndThen(function(){
+                var expectedCalledWithContext = {};
+                var actualCalledWithContext;
                 var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
-                    expect(this).toBe(context);
+                    actualCalledWithContext = this;
                 });
-                spreadSheet.createWorksheet("Worksheet Title", worksheetCallback, context);
-                expect(worksheetCallback).toHaveBeenCalled();
+                spreadSheet.createWorksheet({title: "Worksheet Title", context: expectedCalledWithContext})
+                .done(worksheetCallback);
+    
+                waitsFor(function(){
+                    return actualCalledWithContext;
+                }, "Worksheet should be created", 1000);
+                
+                runs(function(){
+                    expect(worksheetCallback).toHaveBeenCalled();
+                    expect(actualCalledWithContext).toBe(expectedCalledWithContext);
+                });
+
             });
         });
 
-        it("GSLoader.Spreadsheet.createWorksheet calls callback with specified context when passed as attribute of options", function() {
-            createSpreadsheetThenAsserts(function(){
+        /*it("GSLoader.Spreadsheet.createWorksheet calls callback with specified context when passed as attribute of options", function() {
+            createSpreadsheetAndThen(function(){
                 var context = {};
                 var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
                     expect(this).toBe(context);
@@ -408,20 +426,32 @@ describe("GSLoader", function() {
                 });
                 expect(worksheetCallback).toHaveBeenCalled();
             });
-        });
+        });*/
 
-        it("GSLoader.Spreadsheet.createWorksheet calls callback with spreasheet as context when context is not passed", function() {
-            createSpreadsheetThenAsserts(function(){
+        it("GSLoader.Spreadsheet.createWorksheet calls callback with createWorksheet request as context when context is not passed", function() {
+            createSpreadsheetAndThen(function(){
+                var expectedCalledWithContext = {};
+                var actualCalledWithContext;
                 var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
-                    expect(this).toBe(spreadSheet);
+                    actualCalledWithContext = this;
                 });
-                spreadSheet.createWorksheet("Worksheet Title", worksheetCallback);
-                expect(worksheetCallback).toHaveBeenCalled();
+                var csReq = spreadSheet.createWorksheet("Worksheet Title")
+                .done(worksheetCallback);
+    
+                waitsFor(function(){
+                    return actualCalledWithContext;
+                }, "Worksheet should be created", 1000);
+                
+                runs(function(){
+                    expect(worksheetCallback).toHaveBeenCalled();
+                    expect(actualCalledWithContext).toBe(csReq);
+                });
+
             });
         });
 
-        it("GSLoader.Spreadsheet.createWorksheet adds newly created worksheet to spreadsheetOjbect", function() {
-            createSpreadsheetThenAsserts(function(){
+        /*it("GSLoader.Spreadsheet.createWorksheet adds newly created worksheet to spreadsheetOjbect", function() {
+            createSpreadsheetAndThen(function(){
                 expect(spreadSheet.worksheets.length).toBe(0);
                 var wSheet = spreadSheet.createWorksheet("Worksheet Title");
                 expect(wSheet).toBeDefined();
@@ -429,12 +459,12 @@ describe("GSLoader", function() {
                 expect(spreadSheet.worksheets.length).toBe(1);
                 expect(spreadSheet.worksheets[0]).toBe(wSheet);
             });
-        });
+        });*/
 
         describe("createSpreadsheet with headerTitles and rowData", function() {
             var cellFeed;
-            var spreadSheet;
-            var worksheet;
+            //var spreadSheet;
+            //var worksheet;
             var headerTitles = ["Id", "Summary", "Points", "Issue Type", "Status"];
             var rowData = [
                 ["JT:001", "Allow adding rows from object", "3", "Story", "Backlog"],
@@ -448,12 +478,11 @@ describe("GSLoader", function() {
                 $.fixture("GET feeds/list/spreadsheet02/od7/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
                 cellFeed = "https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full";
 
-                GSLoader.createSpreadsheet("Spreadsheet Title", function(sSheet) {
+                /*GSLoader.createSpreadsheet("Spreadsheet Title", function(sSheet) {
                     spreadSheet = sSheet
                 });
-                worksheet = null;
+                worksheet = null;*/
             });
-
 
             function checkCellEntry(entryObj, cellFeed, rowNo, colNo, value) {
                 var childs = {};
@@ -472,103 +501,112 @@ describe("GSLoader", function() {
             }
 
             it("GSLoader.Spreadsheet.createWorksheet creates header from headers and rowData by making ajax call", function() {
-                expect(spreadSheet.worksheets.length).toBe(0);
-                spreadSheet.createWorksheet({
-                    title: "Worksheet Title",
-                    rows: 1,
-                    cols: 5,
-                    headers: headerTitles,
-                    rowData: rowData
-                }, function(wSheet) {
-                    worksheet = wSheet;
-                });
+                createSpreadsheetAndThen(function(){
+                    var worksheet;
+                    expect(spreadSheet.worksheets.length).toBe(0);
+                    spreadSheet.createWorksheet({
+                        title: "Worksheet Title",
+                        rows: 1,
+                        cols: 5,
+                        headers: headerTitles,
+                        rowData: rowData
+                    }).done(function(wSheet) {
+                        worksheet = wSheet;
+                    });
 
-                waitsFor(function() {
-                    return worksheet;
-                }, "Worksheet is created", 2000)
-                runs(function() {
-                    expect(worksheet).toBeDefined();
-                    expect(spyOnAjax.callCount).toBe(4);
-                    var postCallArgs = spyOnAjax.calls[2].args[0];
-                    expect(postCallArgs.type).toBe("POST");
-                    expect(postCallArgs.contentType).toBe("application/atom+xml");
-                    expect(postCallArgs.url).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full/batch");
-                    expect(postCallArgs.headers["GData-Version"]).toBe("3.0");
-                    expect(postCallArgs.headers["If-Match"]).toBe("*");
-                    var $postData = $(postCallArgs.data);
-                    expect($postData.length).toBe(1);
-                    expect($postData[0].nodeName).toBe("FEED");
-                    expect($postData.children("id").text()).toBe(cellFeed);
-                    var entries = $postData.children("entry");
-                    var entryIdx = 0; /* At this time, rowData object is changed. Now it have header added to it;  */
-                    $.each(rowData, function(rNo, rData) {
-                        for (var c = 0; c < rData.length; c++) {
-                            checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c]);
-                            entryIdx++;
-                        }
-                    })
-                })
+                    waitsFor(function() {
+                        return worksheet;
+                    }, "Worksheet is created", 2000)
+                    runs(function() {
+                        expect(worksheet).toBeDefined();
+                        expect(spyOnAjax.callCount).toBe(4);
+                        var postCallArgs = spyOnAjax.calls[2].args[0];
+                        expect(postCallArgs.type).toBe("POST");
+                        expect(postCallArgs.contentType).toBe("application/atom+xml");
+                        expect(postCallArgs.url).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full/batch");
+                        expect(postCallArgs.headers["GData-Version"]).toBe("3.0");
+                        expect(postCallArgs.headers["If-Match"]).toBe("*");
+                        var $postData = $(postCallArgs.data);
+                        expect($postData.length).toBe(1);
+                        expect($postData[0].nodeName).toBe("FEED");
+                        expect($postData.children("id").text()).toBe(cellFeed);
+                        var entries = $postData.children("entry");
+                        var entryIdx = 0; /* At this time, rowData object is changed. Now it have header added to it;  */
+                        $.each(rowData, function(rNo, rData) {
+                            for (var c = 0; c < rData.length; c++) {
+                                checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c]);
+                                entryIdx++;
+                            }
+                        });
+                    });
+                });
 
             });
 
             it("GSLoader.Spreadsheet.createWorksheet don't post batch entry for null or undefined cell value", function() {
-                rowData = [
-                    ["", null, undefined, "Valid", false]
-                ]
-                spreadSheet.createWorksheet({
-                    title: "Worksheet Title",
-                    rows: 1,
-                    cols: 5,
-                    headers: headerTitles,
-                    rowData: rowData
-                }, function(wSheet) {
-                    worksheet = wSheet;
-                });
+                createSpreadsheetAndThen(function(){
+                    var worksheet;
+                    rowData = [
+                        ["", null, undefined, "Valid", false]
+                    ]
+                    spreadSheet.createWorksheet({
+                        title: "Worksheet Title",
+                        rows: 1,
+                        cols: 5,
+                        headers: headerTitles,
+                        rowData: rowData
+                    }).done(function(wSheet) {
+                        worksheet = wSheet;
+                    });
 
-                waitsFor(function() {
-                    return worksheet;
-                }, "Worksheet is created", 2000)
-                runs(function() {
-                    var postCallArgs = spyOnAjax.calls[2].args[0];
-                    var $postData = $(postCallArgs.data);
-                    expect($postData.length).toBe(1);
-                    expect($postData[0].nodeName).toBe("FEED");
-                    expect($postData.children("id").text()).toBe(cellFeed);
-                    var entries = $postData.children("entry");
-                    expect(entries.length).toBe(8);
-                    var entryIdx = 0; /* At this time, rowData object is changed. Now it have header added to it;  */
-                    $.each(rowData, function(rNo, rData) {
-                        for (var c = 0; c < rData.length; c++) {
-                            if (rData[c] !== null && typeof rData[c] !== "undefined") {
-                                checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c].toString());
-                                entryIdx++;
+                    waitsFor(function() {
+                        return worksheet;
+                    }, "Worksheet is created", 2000)
+                    runs(function() {
+                        var postCallArgs = spyOnAjax.calls[2].args[0];
+                        var $postData = $(postCallArgs.data);
+                        expect($postData.length).toBe(1);
+                        expect($postData[0].nodeName).toBe("FEED");
+                        expect($postData.children("id").text()).toBe(cellFeed);
+                        var entries = $postData.children("entry");
+                        expect(entries.length).toBe(8);
+                        var entryIdx = 0; /* At this time, rowData object is changed. Now it have header added to it;  */
+                        $.each(rowData, function(rNo, rData) {
+                            for (var c = 0; c < rData.length; c++) {
+                                if (rData[c] !== null && typeof rData[c] !== "undefined") {
+                                    checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c].toString());
+                                    entryIdx++;
+                                }
                             }
-                        }
-                    })
-                })
+                        });
+                    });
+                });
 
             });
 
             it("GSLoader.Spreadsheet.createWorksheet creates rows from passed data and fetch latest data", function() {
-                spreadSheet.createWorksheet({
-                    title: "Worksheet Title",
-                    rows: 4,
-                    cols: 5,
-                    headers: headerTitles
-                }, function(wSheet) {
-                    worksheet = wSheet;
+                createSpreadsheetAndThen(function(){
+                    var worksheet;
+                    spreadSheet.createWorksheet({
+                        title: "Worksheet Title",
+                        rows: 4,
+                        cols: 5,
+                        headers: headerTitles
+                    }).done(function(wSheet) {
+                        worksheet = wSheet;
+                    });
+                    waitsFor(function() {
+                        return worksheet;
+                    }, "Worksheet is created", 2000)
+                    runs(function() {
+                        expect(worksheet).toBeDefined();
+                        expect(worksheet.rows.length).toBe(4);
+                        expect(spyOnAjax.callCount).toBe(4);
+                        expect(spreadSheet.worksheets.length).toBe(1);
+                        expect(spreadSheet.worksheets[0].rows.length).toBe(4);
+                        expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full");
+                    });
                 });
-                waitsFor(function() {
-                    return worksheet;
-                }, "Worksheet is created", 2000)
-                runs(function() {
-                    expect(worksheet).toBeDefined();
-                    expect(worksheet.rows.length).toBe(4);
-                    expect(spyOnAjax.callCount).toBe(4);
-                    expect(spreadSheet.worksheets.length).toBe(1);
-                    expect(spreadSheet.worksheets[0].rows.length).toBe(4);
-                    expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full");
-                })
             });
         });
 
