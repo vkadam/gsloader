@@ -131,17 +131,11 @@
             }
             $.extend(this, {
                 id: "",
-                title: "",
-                wanted: []
-                //successCallbacks: [],
+                title: ""
             }, options, {
                 sheetsToLoad: [],
                 worksheets: []
             });
-
-            // if (this.success) {
-            //     this.done(this.success);
-            // }
         };
 
     Spreadsheet.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
