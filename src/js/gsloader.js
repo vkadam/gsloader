@@ -51,7 +51,7 @@
 
     var GSLoader = new GSLoaderClass();
 
-    function sanitizeOptions(options, attribName){
+    function sanitizeOptions(options, attribName) {
         var opts;
         if (typeof(options) === "string") {
             opts = {};
@@ -63,19 +63,21 @@
     GSLoaderClass.prototype.loadSpreadsheet = function(options) {
         var lsRequest = {},
             deferred = $.Deferred();
-        options = sanitizeOptions(options, "id");
+        options = $.extend({
+            context: lsRequest
+        }, sanitizeOptions(options, "id"));
         var spreadSheet = new Spreadsheet({
             id: options.id,
             wanted: options.wanted
         });
 
         deferred.promise(lsRequest);
-        spreadSheet.fetch().done(function(){
-            deferred.resolveWith(lsRequest, [spreadSheet]);
+
+        spreadSheet.fetch().done(function() {
+            deferred.resolveWith(options.context, [spreadSheet]);
         });
 
         return lsRequest;
-        //return new Spreadsheet(options).fetch();
     };
 
     GSLoaderClass.prototype.enableLog = function() {
@@ -97,7 +99,7 @@
             _options = $.extend({
                 title: "",
                 context: csRequest
-            }, options),
+            }, sanitizeOptions(options, "title")),
             deferred = $.Deferred();
 
         function spreadSheetCreated(spreadSheetObj) {
@@ -105,8 +107,7 @@
                 id: spreadSheetObj.id,
                 title: spreadSheetObj.title
             });
-            //spreadSheet.fetch();
-            spreadSheet.fetch().done(function(){
+            spreadSheet.fetch().done(function() {
                 deferred.resolveWith(_options.context, [spreadSheet]);
             });
         }
@@ -154,21 +155,21 @@
                 deferred = $.Deferred(),
                 fetchReq = {};
 
-                deferred.promise(fetchReq);
-                
-                $.ajax({
-                    url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id)
-                }).done(function(data, textStatus, jqXHR) {
-                    _this.parse(data, textStatus, jqXHR);
-                    var worksheetReqs = _this.fetchSheets();
-                    if (worksheetReqs.length > 0){
-                        $.when.apply($, worksheetReqs).done(function() {
-                            deferred.resolveWith(fetchReq, [_this]);
-                        });
-                    } else {
+            deferred.promise(fetchReq);
+
+            $.ajax({
+                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id)
+            }).done(function(data, textStatus, jqXHR) {
+                _this.parse(data, textStatus, jqXHR);
+                var worksheetReqs = _this.fetchSheets();
+                if (worksheetReqs.length > 0) {
+                    $.when.apply($, worksheetReqs).done(function() {
                         deferred.resolveWith(fetchReq, [_this]);
-                    }
-                });
+                    });
+                } else {
+                    deferred.resolveWith(fetchReq, [_this]);
+                }
+            });
             return fetchReq;
         },
 
@@ -214,13 +215,12 @@
         },
 
         createWorksheet: function(options) {
-             var _this = this,
+            var _this = this,
                 deferred = $.Deferred(),
                 cwsReq = {};
 
-                deferred.promise(cwsReq);
+            deferred.promise(cwsReq);
 
-            options = sanitizeOptions(options, "title");
             options = $.extend({
                 title: "",
                 rows: 20,
@@ -229,7 +229,7 @@
                 // callbackContext: callbackContext || _this,
                 headers: [],
                 rowData: []
-            }, options);
+            }, sanitizeOptions(options, "title"));
 
             GSLoader.log("Creating worksheet for spreadsheet", this, "with options =", options);
 
@@ -292,7 +292,7 @@
             var _this = this,
                 deferred = $.Deferred(),
                 fetchReq = {};
-                deferred.promise(fetchReq);
+            deferred.promise(fetchReq);
             $.ajax({
                 url: this.listFeed
             }).done(function() {
@@ -301,18 +301,6 @@
             });
             return fetchReq;
         },
-
-        /*done: function(callback) {
-            this.successCallbacks.push(callback);
-            return this;
-        },
-
-        processSuccess: function() {
-            var _this = this;
-            $.each(_this.successCallbacks, function(idx, fun) {
-                fun.apply(_this.spreadsheet, [_this]);
-            });
-        },*/
 
         parse: function(data, textStatus, jqXHR) {
             var _this = this;
@@ -340,13 +328,10 @@
 
         addRows: function(rowData) {
             var _this = this,
-            entries = [],
-            rowNo,
-            colNo,
-            cellValue,
-            deferred = $.Deferred(),
-            arReq = {};
-            
+                entries = [],
+                rowNo, colNo, cellValue, deferred = $.Deferred(),
+                arReq = {};
+
             deferred.promise(arReq);
 
             $.each(rowData, function(rowIdx, rowObj) {
