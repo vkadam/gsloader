@@ -2,7 +2,8 @@
   "name": "gsloader",
   "version": "0.0.1",
   "dependencies": {
-    "grunt-jasmine-runner": "0.5.9"
+    "grunt-jasmine-runner": "0.6.0",
+    "grunt-contrib-clean": "0.3.1"
   },
   "engines": {
     "node": ">=0.8"

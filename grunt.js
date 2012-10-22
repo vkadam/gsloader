@@ -1,7 +1,6 @@
 /*global module:false*/
 module.exports = function(grunt) {
 
-    // Project configuration.
     "use strict";
     grunt.initConfig({
         pkg: '<json:gsloader.json>',
@@ -59,7 +58,7 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks("grunt-jasmine-runner");
-    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks("grunt-contrib-clean");
 
     // Register tasks.
     grunt.registerTask("default", "jasmine clean lint concat min");
