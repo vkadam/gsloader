@@ -94,7 +94,6 @@
      * Needs GSLoader.drive api
      */
     GSLoaderClass.prototype.createSpreadsheet = function(options) {
-        var _this = this;
         var csRequest = {},
             _options = $.extend({
                 title: "",
@@ -171,14 +170,13 @@
             return (this.wanted === "*" || (this.wanted instanceof Array && this.wanted.indexOf(sheetName) !== -1));
         },
 
-        parse: function(data, textStatus, jqXHR) {
+        parse: function(data) {
             var _this = this;
             var $feed = $(data).children("feed");
             _this.title = $feed.children("title").text();
             var worksheet;
-            var title;
             _this.worksheets = [];
-            $feed.children("entry").each(function(idx, obj) {
+            $feed.children("entry").each(function() {
                 worksheet = _this.parseWorksheet(this);
                 _this.worksheets.push(worksheet);
                 if (_this.isWanted(worksheet.title)) {
@@ -296,7 +294,7 @@
             return fetchReq;
         },
 
-        parse: function(data, textStatus, jqXHR) {
+        parse: function(data) {
             var _this = this;
             var $entries = $(data).children("feed").children("entry");
             if ($entries.length === 0) {
@@ -306,11 +304,11 @@
             }
             _this.rows = [];
             var row;
-            $entries.each(function(idx, obj) {
+            $entries.each(function(idx) {
                 row = {
                     "rowNumber": (idx + 1)
                 };
-                $(this).children().each(function(idx, cell) {
+                $(this).children().each(function() {
                     if (Worksheet.COLUMN_NAME_REGEX.test(this.tagName)) {
                         row[this.tagName.replace(Worksheet.COLUMN_NAME_REGEX, "")] = this.textContent;
                     }
