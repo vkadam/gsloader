@@ -1,4 +1,4 @@
-/*! Gsloader - v0.0.1 - 2012-10-22
+/*! Gsloader - v0.0.1 - 2012-10-27
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2012 Vishal Kadam; Licensed MIT */
 ;
@@ -397,12 +397,13 @@
             });
 
             deferred.promise(csRequest);
-            
+
             request.execute(function(resp) {
                 deferred.resolveWith(_options.context, [resp]);
             });
             return csRequest;
-        }/*,
+        }
+/*,
 
         getFiles: function(callback) {
             var retrievePageOfFiles = function(request, result) {

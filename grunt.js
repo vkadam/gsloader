@@ -20,8 +20,11 @@ module.exports = function(grunt) {
                 dest: 'dist/<%= pkg.name %>.min.js'
             }
         },
+        beautify: {
+            files: '<config:lint.files>'
+        },
         lint: {
-            files: ['grunt.js', 'src/js/**/*.js']
+            files: ['grunt.js', 'src/js/**/*.js', 'jasmine/specs/**/*.js']
         },
         jasmine: {
             src: ['src/lib/**/*.js', 'src/js/**/*.js'],
@@ -50,7 +53,16 @@ module.exports = function(grunt) {
             },
             globals: {
                 jQuery: false,
-                console: true
+                console: true,
+                jasmine: false,
+                describe: false,
+                it: false,
+                spyOn: false,
+                expect: false,
+                waitsFor: false,
+                runs: false,
+                beforeEach: false,
+                afterEach: false
             }
         },
         clean: ['_SpecRunner.html'],
@@ -59,8 +71,9 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks("grunt-jasmine-runner");
     grunt.loadNpmTasks("grunt-contrib-clean");
+    grunt.loadNpmTasks('grunt-beautify');
 
     // Register tasks.
-    grunt.registerTask("default", "jasmine clean lint concat min");
+    grunt.registerTask("default", "lint jasmine clean concat min");
     grunt.registerTask("test", "jasmine clean");
 };

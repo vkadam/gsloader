@@ -1,3 +1,4 @@
+/*global $:false, GSLoader:false, gapi:false*/
 describe("String Prototype", function() {
     it("String.format returns formatted test", function() {
         expect("Some String".format).toBeDefined();
@@ -47,19 +48,19 @@ describe("GSLoader", function() {
         var oldConsole = null;
         if (typeof(console) !== 'undefined') {
             oldConsole = console;
-        };
+        }
         beforeEach(function() {
             console = {
                 log: function(message) {
                     lastConsoleMessage = message;
                 }
-            }
+            };
         });
 
         afterEach(function() {
             console = oldConsole;
-            GSLoader.disableLog()
-        })
+            GSLoader.disableLog();
+        });
 
         it("GSLoader.log api is available", function() {
             expect(GSLoader.log).toBeDefined();
@@ -108,7 +109,7 @@ describe("GSLoader", function() {
                 expect(spreadSheet.title).toBe("Mindtap Environment Settings");
                 expect(spreadSheet.id).toBe("spreadsheet01");
                 expect(spreadSheet.worksheets.length).toBe(4);
-            })
+            });
         });
 
         function loadSpreadsheet(expectedContext) {
@@ -126,7 +127,7 @@ describe("GSLoader", function() {
 
             returnObject["request"] = req;
             return returnObject;
-        };
+        }
 
         it("GSLoader.loadSpreadsheet calls callback with specified context", function() {
             var expectedCalledWithContext = {};
@@ -145,17 +146,17 @@ describe("GSLoader", function() {
 
         function checkWorksheet(worksheet, title, id, listFeed, cellsFeed) {
             if (title) {
-                expect(worksheet.title).toBe(title)
-            };
+                expect(worksheet.title).toBe(title);
+            }
             if (id) {
-                expect(worksheet.id).toBe(id)
-            };
+                expect(worksheet.id).toBe(id);
+            }
             if (listFeed) {
-                expect(worksheet.listFeed).toBe(listFeed)
-            };
+                expect(worksheet.listFeed).toBe(listFeed);
+            }
             if (cellsFeed) {
-                expect(worksheet.cellsFeed).toBe(cellsFeed)
-            };
+                expect(worksheet.cellsFeed).toBe(cellsFeed);
+            }
         }
 
         it("GSLoader.loadSpreadsheet loads list of all worksheets with correct data", function() {
@@ -225,7 +226,7 @@ describe("GSLoader", function() {
                 expect(spreadSheet.worksheets.length).toBe(4);
                 var rows = spreadSheet.worksheets[0].rows;
                 checkRow(rows[0], 1, "LOCAL", "Local", "http://d-ws.cengage.com/ssows/SSOws?WSDL", "http://localhost", "http://d-ws.cengage.com/olrws/OLRws?WSDL");
-                checkRow(rows[1], 2, "DEV", "Development", "http://d-ws.cengage.com/ssows/SSOws?WSDL", "http://qae-ng.cengage.com", "http://d-ws.cengage.com/olrws/OLRws?WSDL")
+                checkRow(rows[1], 2, "DEV", "Development", "http://d-ws.cengage.com/ssows/SSOws?WSDL", "http://qae-ng.cengage.com", "http://d-ws.cengage.com/olrws/OLRws?WSDL");
                 expect(callbackCallCount).toBe(1);
             });
         });
@@ -252,7 +253,7 @@ describe("GSLoader", function() {
             var returnObject = {};
             var callback = jasmine.createSpy("Some Spy").andCallFake(function() {
                 returnObject.callWithContext = this;
-            })
+            });
             var reqObj = GSLoader.createSpreadsheet({
                 title: "Mindtap Environment Settings",
                 context: expectedContext
@@ -340,7 +341,7 @@ describe("GSLoader", function() {
             gapi._requestCallBackData.id = "spreadsheet02";
             $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7-post.xml");
             $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers) {
-                return [200, "success", "", {}]
+                return [200, "success", "", {}];
             });
         });
 
@@ -355,7 +356,7 @@ describe("GSLoader", function() {
                 var reqObj = spreadSheet.createWorksheet();
                 expect(reqObj.done).toBeDefined();
                 expect(reqObj.resolve).not.toBeDefined();
-            })
+            });
         });
 
         it("GSLoader.Spreadsheet.createWorksheet post correct title", function() {
@@ -385,10 +386,10 @@ describe("GSLoader", function() {
                 expect($postData[0].nodeName).toBe("ENTRY");
                 expect($postData.find("title").text()).toBe("Worksheet Title");
                 expect($postData.children().filter(function() {
-                    return (this.nodeName === "GS:ROWCOUNT")
+                    return (this.nodeName === "GS:ROWCOUNT");
                 }).text()).toBe("10");
                 expect($postData.children().filter(function() {
-                    return (this.nodeName === "GS:COLCOUNT")
+                    return (this.nodeName === "GS:COLCOUNT");
                 }).text()).toBe("5");
             });
         });
@@ -508,7 +509,7 @@ describe("GSLoader", function() {
 
                     waitsFor(function() {
                         return worksheet;
-                    }, "Worksheet is created", 2000)
+                    }, "Worksheet is created", 2000);
                     runs(function() {
                         expect(worksheet).toBeDefined();
                         expect(spyOnAjax.callCount).toBe(4);
@@ -541,7 +542,7 @@ describe("GSLoader", function() {
                     var worksheet;
                     rowData = [
                         ["", null, undefined, "Valid", false]
-                    ]
+                    ];
                     spreadSheet.createWorksheet({
                         title: "Worksheet Title",
                         rows: 1,
@@ -554,7 +555,7 @@ describe("GSLoader", function() {
 
                     waitsFor(function() {
                         return worksheet;
-                    }, "Worksheet is created", 2000)
+                    }, "Worksheet is created", 2000);
                     runs(function() {
                         var postCallArgs = spyOnAjax.calls[2].args[0];
                         var $postData = $(postCallArgs.data);
@@ -591,7 +592,7 @@ describe("GSLoader", function() {
                     });
                     waitsFor(function() {
                         return worksheet;
-                    }, "Worksheet is created", 2000)
+                    }, "Worksheet is created", 2000);
                     runs(function() {
                         expect(worksheet).toBeDefined();
                         expect(worksheet.rows.length).toBe(4);

@@ -1,3 +1,4 @@
+/*global GSLoader:false, gapi:false*/
 describe("gsloader drive", function() {
     it("load method loads drive api using gapi client and does Google Auth Check", function() {
         spyOn(GSLoader.auth, "checkAuth");
@@ -19,7 +20,7 @@ describe("gsloader drive", function() {
         var actualCalledWithContext;
         var callback = jasmine.createSpy("Some Spy").andCallFake(function() {
             actualCalledWithContext = this;
-        })
+        });
         var reqObj = GSLoader.drive.createSpreadsheet({
             title: "Spreadsheet title"
         }).done(callback);
@@ -32,7 +33,7 @@ describe("gsloader drive", function() {
             expect(callback).toHaveBeenCalled();
             expect(callback.mostRecentCall.args[0].title).toBe("Spreadsheet title");
             expect(actualCalledWithContext).toBe(reqObj);
-        })
+        });
     });
 
     it("createSpreadsheet calls callback with correct context when context is passed", function() {
@@ -52,6 +53,6 @@ describe("gsloader drive", function() {
         runs(function() {
             expect(callback).toHaveBeenCalled();
             expect(actualCalledWithContext).toBe(expectedCalledWithContext);
-        })
+        });
     });
 });

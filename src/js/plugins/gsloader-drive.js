@@ -37,12 +37,13 @@
             });
 
             deferred.promise(csRequest);
-            
+
             request.execute(function(resp) {
                 deferred.resolveWith(_options.context, [resp]);
             });
             return csRequest;
-        }/*,
+        }
+/*,
 
         getFiles: function(callback) {
             var retrievePageOfFiles = function(request, result) {
