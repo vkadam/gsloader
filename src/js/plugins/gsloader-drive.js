@@ -2,6 +2,7 @@
  *    Author: Vishal Kadam
  */
 /*global GSLoader:false, gapi:false*/
+
 (function(_attachTo, $) {
 
     "use strict";
@@ -21,10 +22,10 @@
 
         createSpreadsheet: function(options) {
             var csRequest = {},
-                _options = $.extend({
-                    title: "",
-                    context: csRequest
-                }, options),
+            _options = $.extend({
+                title: "",
+                context: csRequest
+            }, options),
                 deferred = $.Deferred();
 
             var request = gapi.client.request({
@@ -43,8 +44,8 @@
             });
             return csRequest;
         }
-/*,
 
+        /*,
         getFiles: function(callback) {
             var retrievePageOfFiles = function(request, result) {
                     request.execute(function(resp) {

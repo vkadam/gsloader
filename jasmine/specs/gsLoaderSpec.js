@@ -336,7 +336,6 @@ describe("GSLoader", function() {
             runs(test);
         }
 
-
         beforeEach(function() {
             gapi._requestCallBackData.id = "spreadsheet02";
             $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7-post.xml");

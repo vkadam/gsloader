@@ -1,13 +1,13 @@
-/*! Gsloader - v0.0.1 - 2012-10-27
+/*! Gsloader - v0.0.1 - 2012-10-28
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2012 Vishal Kadam; Licensed MIT */
 ;
 /**********************************/
 (function(_attachTo, $) {
+    "use strict";
     /*
      * String.format method
      */
-    "use strict";
     if (!String.prototype.format) {
         String.prototype.format = function() {
             var str = this.toString();
@@ -29,10 +29,10 @@
      * Logger class
      */
     var Logger = function(options) {
-            $.extend(this, {
-                debug: false
-            }, options);
-        };
+        $.extend(this, {
+            debug: false
+        }, options);
+    };
     Logger.prototype = {
         log: function() {
             if (this.debug && typeof console !== "undefined" && typeof console.log !== "undefined") {
@@ -45,9 +45,8 @@
      * GSLoader class
      */
     var GSLoaderClass = function(options) {
-            Logger.call(this, options);
-        };
-
+        Logger.call(this, options);
+    };
 
     GSLoaderClass.prototype = new Logger();
 
@@ -64,7 +63,7 @@
 
     GSLoaderClass.prototype.loadSpreadsheet = function(options) {
         var lsRequest = {},
-            deferred = $.Deferred();
+        deferred = $.Deferred();
         options = $.extend({
             context: lsRequest
         }, sanitizeOptions(options, "id"));
@@ -97,10 +96,10 @@
      */
     GSLoaderClass.prototype.createSpreadsheet = function(options) {
         var csRequest = {},
-            _options = $.extend({
-                title: "",
-                context: csRequest
-            }, sanitizeOptions(options, "title")),
+        _options = $.extend({
+            title: "",
+            context: csRequest
+        }, sanitizeOptions(options, "title")),
             deferred = $.Deferred();
 
         function spreadSheetCreated(spreadSheetObj) {
@@ -125,19 +124,19 @@
      * Spreadsheet class
      */
     var Spreadsheet = function(options) {
-            options = sanitizeOptions(options, "id");
-            if (options && /id=/.test(options.id)) {
-                GSLoader.log("You passed a id as a URL! Attempting to parse.");
-                options.id = options.id.match("id=([^&]*)")[1];
-            }
-            $.extend(this, {
-                id: "",
-                title: ""
-            }, options, {
-                sheetsToLoad: [],
-                worksheets: []
-            });
-        };
+        options = sanitizeOptions(options, "id");
+        if (options && /id=/.test(options.id)) {
+            GSLoader.log("You passed a id as a URL! Attempting to parse.");
+            options.id = options.id.match("id=([^&]*)")[1];
+        }
+        $.extend(this, {
+            id: "",
+            title: ""
+        }, options, {
+            sheetsToLoad: [],
+            worksheets: []
+        });
+    };
 
     Spreadsheet.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
     Spreadsheet.WORKSHEET_ID_REGEX = /.{3}$/;
@@ -240,7 +239,7 @@
                 var entryNode = $(jqXHR.responseText).filter(function() {
                     return this.nodeName === "ENTRY";
                 });
-                // Right now creating worksheet don't return the list feed url, so cretating it using cells feed 
+                /* Right now creating worksheet don't return the list feed url, so cretating it using cells feed */
                 worksheet = _this.parseWorksheet(entryNode);
                 _this.worksheets.push(worksheet);
                 worksheet.listFeed = worksheet.cellsFeed.replace("/cells/", "/list/");
@@ -264,18 +263,17 @@
     /*
      * Worksheet class
      */
-
     var Worksheet = function(options) {
-            $.extend(this, {
-                id: "",
-                title: "",
-                listFeed: "",
-                cellsFeed: "",
-                rows: [],
-                spreadsheet: null
-                //successCallbacks: []
-            }, options);
-        };
+        $.extend(this, {
+            id: "",
+            title: "",
+            listFeed: "",
+            cellsFeed: "",
+            rows: [],
+            spreadsheet: null
+            //successCallbacks: []
+        }, options);
+    };
 
     Worksheet.COLUMN_NAME_REGEX = /gsx:/;
     Worksheet.CELL_FEED_HEADER = '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>{0}</id>{1}</feed>';
@@ -362,6 +360,7 @@
 }(window, jQuery));;
 /**********************************/
 /*global GSLoader:false, gapi:false*/
+
 (function(_attachTo, $) {
 
     "use strict";
@@ -381,10 +380,10 @@
 
         createSpreadsheet: function(options) {
             var csRequest = {},
-                _options = $.extend({
-                    title: "",
-                    context: csRequest
-                }, options),
+            _options = $.extend({
+                title: "",
+                context: csRequest
+            }, options),
                 deferred = $.Deferred();
 
             var request = gapi.client.request({
@@ -403,8 +402,8 @@
             });
             return csRequest;
         }
-/*,
 
+        /*,
         getFiles: function(callback) {
             var retrievePageOfFiles = function(request, result) {
                     request.execute(function(resp) {
@@ -436,12 +435,13 @@
 }(GSLoader, jQuery));;
 /**********************************/
 /*global GSLoader:false, gapi:false*/
+
 (function(_attachTo, $) {
     "use strict";
     var GSAuthClass = function() {
-            this.CLIENT_ID = null;
-            this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
-        };
+        this.CLIENT_ID = null;
+        this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
+    };
 
     GSAuthClass.prototype = {
 
@@ -468,7 +468,8 @@
         },
 
         handleAuthResult: function(authResult) {
-            var _this = this; /* No idea but somewhere context is changed to window object so setting it back to auth object */
+            var _this = this;
+            /* No idea but somewhere context is changed to window object so setting it back to auth object */
             if (!(_this instanceof GSAuthClass)) {
                 _this = _attachTo.auth;
             }
