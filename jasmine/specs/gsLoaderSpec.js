@@ -117,7 +117,7 @@ describe("GSLoader", function() {
             var req = GSLoader.loadSpreadsheet({
                 id: "spreadsheet01",
                 context: expectedContext
-            }).done(function(wSheet) {
+            }).done(function() {
                 returnObject.callWithContext = this;
             });
 
@@ -305,7 +305,7 @@ describe("GSLoader", function() {
         it("GSLoader.createSpreadsheet creates spreadsheet with title only", function() {
             gapi._requestCallBackData.id = "spreadsheet01";
             var spreadSheet;
-            var reqObj = GSLoader.createSpreadsheet("Mindtap Environment Settings").done(function(sSheet) {
+            GSLoader.createSpreadsheet("Mindtap Environment Settings").done(function(sSheet) {
                 spreadSheet = sSheet;
             });
 
@@ -325,7 +325,7 @@ describe("GSLoader", function() {
         var spreadSheet;
 
         function createSpreadsheetAndThen(test) {
-            var reqObj = GSLoader.createSpreadsheet().done(function(sSheet) {
+            GSLoader.createSpreadsheet().done(function(sSheet) {
                 spreadSheet = sSheet;
             });
 
@@ -339,7 +339,7 @@ describe("GSLoader", function() {
         beforeEach(function() {
             gapi._requestCallBackData.id = "spreadsheet02";
             $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7-post.xml");
-            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function(orig, settings, headers) {
+            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function() {
                 return [200, "success", "", {}];
             });
         });
@@ -360,7 +360,7 @@ describe("GSLoader", function() {
 
         it("GSLoader.Spreadsheet.createWorksheet post correct title", function() {
             createSpreadsheetAndThen(function() {
-                var wSheet = spreadSheet.createWorksheet("Worksheet Title");
+                spreadSheet.createWorksheet("Worksheet Title");
                 expect(spyOnAjax.callCount).toBe(2);
                 expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
                 expect(spyOnAjax.mostRecentCall.args[0].contentType).toBe("application/atom+xml");
@@ -376,7 +376,7 @@ describe("GSLoader", function() {
 
         it("GSLoader.Spreadsheet.createWorksheet post correct row and column number", function() {
             createSpreadsheetAndThen(function() {
-                var wSheet = spreadSheet.createWorksheet({
+                spreadSheet.createWorksheet({
                     title: "Worksheet Title",
                     rows: 10,
                     cols: 5
@@ -420,7 +420,7 @@ describe("GSLoader", function() {
             createSpreadsheetAndThen(function() {
                 var expectedCalledWithContext = {};
                 var actualCalledWithContext;
-                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
+                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function() {
                     actualCalledWithContext = this;
                 });
                 spreadSheet.createWorksheet({
@@ -441,9 +441,8 @@ describe("GSLoader", function() {
 
         it("GSLoader.Spreadsheet.createWorksheet calls callback with createWorksheet request as context when context is not passed", function() {
             createSpreadsheetAndThen(function() {
-                var expectedCalledWithContext = {};
                 var actualCalledWithContext;
-                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
+                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function() {
                     actualCalledWithContext = this;
                 });
                 var csReq = spreadSheet.createWorksheet("Worksheet Title").done(worksheetCallback);
@@ -478,7 +477,7 @@ describe("GSLoader", function() {
 
             function checkCellEntry(entryObj, cellFeed, rowNo, colNo, value) {
                 var childs = {};
-                $(entryObj).children().each(function(idx, obj) {
+                $(entryObj).children().each(function() {
                     childs[this.nodeName] = $(this);
                 });
                 var cellNo = "R{0}C{1}".format(rowNo, colNo);

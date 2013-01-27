@@ -4,7 +4,7 @@ describe("gsloader drive", function() {
         spyOn(GSLoader.auth, "checkAuth");
         spyOn(gapi.client, "load").andCallThrough();
 
-        var driveObj = GSLoader.drive.load();
+        GSLoader.drive.load();
 
         expect(gapi.client.load).toHaveBeenCalledWith("drive", "v2", jasmine.any(Function));
         expect(GSLoader.auth.checkAuth).toHaveBeenCalled();

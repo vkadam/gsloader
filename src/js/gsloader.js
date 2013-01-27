@@ -6,6 +6,9 @@
     "use strict";
     /*
      * String.format method
+     * Example:
+     *      "{0} is {1}".format("jQuery", "awesome")
+     * Output "jQuery is awesome"
      */
     if (!String.prototype.format) {
         String.prototype.format = function() {
@@ -18,6 +21,13 @@
         };
     }
 
+    /*
+     * String.emcodeXML method
+     * Example:
+     * "String.encodeXML replace & \"\ ' 
+     *  < >".encodeXML()
+     * Output "String.encodeXML replace &amp; &quot; &apos; &#10; &lt; &gt;"
+     */
     if (!String.prototype.encodeXML) {
         String.prototype.encodeXML = function() {
             return this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\n/g, '&#10;');
@@ -218,7 +228,6 @@
                 rows: 20,
                 cols: 20,
                 context: cwsReq,
-                // callbackContext: callbackContext || _this,
                 headers: [],
                 rowData: []
             }, sanitizeOptions(options, "title"));
