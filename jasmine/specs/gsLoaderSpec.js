@@ -321,7 +321,8 @@ describe("GSLoader", function() {
 
     });
 
-    describe("GSLoader.Spreadsheet.createWorksheet", function() {
+    describe("GSLoader.Spreadsheet.worksheet", function() {
+
         var spreadSheet;
 
         function createSpreadsheetAndThen(test) {
@@ -350,112 +351,113 @@ describe("GSLoader", function() {
             spreadSheet = null;
         });
 
-        it("GSLoader.Spreadsheet.createWorksheet returns jQuery Deferred object", function() {
-            createSpreadsheetAndThen(function() {
-                var reqObj = spreadSheet.createWorksheet();
-                expect(reqObj.done).toBeDefined();
-                expect(reqObj.resolve).not.toBeDefined();
-            });
-        });
-
-        it("GSLoader.Spreadsheet.createWorksheet post correct title", function() {
-            createSpreadsheetAndThen(function() {
-                spreadSheet.createWorksheet("Worksheet Title");
-                expect(spyOnAjax.callCount).toBe(2);
-                expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
-                expect(spyOnAjax.mostRecentCall.args[0].contentType).toBe("application/atom+xml");
-                expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/worksheets/spreadsheet02/private/full");
-                expect(spyOnAjax.mostRecentCall.args[0].headers["GData-Version"]).toBe("3.0");
-                var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
-                expect($postData.length).toBe(1);
-                expect($postData[0].nodeName).toBe("ENTRY");
-                expect($postData.find("title").text()).toBe("Worksheet Title");
-            });
-
-        });
-
-        it("GSLoader.Spreadsheet.createWorksheet post correct row and column number", function() {
-            createSpreadsheetAndThen(function() {
-                spreadSheet.createWorksheet({
-                    title: "Worksheet Title",
-                    rows: 10,
-                    cols: 5
-                });
-                var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
-                expect($postData[0].nodeName).toBe("ENTRY");
-                expect($postData.find("title").text()).toBe("Worksheet Title");
-                expect($postData.children().filter(function() {
-                    return (this.nodeName === "GS:ROWCOUNT");
-                }).text()).toBe("10");
-                expect($postData.children().filter(function() {
-                    return (this.nodeName === "GS:COLCOUNT");
-                }).text()).toBe("5");
-            });
-        });
-
-        it("GSLoader.Spreadsheet.createWorksheet, on success notifies done callbacks with newly created worksheet", function() {
-            createSpreadsheetAndThen(function() {
-                expect(spreadSheet.worksheets.length).toBe(0);
-                var worksheet;
-                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
-                    worksheet = wSheet;
-                });
-                spreadSheet.createWorksheet("Worksheet Title").done(worksheetCallback);
-
-                waitsFor(function() {
-                    return worksheet;
-                }, "Worksheet should be created", 1000);
-
-                runs(function() {
-                    expect(worksheetCallback).toHaveBeenCalled();
-                    expect(worksheet).toBeDefined();
-                    expect(worksheet.title).toBe("Worksheet Title");
-                    expect(spreadSheet.worksheets.length).toBe(1);
-                    expect(spreadSheet.worksheets[0]).toBe(worksheet);
+        describe("createWorksheet", function() {
+            it("returns jQuery Deferred object", function() {
+                createSpreadsheetAndThen(function() {
+                    var reqObj = spreadSheet.createWorksheet();
+                    expect(reqObj.done).toBeDefined();
+                    expect(reqObj.resolve).not.toBeDefined();
                 });
             });
-        });
 
-        it("GSLoader.Spreadsheet.createWorksheet on success notifies done callbacks with specified context", function() {
-            createSpreadsheetAndThen(function() {
-                var expectedCalledWithContext = {};
-                var actualCalledWithContext;
-                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function() {
-                    actualCalledWithContext = this;
-                });
-                spreadSheet.createWorksheet({
-                    title: "Worksheet Title",
-                    context: expectedCalledWithContext
-                }).done(worksheetCallback);
-
-                waitsFor(function() {
-                    return actualCalledWithContext;
-                }, "Worksheet should be created", 1000);
-
-                runs(function() {
-                    expect(worksheetCallback).toHaveBeenCalled();
-                    expect(actualCalledWithContext).toBe(expectedCalledWithContext);
+            it("post correct title", function() {
+                createSpreadsheetAndThen(function() {
+                    spreadSheet.createWorksheet("Worksheet Title");
+                    expect(spyOnAjax.callCount).toBe(2);
+                    expect(spyOnAjax.mostRecentCall.args[0].type).toBe("POST");
+                    expect(spyOnAjax.mostRecentCall.args[0].contentType).toBe("application/atom+xml");
+                    expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/worksheets/spreadsheet02/private/full");
+                    expect(spyOnAjax.mostRecentCall.args[0].headers["GData-Version"]).toBe("3.0");
+                    var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
+                    expect($postData.length).toBe(1);
+                    expect($postData[0].nodeName).toBe("ENTRY");
+                    expect($postData.find("title").text()).toBe("Worksheet Title");
                 });
             });
-        });
 
-        it("GSLoader.Spreadsheet.createWorksheet calls callback with createWorksheet request as context when context is not passed", function() {
-            createSpreadsheetAndThen(function() {
-                var actualCalledWithContext;
-                var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function() {
-                    actualCalledWithContext = this;
+            it("post correct row and column number", function() {
+                createSpreadsheetAndThen(function() {
+                    spreadSheet.createWorksheet({
+                        title: "Worksheet Title",
+                        rows: 10,
+                        cols: 5
+                    });
+                    var $postData = $(spyOnAjax.mostRecentCall.args[0].data);
+                    expect($postData[0].nodeName).toBe("ENTRY");
+                    expect($postData.find("title").text()).toBe("Worksheet Title");
+                    expect($postData.children().filter(function() {
+                        return (this.nodeName === "GS:ROWCOUNT");
+                    }).text()).toBe("10");
+                    expect($postData.children().filter(function() {
+                        return (this.nodeName === "GS:COLCOUNT");
+                    }).text()).toBe("5");
                 });
-                var csReq = spreadSheet.createWorksheet("Worksheet Title").done(worksheetCallback);
+            });
 
-                waitsFor(function() {
-                    return actualCalledWithContext;
-                }, "Worksheet should be created", 1000);
+            it("on success notifies done callbacks with newly created worksheet", function() {
+                createSpreadsheetAndThen(function() {
+                    expect(spreadSheet.worksheets.length).toBe(0);
+                    var worksheet;
+                    var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function(wSheet) {
+                        worksheet = wSheet;
+                    });
+                    spreadSheet.createWorksheet("Worksheet Title").done(worksheetCallback);
 
-                runs(function() {
-                    expect(worksheetCallback).toHaveBeenCalled();
-                    expect(actualCalledWithContext).toBe(csReq);
+                    waitsFor(function() {
+                        return worksheet;
+                    }, "Worksheet should be created", 1000);
+
+                    runs(function() {
+                        expect(worksheetCallback).toHaveBeenCalled();
+                        expect(worksheet).toBeDefined();
+                        expect(worksheet.title).toBe("Worksheet Title");
+                        expect(spreadSheet.worksheets.length).toBe(1);
+                        expect(spreadSheet.worksheets[0]).toBe(worksheet);
+                    });
                 });
+            });
 
+            it("on success notifies done callbacks with specified context", function() {
+                createSpreadsheetAndThen(function() {
+                    var expectedCalledWithContext = {};
+                    var actualCalledWithContext;
+                    var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function() {
+                        actualCalledWithContext = this;
+                    });
+                    spreadSheet.createWorksheet({
+                        title: "Worksheet Title",
+                        context: expectedCalledWithContext
+                    }).done(worksheetCallback);
+
+                    waitsFor(function() {
+                        return actualCalledWithContext;
+                    }, "Worksheet should be created", 1000);
+
+                    runs(function() {
+                        expect(worksheetCallback).toHaveBeenCalled();
+                        expect(actualCalledWithContext).toBe(expectedCalledWithContext);
+                    });
+                });
+            });
+
+            it("calls callback with createWorksheet request as context when context is not passed", function() {
+                createSpreadsheetAndThen(function() {
+                    var actualCalledWithContext;
+                    var worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function() {
+                        actualCalledWithContext = this;
+                    });
+                    var csReq = spreadSheet.createWorksheet("Worksheet Title").done(worksheetCallback);
+
+                    waitsFor(function() {
+                        return actualCalledWithContext;
+                    }, "Worksheet should be created", 1000);
+
+                    runs(function() {
+                        expect(worksheetCallback).toHaveBeenCalled();
+                        expect(actualCalledWithContext).toBe(csReq);
+                    });
+
+                });
             });
         });
 
@@ -491,7 +493,7 @@ describe("GSLoader", function() {
                 expect(childs["GS:CELL"].attr("inputValue")).toBe(value);
             }
 
-            it("GSLoader.Spreadsheet.createWorksheet creates header from headers and rowData by making ajax call", function() {
+            it("creates header from headers and rowData by making ajax call", function() {
                 createSpreadsheetAndThen(function() {
                     var worksheet;
                     expect(spreadSheet.worksheets.length).toBe(0);
@@ -535,7 +537,7 @@ describe("GSLoader", function() {
 
             });
 
-            it("GSLoader.Spreadsheet.createWorksheet don't post batch entry for null or undefined cell value", function() {
+            it("don't post batch entry for null or undefined cell value", function() {
                 createSpreadsheetAndThen(function() {
                     var worksheet;
                     rowData = [
@@ -577,7 +579,7 @@ describe("GSLoader", function() {
 
             });
 
-            it("GSLoader.Spreadsheet.createWorksheet creates rows from passed data and fetch latest data", function() {
+            it("creates rows from passed data and fetch latest data", function() {
                 createSpreadsheetAndThen(function() {
                     var worksheet;
                     spreadSheet.createWorksheet({
@@ -602,7 +604,49 @@ describe("GSLoader", function() {
                 });
             });
         });
+    });
 
+    describe("GSLoader.Spreadsheet.worksheet.rename", function() {
+
+        beforeEach(function() {
+            $.fixture("PUT worksheets/spreadsheet01/private/full/od6/d9ziupyy0w", "jasmine/fixtures/Spreadsheet-01-od6-put-rename.xml");
+        });
+
+        it("makes call to get latest metadata of worksheet", function() {
+            GSLoader.loadSpreadsheet("spreadsheet01").done(function(spreadsheet) {
+                var worksheet = spreadsheet.worksheets[0];
+                expect(worksheet.title).toBe("Environments");
+                expect(worksheet.metadata).not.toBeNull();
+
+                worksheet.metadata = null;
+
+                worksheet.rename("Worksheet Title New");
+
+                /* Ajax calls by index 0=Load Spreadsheet, 1=Get Worksheet Metadata, 2=Rename worksheet */
+                expect(spyOnAjax.callCount).toBe(3);
+                expect(worksheet.metadata).not.toBeNull();
+                var metadataAjaxCall = spyOnAjax.argsForCall[1][0];
+                expect(metadataAjaxCall.url).toBe("https://spreadsheets.google.com/feeds/worksheets/spreadsheet01/private/full");
+            });
+        });
+
+        it("makes ajax call with corrent data to update title of worksheet and update worksheet metadata", function() {
+            GSLoader.loadSpreadsheet("spreadsheet01").done(function(spreadsheet) {
+                var worksheet = spreadsheet.worksheets[0];
+                var oldEditLink = worksheet.editLink;
+                worksheet.rename("Worksheet Title New");
+
+                /* Ajax calls by index 0=Load Spreadsheet, 1=Get Worksheet Metadata, 2=Rename worksheet */
+                var renameAjaxCall = spyOnAjax.argsForCall[2][0];
+                expect(renameAjaxCall.url.indexOf(oldEditLink)).toBe(0);
+                expect(renameAjaxCall.type).toBe("PUT");
+                expect(renameAjaxCall.contentType).toBe("application/atom+xml");
+                expect(worksheet.title).toBe("Worksheet Title New");
+                expect(worksheet.listFeed).toBe("https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full-UPDATED");
+                expect(worksheet.cellsFeed).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet01/od6/private/full-UPDATED");
+                expect(worksheet.editLink).toBe("https://spreadsheets.google.com/feeds/worksheets/spreadsheet01/private/full/od6/d9ziupyy0w-UPDATED");
+            });
+        });
     });
 
 });

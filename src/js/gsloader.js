@@ -203,6 +203,8 @@
                 title: title,
                 listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
                 cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
+                editLink: $worksheet.children("link[rel='edit']").attr("href"),
+                metadata: $worksheet,
                 spreadsheet: this
             });
             return worksheet;
@@ -277,6 +279,8 @@
             title: "",
             listFeed: "",
             cellsFeed: "",
+            editLink: "",
+            metadata: null,
             rows: [],
             spreadsheet: null
             //successCallbacks: []
@@ -358,6 +362,59 @@
                 deferred.resolveWith(arReq, [data, textStatus, jqXHR]);
             });
             return arReq;
+        },
+
+        /**
+         * @param {string} title - New title of the worksheet.
+         */
+        rename: function(title) {
+            var _this = this,
+                deferred = $.Deferred(),
+                metadataReq = {};
+
+            deferred.promise(metadataReq);
+
+            // Make ajax call to get latest metadata of worksheet
+            $.ajax({
+                // Get all worksheet details using spreadsheet url
+                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.spreadsheet.id)
+            }).done(function(data) {
+                var $feed = $(data).children("feed");
+                // Filter to get details of this worksheet only
+                $feed.children("entry").filter(function() {
+                    var worksheetId = $(this).children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0];
+                    return worksheetId === _this.id;
+                }).each(function() {
+                    // Temporary parse worksheet and then update current worksheet.metadata
+                    var worksheet = _this.spreadsheet.parseWorksheet(this);
+                    _this.metadata = worksheet.metadata;
+                });
+
+                GSLoader.log("Renaming worksheet with title =", title);
+
+                var tmpMetadata = _this.metadata.clone();
+                tmpMetadata.children("title").text(title);
+
+                var reqData = (new XMLSerializer()).serializeToString(tmpMetadata[0]);
+
+                $.ajax({
+                    url: _this.editLink,
+                    type: "PUT",
+                    contentType: "application/atom+xml",
+                    data: reqData
+                }).done(function(data) {
+                    // Temporary parse worksheet and then update current worksheet.metadata
+                    var worksheet = _this.spreadsheet.parseWorksheet($(data).children("entry"));
+                    _this.metadata = worksheet.metadata;
+                    _this.title = worksheet.title;
+                    _this.listFeed = worksheet.listFeed;
+                    _this.cellsFeed = worksheet.cellsFeed;
+                    _this.editLink = worksheet.editLink;
+                    GSLoader.log("Worksheet renamed successfully with title =", _this.title);
+                    deferred.resolveWith(metadataReq, [_this]);
+                });
+            });
+            return metadataReq;
         }
     };
 
