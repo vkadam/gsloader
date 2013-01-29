@@ -284,7 +284,6 @@
             metadata: null,
             rows: [],
             spreadsheet: null
-            //successCallbacks: []
         }, options);
     };
 
