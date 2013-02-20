@@ -3,3 +3,4 @@ target/
 /node_modules
 _SpecRunner.html
 *.log
+.grunt/

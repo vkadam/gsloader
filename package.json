@@ -1,32 +1,36 @@
 {
-  "name": "gsloader",
-  "title": "Gsloader",
-  "description": "Javascript library to read ANY (even not published) google spreadsheet into json object. Also create new spreadsheet, get list of all google drive file list.",
-  "version": "0.0.2rc",
-  "homepage": "https://github.com/vkadam/gsloader",
-  "author": {
-    "name": "Vishal Kadam",
-    "email": "vishal.4kadam@gmail.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/vkadam/gsloader.git"
-  },
-  "bugs": {
-    "url": "https://github.com/vkadam/gsloader/issues"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/vkadam/gsloader/blob/master/LICENSE-MIT"
+    "name": "gsloader",
+    "title": "Gsloader",
+    "description": "Javascript library to read ANY (even not published) google spreadsheet into json object. Also create new spreadsheet, get list of all google drive file list.",
+    "version": "0.0.2rc",
+    "homepage": "https://github.com/vkadam/gsloader",
+    "author": {
+        "name": "Vishal Kadam",
+        "email": "vishal.4kadam@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/vkadam/gsloader.git"
+    },
+    "bugs": {
+        "url": "https://github.com/vkadam/gsloader/issues"
+    },
+    "licenses": [{
+        "type": "MIT",
+        "url": "https://github.com/vkadam/gsloader/blob/master/LICENSE-MIT"
+    }],
+    "engines": {
+        "node": ">=0.8"
+    },
+    "dependencies": {
+        "grunt": "~0.4.0"
+    },
+    "devDependencies": {
+        "grunt-jsbeautifier": "~0.1.5",
+        "grunt-contrib-jasmine": "~0.3.2",
+        "grunt-contrib-concat": "~0.1.2",
+        "grunt-contrib-uglify": "~0.1.1",
+        "grunt-contrib-jshint": "~0.1.1",
+        "grunt-contrib-connect": "~0.1.2"
     }
-  ],
-  "dependencies": {
-    "grunt-jasmine-runner": "0.6.0",
-    "grunt-contrib-clean": "0.3.1",
-    "grunt-jsbeautifier": "0.1.4"
-  },
-  "engines": {
-    "node": ">=0.8"
-  }
 }

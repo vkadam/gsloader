@@ -1,8 +1,10 @@
-/*! Gsloader - v0.0.1 - 2013-01-29
+/* Gsloader - v0.0.2rc - 2013-02-20
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
-;
-/**********************************/
+/*
+ *    Author: Vishal Kadam
+ */
+
 (function(_attachTo, $) {
     "use strict";
     /*
@@ -424,6 +426,9 @@
 
 }(window, jQuery));;
 /**********************************/
+/*
+ *    Author: Vishal Kadam
+ */
 /*global GSLoader:false, gapi:false*/
 
 (function(_attachTo, $) {
@@ -499,6 +504,9 @@
 
 }(GSLoader, jQuery));;
 /**********************************/
+/*
+ *    Author: Vishal Kadam
+ */
 /*global GSLoader:false, gapi:false*/
 
 (function(_attachTo, $) {
