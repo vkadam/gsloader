@@ -1,6 +1,5 @@
 /*global module:false*/
 module.exports = function(grunt) {
-
     "use strict";
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -41,12 +40,17 @@ module.exports = function(grunt) {
                 }
             }
         },
+        open: {
+            jasmine: {
+                url: "<%= jasmine.all.options.host %>_SpecRunner.html"
+            }
+        },
         jasmine: {
             all: {
                 src: ["src/lib/**/*.js", "src/js/**/*.js"],
                 options: {
                     specs: ["jasmine/lib/**/*.js", "jasmine/specs/**/*Spec.js"],
-                    host: 'http://127.0.0.1:<%= connect.jasmine.options.port %>/'
+                    host: "http://127.0.0.1:<%= connect.jasmine.options.port %>/"
                 }
             }
         },
@@ -84,16 +88,17 @@ module.exports = function(grunt) {
         }
     });
 
-    // These plugins provide necessary tasks.
+    /* These plugins provide necessary tasks. */
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks("grunt-jsbeautifier");
 
     /* Register tasks. */
     grunt.registerTask("default", ["jsbeautifier", "jshint", "connect", "jasmine", "concat", "uglify"]);
     grunt.registerTask("test", ["connect", "jasmine"]);
-    grunt.registerTask("jasmine-server", ["jasmine:all:build", "connect::keepalive"]);
+    grunt.registerTask("jasmine-server", ["jasmine:all:build", "open:jasmine", "connect::keepalive"]);
 };
