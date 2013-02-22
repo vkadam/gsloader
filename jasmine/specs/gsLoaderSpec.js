@@ -77,6 +77,24 @@ describe("GSLoader", function() {
         });
     });
 
+    describe("GSLoader.Spreadsheet", function() {
+
+        it("getWorksheet returns worksheet by title", function() {
+            var spreadSheet;
+            GSLoader.loadSpreadsheet('spreadsheet01').done(function(sSheet) {
+                spreadSheet = sSheet;
+            });
+            waitsFor(function() {
+                return spreadSheet;
+            }, "Spreadsheet should be loaded", 1000);
+
+            runs(function() {
+                var worksheet = spreadSheet.getWorksheet("Url Parameters");
+                expect(worksheet).toBeDefined();
+            });
+        });
+    });
+
     describe("GSLoader.loadSpreadsheet", function() {
         beforeEach(function() {
             $.fixture("GET feeds/list/spreadsheet01/od6/private/full", "jasmine/fixtures/Spreadsheet-01-od6.xml");
@@ -318,7 +336,6 @@ describe("GSLoader", function() {
                 expect(spreadSheet.title).toBe("Mindtap Environment Settings");
             });
         });
-
     });
 
     describe("GSLoader.Spreadsheet.worksheet", function() {

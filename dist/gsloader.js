@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.2rc - 2013-02-21
+/* Gsloader - v0.0.2rc - 2013-02-22
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 /*
@@ -270,6 +270,23 @@
                 }
             });
             return cwsReq;
+        },
+
+        /*
+         * Return the first worksheet matching to title
+         * @param {String} Wotksheet title.
+         * @return {Object} The worksheet object
+         */
+        getWorksheet: function(title) {
+            var matchingWorksheet;
+            $.each(this.worksheets, function(idx, worksheet) {
+                if (worksheet.title === title) {
+                    matchingWorksheet = worksheet;
+                    return false;
+                }
+
+            });
+            return matchingWorksheet;
         }
     };
 
@@ -367,6 +384,7 @@
         },
 
         /**
+         * Rename the worksheet with new title 
          * @param {string} title - New title of the worksheet.
          */
         rename: function(title) {
@@ -377,6 +395,7 @@
             deferred.promise(metadataReq);
 
             // Make ajax call to get latest metadata of worksheet
+            GSLoader.log("Getting spreadsheet metadata before renaming worksheet");
             $.ajax({
                 // Get all worksheet details using spreadsheet url
                 url: Spreadsheet.PRIVATE_SHEET_URL.format(this.spreadsheet.id)
