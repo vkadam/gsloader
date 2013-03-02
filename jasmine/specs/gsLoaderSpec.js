@@ -43,38 +43,13 @@ describe("GSLoader", function() {
         });
     });
 
-    describe("GSLoader logger", function() {
-        var lastConsoleMessage = null;
-        var oldConsole = null;
-        if (typeof(console) !== 'undefined') {
-            oldConsole = console;
-        }
-        beforeEach(function() {
-            console = {
-                log: function(message) {
-                    lastConsoleMessage = message;
-                }
-            };
+    describe("GSLoader.logger", function() {
+
+        it("is default with WARN level", function() {
+            expect(GSLoader.logger).toBeDefined();
+            expect(GSLoader.logger.enabledFor(Logger.DEBUG)).toBeTruthy();
         });
 
-        afterEach(function() {
-            console = oldConsole;
-            GSLoader.disableLog();
-        });
-
-        it("GSLoader.log api is available", function() {
-            expect(GSLoader.log).toBeDefined();
-        });
-
-        it("GSLoader.log don't logs messages when debug is false (Default)", function() {
-            GSLoader.log('some logger message');
-            expect(lastConsoleMessage).toBeNull();
-        });
-
-        it("GSLoader.log logs messages when debug is enabled", function() {
-            GSLoader.enableLog().log('some logger message');
-            expect(lastConsoleMessage).toBe('some logger message');
-        });
     });
 
     describe("GSLoader.Spreadsheet", function() {
@@ -363,7 +338,6 @@ describe("GSLoader", function() {
         });
 
         afterEach(function() {
-            GSLoader.disableLog();
             delete gapi._requestCallBackData.id;
             spreadSheet = null;
         });

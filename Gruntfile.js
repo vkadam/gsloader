@@ -47,7 +47,7 @@ module.exports = function(grunt) {
         },
         jasmine: {
             all: {
-                src: ["src/lib/**/*.js", "src/js/**/*.js"],
+                src: ["src/lib/**/*.min.js", "src/js/**/*.js"],
                 options: {
                     specs: ["jasmine/lib/**/*.js", "jasmine/specs/**/*Spec.js"],
                     host: "http://127.0.0.1:<%= connect.jasmine.options.port %>/"
@@ -73,7 +73,7 @@ module.exports = function(grunt) {
                 camelcase: true,
                 globals: {
                     jQuery: false,
-                    console: true,
+                    Logger: false,
                     jasmine: false,
                     describe: false,
                     it: false,

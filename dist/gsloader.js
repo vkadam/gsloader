@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.2rc - 2013-02-22
+/* Gsloader - v0.0.2rc - 2013-03-02
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 /*
@@ -37,33 +37,6 @@
         };
     }
 
-    /*
-     * Logger class
-     */
-    var Logger = function(options) {
-        $.extend(this, {
-            debug: false
-        }, options);
-    };
-    Logger.prototype = {
-        log: function() {
-            if (this.debug && typeof console !== "undefined" && typeof console.log !== "undefined") {
-                console.log.apply(console, arguments);
-            }
-        }
-    };
-
-    /*
-     * GSLoader class
-     */
-    var GSLoaderClass = function(options) {
-        Logger.call(this, options);
-    };
-
-    GSLoaderClass.prototype = new Logger();
-
-    var GSLoader = new GSLoaderClass();
-
     function sanitizeOptions(options, attribName) {
         var opts;
         if (typeof(options) === "string") {
@@ -73,63 +46,64 @@
         return opts || options;
     }
 
-    GSLoaderClass.prototype.loadSpreadsheet = function(options) {
-        var lsRequest = {},
-        deferred = $.Deferred();
-        options = $.extend({
-            context: lsRequest
-        }, sanitizeOptions(options, "id"));
-        var spreadSheet = new Spreadsheet({
-            id: options.id,
-            wanted: options.wanted
-        });
-
-        deferred.promise(lsRequest);
-
-        spreadSheet.fetch().done(function() {
-            deferred.resolveWith(options.context, [spreadSheet]);
-        });
-
-        return lsRequest;
-    };
-
-    GSLoaderClass.prototype.enableLog = function() {
-        this.debug = true;
-        return this;
-    };
-
-    GSLoaderClass.prototype.disableLog = function() {
-        this.debug = false;
-        return this;
-    };
-
     /*
-     * Needs GSLoader.drive api
+     * GSLoader class
      */
-    GSLoaderClass.prototype.createSpreadsheet = function(options) {
-        var csRequest = {},
-        _options = $.extend({
-            title: "",
-            context: csRequest
-        }, sanitizeOptions(options, "title")),
+    var GSLoaderClass = function() {
+        Logger.useDefaults(Logger.DEBUG);
+        this.logger = Logger.get("gsloader");
+    };
+
+    GSLoaderClass.prototype = {
+
+        loadSpreadsheet: function(options) {
+            var lsRequest = {},
             deferred = $.Deferred();
-
-        function spreadSheetCreated(spreadSheetObj) {
+            options = $.extend({
+                context: lsRequest
+            }, sanitizeOptions(options, "id"));
             var spreadSheet = new Spreadsheet({
-                id: spreadSheetObj.id,
-                title: spreadSheetObj.title
+                id: options.id,
+                wanted: options.wanted
             });
+
+            deferred.promise(lsRequest);
+
             spreadSheet.fetch().done(function() {
-                deferred.resolveWith(_options.context, [spreadSheet]);
+                deferred.resolveWith(options.context, [spreadSheet]);
             });
+
+            return lsRequest;
+        },
+
+        /*
+         * Needs GSLoader.drive api
+         */
+        createSpreadsheet: function(options) {
+            var csRequest = {},
+            _options = $.extend({
+                title: "",
+                context: csRequest
+            }, sanitizeOptions(options, "title")),
+                deferred = $.Deferred();
+
+            function spreadSheetCreated(spreadSheetObj) {
+                var spreadSheet = new Spreadsheet({
+                    id: spreadSheetObj.id,
+                    title: spreadSheetObj.title
+                });
+                spreadSheet.fetch().done(function() {
+                    deferred.resolveWith(_options.context, [spreadSheet]);
+                });
+            }
+
+            this.drive.createSpreadsheet({
+                title: _options.title
+            }).done(spreadSheetCreated);
+
+            deferred.promise(csRequest);
+            return csRequest;
         }
-
-        this.drive.createSpreadsheet({
-            title: _options.title
-        }).done(spreadSheetCreated);
-
-        deferred.promise(csRequest);
-        return csRequest;
     };
 
     /*
@@ -138,7 +112,7 @@
     var Spreadsheet = function(options) {
         options = sanitizeOptions(options, "id");
         if (options && /id=/.test(options.id)) {
-            GSLoader.log("You passed a id as a URL! Attempting to parse.");
+            GSLoader.logger.info("You passed a id as a URL! Attempting to parse.");
             options.id = options.id.match("id=([^&]*)")[1];
         }
         $.extend(this, {
@@ -237,7 +211,7 @@
                 rowData: []
             }, sanitizeOptions(options, "title"));
 
-            GSLoader.log("Creating worksheet for spreadsheet", this, "with options =", options);
+            GSLoader.logger.debug("Creating worksheet for spreadsheet", this, "with options =", options);
 
             var worksheet;
             $.ajax({
@@ -260,7 +234,7 @@
                     var rowData = options.rowData;
                     rowData.unshift(options.headers);
                     worksheet.addRows(rowData).done(function() {
-                        GSLoader.log("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
+                        GSLoader.logger.debug("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
                         worksheet.fetch().done(function() {
                             deferred.resolveWith(options.context, [worksheet]);
                         });
@@ -328,12 +302,11 @@
         parse: function(data) {
             var _this = this;
             var $entries = $(data).children("feed").children("entry");
+            _this.rows = [];
             if ($entries.length === 0) {
-                GSLoader.log("Missing data for " + _this.title + ", make sure you didn't forget column headers");
-                _this.rows = [];
+                GSLoader.logger.error("Missing data for " + _this.title + ", make sure you didn't forget column headers");
                 return;
             }
-            _this.rows = [];
             var row;
             $entries.each(function(idx) {
                 row = {
@@ -346,7 +319,7 @@
                 });
                 _this.rows.push(row);
             });
-            GSLoader.log("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
+            GSLoader.logger.debug("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
         },
 
         addRows: function(rowData) {
@@ -395,7 +368,7 @@
             deferred.promise(metadataReq);
 
             // Make ajax call to get latest metadata of worksheet
-            GSLoader.log("Getting spreadsheet metadata before renaming worksheet");
+            GSLoader.logger.debug("Getting spreadsheet metadata before renaming worksheet");
             $.ajax({
                 // Get all worksheet details using spreadsheet url
                 url: Spreadsheet.PRIVATE_SHEET_URL.format(this.spreadsheet.id)
@@ -411,7 +384,7 @@
                     _this.metadata = worksheet.metadata;
                 });
 
-                GSLoader.log("Renaming worksheet with title =", title);
+                GSLoader.logger.debug("Renaming worksheet with title =", title);
 
                 var tmpMetadata = _this.metadata.clone();
                 tmpMetadata.children("title").text(title);
@@ -431,13 +404,15 @@
                     _this.listFeed = worksheet.listFeed;
                     _this.cellsFeed = worksheet.cellsFeed;
                     _this.editLink = worksheet.editLink;
-                    GSLoader.log("Worksheet renamed successfully with title =", _this.title);
+                    GSLoader.logger.debug("Worksheet renamed successfully with title =", _this.title);
                     deferred.resolveWith(metadataReq, [_this]);
                 });
             });
             return metadataReq;
         }
     };
+
+    var GSLoader = new GSLoaderClass();
 
     $.extend(_attachTo, {
         GSLoader: GSLoader
