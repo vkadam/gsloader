@@ -55,7 +55,7 @@
 
         loadSpreadsheet: function(options) {
             var lsRequest = {},
-            deferred = $.Deferred();
+                deferred = $.Deferred();
             options = $.extend({
                 context: lsRequest
             }, sanitizeOptions(options, "id"));
@@ -78,10 +78,10 @@
          */
         createSpreadsheet: function(options) {
             var csRequest = {},
-            _options = $.extend({
-                title: "",
-                context: csRequest
-            }, sanitizeOptions(options, "title")),
+                _options = $.extend({
+                    title: "",
+                    context: csRequest
+                }, sanitizeOptions(options, "title")),
                 deferred = $.Deferred();
 
             function spreadSheetCreated(spreadSheetObj) {

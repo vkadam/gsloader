@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.2rc - 2013-03-02
+/* Gsloader - v0.0.2rc - 2013-04-05
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 /*
@@ -58,7 +58,7 @@
 
         loadSpreadsheet: function(options) {
             var lsRequest = {},
-            deferred = $.Deferred();
+                deferred = $.Deferred();
             options = $.extend({
                 context: lsRequest
             }, sanitizeOptions(options, "id"));
@@ -81,10 +81,10 @@
          */
         createSpreadsheet: function(options) {
             var csRequest = {},
-            _options = $.extend({
-                title: "",
-                context: csRequest
-            }, sanitizeOptions(options, "title")),
+                _options = $.extend({
+                    title: "",
+                    context: csRequest
+                }, sanitizeOptions(options, "title")),
                 deferred = $.Deferred();
 
             function spreadSheetCreated(spreadSheetObj) {
@@ -418,7 +418,8 @@
         GSLoader: GSLoader
     });
 
-}(window, jQuery));;
+}(window, jQuery));
+;
 /**********************************/
 /*
  *    Author: Vishal Kadam
@@ -444,10 +445,10 @@
 
         createSpreadsheet: function(options) {
             var csRequest = {},
-            _options = $.extend({
-                title: "",
-                context: csRequest
-            }, options),
+                _options = $.extend({
+                    title: "",
+                    context: csRequest
+                }, options),
                 deferred = $.Deferred();
 
             var request = gapi.client.request({
@@ -496,7 +497,8 @@
         drive: new GSDriveClass()
     });
 
-}(GSLoader, jQuery));;
+}(GSLoader, jQuery));
+;
 /**********************************/
 /*
  *    Author: Vishal Kadam

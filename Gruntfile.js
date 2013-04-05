@@ -30,7 +30,7 @@ module.exports = function(grunt) {
             files: "<%= jshint.files %>",
             options: {
                 "preserve_newlines": true,
-                "max_preserve_newlines": 1
+                "max_preserve_newlines": 2
             }
         },
         connect: {

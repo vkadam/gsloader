@@ -22,10 +22,10 @@
 
         createSpreadsheet: function(options) {
             var csRequest = {},
-            _options = $.extend({
-                title: "",
-                context: csRequest
-            }, options),
+                _options = $.extend({
+                    title: "",
+                    context: csRequest
+                }, options),
                 deferred = $.Deferred();
 
             var request = gapi.client.request({
