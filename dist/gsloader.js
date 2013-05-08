@@ -508,6 +508,8 @@
 (function(_attachTo, $) {
     "use strict";
     var GSAuthClass = function() {
+        Logger.useDefaults(Logger.DEBUG);
+        this.logger = Logger.get("gsAuth");
         this.CLIENT_ID = null;
         this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
     };
@@ -543,9 +545,9 @@
                 _this = _attachTo.auth;
             }
             if (authResult && !authResult.error) {
-                _attachTo.log("Google Api Authentication Succeed");
+                this.logger.debug("Google Api Authentication Succeed");
             } else {
-                _attachTo.log("Authenticating Google Api");
+                this.logger.debug("Authenticating Google Api");
                 gapi.auth.authorize({
                     'client_id': _this.CLIENT_ID,
                     'scope': _this.SCOPES,
