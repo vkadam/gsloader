@@ -27,8 +27,8 @@
         "grunt": "~0.4.1"
     },
     "devDependencies": {
-        "grunt-jsbeautifier": "~0.1.7",
-        "grunt-contrib-jasmine": "~0.3.2",
+        "grunt-jsbeautifier": "~0.1.8",
+        "grunt-contrib-jasmine": "~0.4.2",
         "grunt-contrib-concat": "~0.1.2",
         "grunt-contrib-uglify": "~0.1.1",
         "grunt-contrib-jshint": "~0.1.1",

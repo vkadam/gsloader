@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.2rc - 2013-04-05
+/* Gsloader - v0.0.2rc - 2013-05-08
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 /*
