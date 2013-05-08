@@ -43,9 +43,9 @@
                 _this = _attachTo.auth;
             }
             if (authResult && !authResult.error) {
-                this.logger.debug("Google Api Authentication Succeed");
+                _this.logger.debug("Google Api Authentication Succeed");
             } else {
-                this.logger.debug("Authenticating Google Api");
+                _this.logger.debug("Authenticating Google Api");
                 gapi.auth.authorize({
                     'client_id': _this.CLIENT_ID,
                     'scope': _this.SCOPES,
