@@ -12,7 +12,7 @@ module.exports = function(grunt) {
                 banner: "<%= meta.banner %>"
             },
             dist: {
-                src: ["src/js/gsloader.js", "src/js/plugins/gsloader-drive.js", "src/js/plugins/gsloader-auth.js"],
+                src: ["src/js/gsloader.js", "src/js/spreadsheet.js", "src/js/worksheet.js", "src/js/plugins/gsloader-drive.js", "src/js/plugins/gsloader-auth.js"],
                 dest: "dist/<%= pkg.name %>.js"
             }
         },
@@ -52,6 +52,15 @@ module.exports = function(grunt) {
                     specs: ["jasmine/lib/**/*.js", "jasmine/specs/**/*Spec.js"],
                     host: "http://127.0.0.1:<%= connect.jasmine.options.port %>/"
                 }
+            }
+        },
+        watch: {
+            options: {
+                files: ["src/js/**/*.js", "src/views/**/*.hbs"],
+                tasks: ["dist", "uglify"],
+                interrupt: true,
+                debounceDelay: 5,
+                interval: 5
             }
         },
         jshint: {
@@ -94,11 +103,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks("grunt-jsbeautifier");
 
     /* Register tasks. */
-    grunt.registerTask("default", ["jsbeautifier", "jshint", "connect", "jasmine", "concat", "uglify"]);
-    grunt.registerTask("test", ["connect", "jasmine"]);
-    grunt.registerTask("jasmine-server", ["jasmine:all:build", "open:jasmine", "connect::keepalive"]);
+    grunt.registerTask("dist", ["concat", /*"handlebars", */ "uglify"]);
+    grunt.registerTask("default", ["jsbeautifier", "jshint", "dist", "connect", "jasmine"]);
+    grunt.registerTask("test", ["dist", "connect", "jasmine"]);
+    grunt.registerTask("jasmine-server", ["dist", "jasmine:all:build", "open:jasmine", "connect::keepalive"]);
 };

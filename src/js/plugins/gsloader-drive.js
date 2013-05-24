@@ -39,8 +39,12 @@
 
             deferred.promise(csRequest);
 
-            request.execute(function(resp) {
-                deferred.resolveWith(_options.context, [resp]);
+            request.execute(function(jsonResp, rawResp) {
+                if (jsonResp === false) {
+                    deferred.rejectWith(_options.context, [rawResp]);
+                } else {
+                    deferred.resolveWith(_options.context, [jsonResp]);
+                }
             });
             return csRequest;
         }
@@ -48,9 +52,9 @@
         /*,
         getFiles: function(callback) {
             var retrievePageOfFiles = function(request, result) {
-                    request.execute(function(resp) {
-                        result = result.concat(resp.items);
-                        var nextPageToken = resp.nextPageToken;
+                    request.execute(function(jsonResp) {
+                        result = result.concat(jsonResp.items);
+                        var nextPageToken = jsonResp.nextPageToken;
                         if (nextPageToken) {
                             request = gapi.client.drive.files.list({
                                 "pageToken": nextPageToken

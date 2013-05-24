@@ -1,8 +1,8 @@
-/* Gsloader - v0.0.2rc - 2013-05-08
+/* Gsloader - v0.0.2rc - 2013-05-23
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 /*
- *    Author: Vishal Kadam
+ * Author: Vishal Kadam
  */
 
 (function(_attachTo, $) {
@@ -27,7 +27,7 @@
     /*
      * String.emcodeXML method
      * Example:
-     * "String.encodeXML replace & \"\ ' 
+     * "String.encodeXML replace & \"\ '
      *  < >".encodeXML()
      * Output "String.encodeXML replace &amp; &quot; &apos; &#10; &lt; &gt;"
      */
@@ -35,15 +35,6 @@
         String.prototype.encodeXML = function() {
             return this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\n/g, '&#10;');
         };
-    }
-
-    function sanitizeOptions(options, attribName) {
-        var opts;
-        if (typeof(options) === "string") {
-            opts = {};
-            opts[attribName] = options;
-        }
-        return opts || options;
     }
 
     /*
@@ -54,14 +45,24 @@
         this.logger = Logger.get("gsloader");
     };
 
+    /*global Spreadsheet:true*/
     GSLoaderClass.prototype = {
+
+        sanitizeOptions: function(options, attribName) {
+            var opts;
+            if (typeof(options) === "string") {
+                opts = {};
+                opts[attribName] = options;
+            }
+            return opts || options;
+        },
 
         loadSpreadsheet: function(options) {
             var lsRequest = {},
                 deferred = $.Deferred();
             options = $.extend({
                 context: lsRequest
-            }, sanitizeOptions(options, "id"));
+            }, this.sanitizeOptions(options, "id"));
             var spreadSheet = new Spreadsheet({
                 id: options.id,
                 wanted: options.wanted
@@ -84,7 +85,7 @@
                 _options = $.extend({
                     title: "",
                     context: csRequest
-                }, sanitizeOptions(options, "title")),
+                }, this.sanitizeOptions(options, "title")),
                 deferred = $.Deferred();
 
             function spreadSheetCreated(spreadSheetObj) {
@@ -106,11 +107,23 @@
         }
     };
 
+    var GSLoader = new GSLoaderClass();
+
+    $.extend(_attachTo, {
+        GSLoader: GSLoader
+    });
+
+}(window, jQuery));
+;
+/**********************************/
+(function(_attachTo, $) {
+    "use strict";
     /*
      * Spreadsheet class
      */
-    var Spreadsheet = function(options) {
-        options = sanitizeOptions(options, "id");
+    /*global GSLoader:true, Worksheet:true*/
+    var SpreadsheetClass = function(options) {
+        options = GSLoader.sanitizeOptions(options, "id");
         if (options && /id=/.test(options.id)) {
             GSLoader.logger.info("You passed a id as a URL! Attempting to parse.");
             options.id = options.id.match("id=([^&]*)")[1];
@@ -124,11 +137,11 @@
         });
     };
 
-    Spreadsheet.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
-    Spreadsheet.WORKSHEET_ID_REGEX = /.{3}$/;
-    Spreadsheet.WORKSHEET_CREATE_REQ = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><title>{0}</title><gs:rowCount>{1}</gs:rowCount><gs:colCount>{2}</gs:colCount></entry>';
+    SpreadsheetClass.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
+    SpreadsheetClass.WORKSHEET_ID_REGEX = /.{3}$/;
+    SpreadsheetClass.WORKSHEET_CREATE_REQ = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><title>{0}</title><gs:rowCount>{1}</gs:rowCount><gs:colCount>{2}</gs:colCount></entry>';
 
-    Spreadsheet.prototype = {
+    SpreadsheetClass.prototype = {
 
         fetch: function() {
             var _this = this,
@@ -138,7 +151,7 @@
             deferred.promise(fetchReq);
 
             $.ajax({
-                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id)
+                url: SpreadsheetClass.PRIVATE_SHEET_URL.format(this.id)
             }).done(function(data, textStatus, jqXHR) {
                 _this.parse(data, textStatus, jqXHR);
                 var worksheetReqs = _this.fetchSheets();
@@ -176,7 +189,7 @@
             var $worksheet = $(worksheetInfo);
             var title = $worksheet.children("title").text();
             var worksheet = new Worksheet({
-                id: $worksheet.children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0],
+                id: $worksheet.children("id").text().match(SpreadsheetClass.WORKSHEET_ID_REGEX)[0],
                 title: title,
                 listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
                 cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
@@ -209,19 +222,19 @@
                 context: cwsReq,
                 headers: [],
                 rowData: []
-            }, sanitizeOptions(options, "title"));
+            }, GSLoader.sanitizeOptions(options, "title"));
 
             GSLoader.logger.debug("Creating worksheet for spreadsheet", this, "with options =", options);
 
             var worksheet;
             $.ajax({
-                url: Spreadsheet.PRIVATE_SHEET_URL.format(this.id),
+                url: SpreadsheetClass.PRIVATE_SHEET_URL.format(this.id),
                 type: "POST",
                 contentType: "application/atom+xml",
                 headers: {
                     "GData-Version": "3.0"
                 },
-                data: Spreadsheet.WORKSHEET_CREATE_REQ.format(options.title, options.rows, options.cols)
+                data: SpreadsheetClass.WORKSHEET_CREATE_REQ.format(options.title, options.rows, options.cols)
             }).done(function(data, textStatus, jqXHR) {
                 var entryNode = $(jqXHR.responseText).filter(function() {
                     return this.nodeName === "ENTRY";
@@ -263,11 +276,21 @@
             return matchingWorksheet;
         }
     };
+    $.extend(_attachTo, {
+        Spreadsheet: SpreadsheetClass
+    });
+}(window, jQuery));
+;
+/**********************************/
+(function(_attachTo, $) {
+    "use strict";
 
     /*
      * Worksheet class
      */
-    var Worksheet = function(options) {
+    /*global GSLoader:true, Spreadsheet:true*/
+
+    var WorksheetClass = function(options) {
         $.extend(this, {
             id: "",
             title: "",
@@ -280,11 +303,11 @@
         }, options);
     };
 
-    Worksheet.COLUMN_NAME_REGEX = /gsx:/;
-    Worksheet.CELL_FEED_HEADER = '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>{0}</id>{1}</feed>';
-    Worksheet.CELL_FEED_ENTRY = '<entry><batch:id>R{1}C{2}</batch:id><batch:operation type="update"/><id>{0}/R{1}C{2}</id><gs:cell row="{1}" col="{2}" inputValue="{3}"/></entry>';
+    WorksheetClass.COLUMN_NAME_REGEX = /gsx:/;
+    WorksheetClass.CELL_FEED_HEADER = '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>{0}</id>{1}</feed>';
+    WorksheetClass.CELL_FEED_ENTRY = '<entry><batch:id>R{1}C{2}</batch:id><batch:operation type="update"/><id>{0}/R{1}C{2}</id><gs:cell row="{1}" col="{2}" inputValue="{3}"/></entry>';
 
-    Worksheet.prototype = {
+    WorksheetClass.prototype = {
         fetch: function() {
             var _this = this,
                 deferred = $.Deferred(),
@@ -313,8 +336,8 @@
                     "rowNumber": (idx + 1)
                 };
                 $(this).children().each(function() {
-                    if (Worksheet.COLUMN_NAME_REGEX.test(this.tagName)) {
-                        row[this.tagName.replace(Worksheet.COLUMN_NAME_REGEX, "")] = this.textContent;
+                    if (WorksheetClass.COLUMN_NAME_REGEX.test(this.tagName)) {
+                        row[this.tagName.replace(WorksheetClass.COLUMN_NAME_REGEX, "")] = this.textContent;
                     }
                 });
                 _this.rows.push(row);
@@ -336,11 +359,11 @@
                     colNo = colIdx + 1;
                     if (colObj !== null && typeof colObj !== "undefined") {
                         cellValue = typeof colObj === "string" ? colObj.encodeXML() : colObj;
-                        entries.push(Worksheet.CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, cellValue));
+                        entries.push(WorksheetClass.CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, cellValue));
                     }
                 });
             });
-            var postData = Worksheet.CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
+            var postData = WorksheetClass.CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
             $.ajax({
                 url: this.cellsFeed + "/batch",
                 type: "POST",
@@ -357,7 +380,7 @@
         },
 
         /**
-         * Rename the worksheet with new title 
+         * Rename the worksheet with new title
          * @param {string} title - New title of the worksheet.
          */
         rename: function(title) {
@@ -411,11 +434,8 @@
             return metadataReq;
         }
     };
-
-    var GSLoader = new GSLoaderClass();
-
     $.extend(_attachTo, {
-        GSLoader: GSLoader
+        Worksheet: WorksheetClass
     });
 
 }(window, jQuery));
@@ -462,8 +482,12 @@
 
             deferred.promise(csRequest);
 
-            request.execute(function(resp) {
-                deferred.resolveWith(_options.context, [resp]);
+            request.execute(function(jsonResp, rawResp) {
+                if (jsonResp === false) {
+                    deferred.rejectWith(_options.context, [rawResp]);
+                } else {
+                    deferred.resolveWith(_options.context, [jsonResp]);
+                }
             });
             return csRequest;
         }
@@ -471,9 +495,9 @@
         /*,
         getFiles: function(callback) {
             var retrievePageOfFiles = function(request, result) {
-                    request.execute(function(resp) {
-                        result = result.concat(resp.items);
-                        var nextPageToken = resp.nextPageToken;
+                    request.execute(function(jsonResp) {
+                        result = result.concat(jsonResp.items);
+                        var nextPageToken = jsonResp.nextPageToken;
                         if (nextPageToken) {
                             request = gapi.client.drive.files.list({
                                 "pageToken": nextPageToken
