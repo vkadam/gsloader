@@ -4,7 +4,7 @@
     /*
      * Worksheet class
      */
-    /*global GSLoader:true, Spreadsheet:true*/
+    /*global GSLoader:false, Spreadsheet:false*/
 
     var WorksheetClass = function(options) {
         $.extend(this, {

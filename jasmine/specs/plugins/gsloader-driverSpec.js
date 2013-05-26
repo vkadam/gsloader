@@ -1,5 +1,5 @@
 /*global GSLoader:false, gapi:false*/
-describe("gsloader drive", function() {
+describe("gsloader-drive.js", function() {
     it("load method loads drive api using gapi client and does Google Auth Check", function() {
         spyOn(GSLoader.auth, "checkAuth");
         spyOn(gapi.client, "load").andCallThrough();

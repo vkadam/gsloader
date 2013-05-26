@@ -3,7 +3,7 @@
     /*
      * Spreadsheet class
      */
-    /*global GSLoader:true, Worksheet:true*/
+    /*global GSLoader:false, Worksheet:false*/
     var SpreadsheetClass = function(options) {
         options = GSLoader.sanitizeOptions(options, "id");
         if (options && /id=/.test(options.id)) {

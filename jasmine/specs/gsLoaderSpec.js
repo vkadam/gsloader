@@ -21,11 +21,9 @@ describe("String Prototype", function() {
     it("String.encodeXML encodes ampersand before any another charaters", function() {
         expect("Some String ' & > <".encodeXML()).toBe("Some String &apos; &amp; &gt; &lt;");
     });
-
 });
 
-describe("GSLoader", function() {
-
+describe("gsloader.js", function() {
     var spyOnAjax;
 
     beforeEach(function() {
@@ -38,35 +36,17 @@ describe("GSLoader", function() {
     });
 
     afterEach(function() {
+        $.fixture("GET worksheets/spreadsheet01/private/full", null);
+        $.fixture("GET worksheets/spreadsheet02/private/full", null);
         $.ajaxSetup({
             async: true
         });
     });
 
     describe("GSLoader.logger", function() {
-
         it("is default with WARN level", function() {
             expect(GSLoader.logger).toBeDefined();
             expect(GSLoader.logger.enabledFor(Logger.DEBUG)).toBeTruthy();
-        });
-
-    });
-
-    describe("GSLoader.Spreadsheet", function() {
-
-        it("getWorksheet returns worksheet by title", function() {
-            var spreadSheet;
-            GSLoader.loadSpreadsheet('spreadsheet01').done(function(sSheet) {
-                spreadSheet = sSheet;
-            });
-            waitsFor(function() {
-                return spreadSheet;
-            }, "Spreadsheet should be loaded", 1000);
-
-            runs(function() {
-                var worksheet = spreadSheet.getWorksheet("Url Parameters");
-                expect(worksheet).toBeDefined();
-            });
         });
     });
 
@@ -76,6 +56,13 @@ describe("GSLoader", function() {
             $.fixture("GET feeds/list/spreadsheet01/od4/private/full", "jasmine/fixtures/Spreadsheet-01-od4.xml");
             $.fixture("GET feeds/list/spreadsheet01/od5/private/full", "jasmine/fixtures/Spreadsheet-01-od5.xml");
             $.fixture("GET feeds/list/spreadsheet01/oda/private/full", "jasmine/fixtures/Spreadsheet-01-oda.xml");
+        });
+
+        afterEach(function() {
+            $.fixture("GET feeds/list/spreadsheet01/od6/private/full", null);
+            $.fixture("GET feeds/list/spreadsheet01/od4/private/full", null);
+            $.fixture("GET feeds/list/spreadsheet01/od5/private/full", null);
+            $.fixture("GET feeds/list/spreadsheet01/oda/private/full", null);
         });
 
         it("GSLoader.loadSpreadsheet returns jQuery Deferred object", function() {
@@ -226,8 +213,8 @@ describe("GSLoader", function() {
     });
 
     describe("GSLoader.createSpreadsheet", function() {
-
         var spyOnGSLoaderDrive;
+
         beforeEach(function() {
             spyOnGSLoaderDrive = spyOn(GSLoader.drive, 'createSpreadsheet').andCallThrough();
         });
@@ -312,5 +299,4 @@ describe("GSLoader", function() {
             });
         });
     });
-
 });

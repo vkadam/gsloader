@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.2rc - 2013-05-24
+/* Gsloader - v0.0.2rc - 2013-05-26
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 /*
@@ -121,7 +121,7 @@
     /*
      * Spreadsheet class
      */
-    /*global GSLoader:true, Worksheet:true*/
+    /*global GSLoader:false, Worksheet:false*/
     var SpreadsheetClass = function(options) {
         options = GSLoader.sanitizeOptions(options, "id");
         if (options && /id=/.test(options.id)) {
@@ -288,7 +288,7 @@
     /*
      * Worksheet class
      */
-    /*global GSLoader:true, Spreadsheet:true*/
+    /*global GSLoader:false, Spreadsheet:false*/
 
     var WorksheetClass = function(options) {
         $.extend(this, {
