@@ -1,4 +1,4 @@
-/*global $:false, GSLoader:false*/
+/*global $:false, GSLoader:false Worksheet:false*/
 describe("worksheet.js", function() {
     var spyOnAjax;
 
@@ -12,6 +12,56 @@ describe("worksheet.js", function() {
     afterEach(function() {
         $.ajaxSetup({
             async: true
+        });
+    });
+
+    describe("fetch", function() {
+        beforeEach(function() {
+            $.fixture("GET /worksheet/listFeed", function() {
+                return [400, "Worksheet fetch error", "", {}];
+            });
+        });
+
+        it("call fail callback in case of ajax failure", function() {
+            var worksheet = new Worksheet({
+                listFeed: "/worksheet/listFeed"
+            }),
+                errorCallback = jasmine.createSpy("Worksheet.errorCallback"),
+                fetchReq = worksheet.fetch().fail(errorCallback);
+
+            waitsFor(function() {
+                return (fetchReq.state() === "rejected");
+            }, "Worksheet fetch ajax call should fail", 200);
+
+            runs(function() {
+                expect(errorCallback).toHaveBeenCalled();
+                expect(errorCallback.mostRecentCall.args[0]).toBe("Worksheet fetch error");
+            });
+        });
+    });
+
+    describe("addRows", function() {
+        beforeEach(function() {
+            $.fixture("POST /worksheet/cellsFeed/batch", function() {
+                return [400, "Worksheet addRows post error", "", {}];
+            });
+        });
+
+        it("call fail callback in case of ajax failure", function() {
+            var worksheet = new Worksheet({
+                cellsFeed: "/worksheet/cellsFeed"
+            }),
+                errorCallback = jasmine.createSpy("Worksheet.errorCallback"),
+                fetchReq = worksheet.addRows([]).fail(errorCallback);
+
+            waitsFor(function() {
+                return (fetchReq.state() === "rejected");
+            }, "Worksheet add rows ajax call should fail", 200);
+
+            runs(function() {
+                expect(errorCallback).toHaveBeenCalled();
+                expect(errorCallback.mostRecentCall.args[0]).toBe("Worksheet addRows post error");
+            });
         });
     });
 
@@ -61,5 +111,53 @@ describe("worksheet.js", function() {
                 expect(worksheet.editLink).toBe("https://spreadsheets.google.com/feeds/worksheets/spreadsheet01/private/full/od6/d9ziupyy0w-UPDATED");
             });
         });
+
+        describe("errorCallback", function() {
+
+            it("call errorCallback in case spreadsheet feed metadata ajax calls fails", function() {
+                $.fixture("GET worksheets/someSpredsheetId/private/full", function() {
+                    return [400, "Worksheet metadata error", "", {}];
+                });
+                var worksheet = new Worksheet({
+                    spreadsheet: {
+                        id: "someSpredsheetId"
+                    }
+                }),
+                    errorCallback = jasmine.createSpy("Spreadsheet.worksheet.feeds"),
+                    renameReq = worksheet.rename("New worksheet title").fail(errorCallback);
+
+                waitsFor(function() {
+                    return (renameReq.state() === "rejected");
+                }, "Spreadsheet feed ajax call should fail", 200);
+
+                runs(function() {
+                    expect(errorCallback).toHaveBeenCalled();
+                    expect(errorCallback.mostRecentCall.args[0]).toBe("Worksheet metadata error");
+                });
+            });
+
+            it("call errorCallback in case worksheet rename ajax calls fails", function() {
+                $.fixture("PUT worksheets/spreadsheet01/private/full/od4/da0f4lhfl4", function() {
+                    return [400, "Worksheet rename error", "", {}];
+                });
+                GSLoader.loadSpreadsheet("spreadsheet01").done(function(spreadsheet) {
+                    var worksheet = spreadsheet.worksheets[1],
+                        errorCallback = jasmine.createSpy("Worksheet.rename"),
+                        renameReq = worksheet.rename("New worksheet title").fail(errorCallback);
+
+                    waitsFor(function() {
+                        return (renameReq.state() === "rejected");
+                    }, "Worksheet newmae ajax call should fail", 200);
+
+                    runs(function() {
+                        expect(errorCallback).toHaveBeenCalled();
+                        expect(errorCallback.mostRecentCall.args[0]).toBe("Worksheet rename error");
+                    });
+
+                });
+            });
+
+        });
+
     });
 });

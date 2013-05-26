@@ -313,12 +313,16 @@
                 deferred = $.Deferred(),
                 fetchReq = {};
             deferred.promise(fetchReq);
+
             $.ajax({
                 url: this.listFeed
-            }).done(function() {
-                _this.parse.apply(_this, arguments);
+            }).done(function(data, textStatus, jqXHR) {
+                _this.parse.apply(_this, [data, textStatus, jqXHR]);
                 deferred.resolveWith(fetchReq, [_this]);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                deferred.rejectWith(fetchReq, [errorThrown, _this]);
             });
+
             return fetchReq;
         },
 
@@ -348,7 +352,11 @@
         addRows: function(rowData) {
             var _this = this,
                 entries = [],
-                rowNo, colNo, cellValue, deferred = $.Deferred(),
+                rowNo,
+                colNo,
+                cellValue,
+                postData,
+                deferred = $.Deferred(),
                 arReq = {};
 
             deferred.promise(arReq);
@@ -363,7 +371,9 @@
                     }
                 });
             });
-            var postData = WorksheetClass.CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
+
+            postData = WorksheetClass.CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
+
             $.ajax({
                 url: this.cellsFeed + "/batch",
                 type: "POST",
@@ -375,6 +385,8 @@
                 data: postData
             }).done(function(data, textStatus, jqXHR) {
                 deferred.resolveWith(arReq, [data, textStatus, jqXHR]);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                deferred.rejectWith(arReq, [errorThrown, _this]);
             });
             return arReq;
         },
@@ -390,23 +402,29 @@
 
             deferred.promise(metadataReq);
 
-            // Make ajax call to get latest metadata of worksheet
+            /* Make ajax call to get latest metadata of worksheet */
             GSLoader.logger.debug("Getting spreadsheet metadata before renaming worksheet");
+
+            function errorCallback(jqXHR, textStatus, errorThrown) {
+                deferred.rejectWith(metadataReq, [errorThrown, _this]);
+            }
+
             $.ajax({
-                // Get all worksheet details using spreadsheet url
+                /* Get all worksheet details using spreadsheet url */
                 url: Spreadsheet.PRIVATE_SHEET_URL.format(this.spreadsheet.id)
-            }).done(function(data) {
+            }).then(function(data) {
+                GSLoader.logger.debug("Merging spreadsheet metadata before renaming worksheet");
                 var $feed = $(data).children("feed");
-                // Filter to get details of this worksheet only
+                /* Filter to get details of this worksheet only */
                 $feed.children("entry").filter(function() {
                     var worksheetId = $(this).children("id").text().match(Spreadsheet.WORKSHEET_ID_REGEX)[0];
                     return worksheetId === _this.id;
                 }).each(function() {
-                    // Temporary parse worksheet and then update current worksheet.metadata
+                    /* Parse worksheet and then update current worksheet.metadata */
                     var worksheet = _this.spreadsheet.parseWorksheet(this);
                     _this.metadata = worksheet.metadata;
                 });
-
+            }, errorCallback).then(function() {
                 GSLoader.logger.debug("Renaming worksheet with title =", title);
 
                 var tmpMetadata = _this.metadata.clone();
@@ -414,23 +432,23 @@
 
                 var reqData = (new XMLSerializer()).serializeToString(tmpMetadata[0]);
 
-                $.ajax({
+                return $.ajax({
                     url: _this.editLink,
                     type: "PUT",
                     contentType: "application/atom+xml",
                     data: reqData
-                }).done(function(data) {
-                    // Temporary parse worksheet and then update current worksheet.metadata
-                    var worksheet = _this.spreadsheet.parseWorksheet($(data).children("entry"));
-                    _this.metadata = worksheet.metadata;
-                    _this.title = worksheet.title;
-                    _this.listFeed = worksheet.listFeed;
-                    _this.cellsFeed = worksheet.cellsFeed;
-                    _this.editLink = worksheet.editLink;
-                    GSLoader.logger.debug("Worksheet renamed successfully with title =", _this.title);
-                    deferred.resolveWith(metadataReq, [_this]);
                 });
-            });
+            }).then(function(data) {
+                /* Parse worksheet and then update current worksheet.metadata */
+                var worksheet = _this.spreadsheet.parseWorksheet($(data).children("entry"));
+                _this.metadata = worksheet.metadata;
+                _this.title = worksheet.title;
+                _this.listFeed = worksheet.listFeed;
+                _this.cellsFeed = worksheet.cellsFeed;
+                _this.editLink = worksheet.editLink;
+                GSLoader.logger.debug("Worksheet renamed successfully with title =", _this.title);
+                deferred.resolveWith(metadataReq, [_this]);
+            }, errorCallback);
             return metadataReq;
         }
     };
