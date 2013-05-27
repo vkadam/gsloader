@@ -113,48 +113,49 @@ describe("worksheet.js", function() {
         });
 
         describe("errorCallback", function() {
+            afterEach(function() {
+                $.fixture("GET worksheets/someSpredsheetId/private/full", null);
+                $.fixture("PUT worksheets/spreadsheet01/private/full/od4/da0f4lhfl4", null);
+            });
+
+            function renameWorksheetAndAssert(errorMessage) {
+                var parseWorksheetCallback = jasmine.createSpy("Spreadsheet.parseWorksheet").andReturn({
+                    metadata: $([])
+                }),
+                    worksheet = new Worksheet({
+                        id: "worksheetId",
+                        metadata: $([]),
+                        editLink: "worksheets/someSpredsheetId/private/full/worksheetId/da0f4lhfl4",
+                        spreadsheet: {
+                            id: "someSpredsheetId",
+                            parseWorksheet: parseWorksheetCallback
+                        }
+                    }),
+                    errorCallback = jasmine.createSpy("Worksheet.rename.errorCallback"),
+                    renameReq = worksheet.rename("New worksheet title").fail(errorCallback);
+
+                waitsFor(function() {
+                    return (renameReq.state() === "rejected");
+                }, "Worksheet rename ajax call should fail", 200);
+
+                runs(function() {
+                    expect(errorCallback).toHaveBeenCalled();
+                    expect(errorCallback.mostRecentCall.args[0]).toBe(errorMessage);
+                });
+            }
 
             it("call errorCallback in case spreadsheet feed metadata ajax calls fails", function() {
                 $.fixture("GET worksheets/someSpredsheetId/private/full", function() {
                     return [400, "Worksheet metadata error", "", {}];
                 });
-                var worksheet = new Worksheet({
-                    spreadsheet: {
-                        id: "someSpredsheetId"
-                    }
-                }),
-                    errorCallback = jasmine.createSpy("Spreadsheet.worksheet.feeds"),
-                    renameReq = worksheet.rename("New worksheet title").fail(errorCallback);
-
-                waitsFor(function() {
-                    return (renameReq.state() === "rejected");
-                }, "Spreadsheet feed ajax call should fail", 200);
-
-                runs(function() {
-                    expect(errorCallback).toHaveBeenCalled();
-                    expect(errorCallback.mostRecentCall.args[0]).toBe("Worksheet metadata error");
-                });
+                renameWorksheetAndAssert("Worksheet metadata error");
             });
 
             it("call errorCallback in case worksheet rename ajax calls fails", function() {
-                $.fixture("PUT worksheets/spreadsheet01/private/full/od4/da0f4lhfl4", function() {
+                $.fixture("PUT worksheets/someSpredsheetId/private/full/worksheetId/da0f4lhfl4", function() {
                     return [400, "Worksheet rename error", "", {}];
                 });
-                GSLoader.loadSpreadsheet("spreadsheet01").done(function(spreadsheet) {
-                    var worksheet = spreadsheet.worksheets[1],
-                        errorCallback = jasmine.createSpy("Worksheet.rename"),
-                        renameReq = worksheet.rename("New worksheet title").fail(errorCallback);
-
-                    waitsFor(function() {
-                        return (renameReq.state() === "rejected");
-                    }, "Worksheet newmae ajax call should fail", 200);
-
-                    runs(function() {
-                        expect(errorCallback).toHaveBeenCalled();
-                        expect(errorCallback.mostRecentCall.args[0]).toBe("Worksheet rename error");
-                    });
-
-                });
+                renameWorksheetAndAssert("Worksheet rename error");
             });
 
         });
