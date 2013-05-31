@@ -32,19 +32,25 @@
 
             deferred.promise(fetchReq);
 
+            function errorCallback(jqXHR, textStatus, errorThrown) {
+                /* Incase of worksheet.fetch only 2 params will be passed,
+                 * error message and worksheet object */
+                deferred.rejectWith(fetchReq, [errorThrown || jqXHR, _this]);
+            }
+
             $.ajax({
                 url: SpreadsheetClass.PRIVATE_SHEET_URL.format(this.id)
-            }).done(function(data, textStatus, jqXHR) {
+            }).then(function(data, textStatus, jqXHR) {
                 _this.parse(data, textStatus, jqXHR);
                 var worksheetReqs = _this.fetchSheets();
                 if (worksheetReqs.length > 0) {
-                    $.when.apply($, worksheetReqs).done(function() {
+                    $.when.apply($, worksheetReqs).then(function() {
                         deferred.resolveWith(fetchReq, [_this]);
-                    });
+                    }, errorCallback);
                 } else {
                     deferred.resolveWith(fetchReq, [_this]);
                 }
-            });
+            }, errorCallback);
             return fetchReq;
         },
 
@@ -108,7 +114,12 @@
 
             GSLoader.logger.debug("Creating worksheet for spreadsheet", this, "with options =", options);
 
-            var worksheet;
+            function errorCallback(jqXHR, textStatus, errorThrown) {
+                /* Incase of worksheet.addRows, worksheet.fetch only 2 params will be passed,
+                 * error message and worksheet object */
+                deferred.rejectWith(options.context, [errorThrown || jqXHR, _this]);
+            }
+
             $.ajax({
                 url: SpreadsheetClass.PRIVATE_SHEET_URL.format(this.id),
                 type: "POST",
@@ -117,27 +128,29 @@
                     "GData-Version": "3.0"
                 },
                 data: SpreadsheetClass.WORKSHEET_CREATE_REQ.format(options.title, options.rows, options.cols)
-            }).done(function(data, textStatus, jqXHR) {
+            }).then(function(data, textStatus, jqXHR) {
                 var entryNode = $(jqXHR.responseText).filter(function() {
                     return this.nodeName === "ENTRY";
                 });
                 /* Right now creating worksheet don't return the list feed url, so cretating it using cells feed */
-                worksheet = _this.parseWorksheet(entryNode);
-                _this.worksheets.push(worksheet);
-                worksheet.listFeed = worksheet.cellsFeed.replace("/cells/", "/list/");
+                var wSheet = _this.parseWorksheet(entryNode);
+                _this.worksheets.push(wSheet);
+                wSheet.listFeed = wSheet.cellsFeed.replace("/cells/", "/list/");
+                return wSheet;
+            }).then(function(worksheet) {
                 if (options.headers.length > 0 || options.rowData.length > 0) {
                     var rowData = options.rowData;
                     rowData.unshift(options.headers);
-                    worksheet.addRows(rowData).done(function() {
+                    worksheet.addRows(rowData).then(function() {
                         GSLoader.logger.debug("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
-                        worksheet.fetch().done(function() {
-                            deferred.resolveWith(options.context, [worksheet]);
-                        });
-                    });
+                        return worksheet.fetch();
+                    }).then(function() {
+                        deferred.resolveWith(options.context, [worksheet]);
+                    }, errorCallback);
                 } else {
                     deferred.resolveWith(options.context, [worksheet]);
                 }
-            });
+            }, errorCallback);
             return cwsReq;
         },
 

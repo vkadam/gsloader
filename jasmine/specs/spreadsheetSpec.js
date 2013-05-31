@@ -3,11 +3,8 @@ describe("spreadsheet.js", function() {
     var spyOnAjax,
         spreadSheet,
         spyOnGSLoaderDrive;
+
     beforeEach(function() {
-        spreadSheet = new Spreadsheet({
-            id: "spreadsheet02"
-        });
-        $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7-post.xml");
         $.ajaxSetup({
             async: false
         });
@@ -16,13 +13,67 @@ describe("spreadsheet.js", function() {
     });
 
     afterEach(function() {
-        $.fixture("POST worksheets/spreadsheet02/private/full", null);
         $.ajaxSetup({
             async: true
         });
     });
 
+    describe("fetch", function() {
+        beforeEach(function() {
+            $.fixture("GET worksheets/spreadsheet01/private/full", "jasmine/fixtures/Spreadsheet-01.xml");
+            $.fixture("GET feeds/list/spreadsheet01/od6/private/full", function() {
+                return [400, "Worksheet \"Environments\" fetch error", "", {}];
+            });
+            $.fixture("GET worksheets/Some_Spreadsheet_Id/private/full", function() {
+                return [400, "Spreadsheet fetch error", "", {}];
+            });
+        });
+
+        afterEach(function() {
+            $.fixture("GET worksheets/spreadsheet01/private/full", null);
+            $.fixture("GET feeds/list/spreadsheet01/od6/private/full", null);
+            $.fixture("GET worksheets/Some_Spreadsheet_Id/private/full", null);
+        });
+
+        function fetchAndAssert(spreadsheetId, errorMessage) {
+            var spreadsheet = new Spreadsheet({
+                id: spreadsheetId,
+                wanted: ["Environments"]
+            }),
+                errorCallback = jasmine.createSpy("Spreadsheet.Fetch.errorCallback"),
+                fetchReq = spreadsheet.fetch().fail(errorCallback);
+
+            waitsFor(function() {
+                return (fetchReq.state() === "rejected");
+            }, "Spreadsheet fetch ajax call should fail", 200);
+
+            runs(function() {
+                expect(errorCallback).toHaveBeenCalled();
+                expect(errorCallback.mostRecentCall.args[0]).toBe(errorMessage);
+            });
+        }
+
+        it("call fail callback in case of worksheet feed ajax failure", function() {
+            fetchAndAssert("Some_Spreadsheet_Id", "Spreadsheet fetch error");
+        });
+
+        it("call fail callback in case of worksheet fetch ajax failure", function() {
+            fetchAndAssert("spreadsheet01", "Worksheet \"Environments\" fetch error");
+        });
+    });
+
     describe("createWorksheet", function() {
+        beforeEach(function() {
+            spreadSheet = new Spreadsheet({
+                id: "spreadsheet02"
+            });
+            $.fixture("POST worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02-od7-post.xml");
+        });
+
+        afterEach(function() {
+            $.fixture("POST worksheets/spreadsheet02/private/full", null);
+        });
+
         it("returns jQuery Deferred object", function() {
             var reqObj = spreadSheet.createWorksheet();
             expect(reqObj.done).toBeDefined();
@@ -59,6 +110,59 @@ describe("spreadsheet.js", function() {
             }).text()).toBe("5");
         });
 
+        describe("call fail callback", function() {
+            beforeEach(function() {
+                $.fixture("POST worksheets/fail_spreadsheet_01/private/full", function() {
+                    return [400, "Spreadsheet create worksheet fetch error", "", {}];
+                });
+                $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function() {
+                    return [200, "success", "", {}];
+                });
+                $.fixture("GET feeds/list/spreadsheet02/od7/private/full", function() {
+                    return [400, "Worksheet fetch error", "", {}];
+                });
+            });
+
+            afterEach(function() {
+                $.fixture("POST worksheets/Some_Spreadsheet_Id/private/full", null);
+                $.fixture("POST cells/spreadsheet02/od7/private/full/batch", null);
+                $.fixture("GET feeds/list/spreadsheet02/od7/private/full", null);
+            });
+
+            function createWorksheetAndAssert(jasmineMessage, ajaxErrorMessage) {
+                var errorCallback = jasmine.createSpy("Spreadsheet.CreateWorksheet.errorCallback"),
+                    cwReq = spreadSheet.createWorksheet({
+                        title: "Worksheet Title",
+                        headers: ["Id", "Summary", "Points", "Issue Type", "Status"]
+                    }).fail(errorCallback);
+
+                waitsFor(function() {
+                    return (cwReq.state() === "rejected");
+                }, jasmineMessage, 500);
+
+                runs(function() {
+                    expect(errorCallback.callCount).toBe(1);
+                    expect(errorCallback.mostRecentCall.args[0]).toBe(ajaxErrorMessage);
+                });
+            }
+
+            it("in case of worksheet feed ajax post call failure", function() {
+                spreadSheet.id = "fail_spreadsheet_01";
+                createWorksheetAndAssert("Spreadsheet create worksheet ajax call should fail", "Spreadsheet create worksheet fetch error");
+            });
+
+            it("in case of worksheet.addRows ajax call failure", function() {
+                $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function() {
+                    return [400, "Worksheet addRows post error", "", {}];
+                });
+                createWorksheetAndAssert("Worksheet addRows ajax call should fail", "Worksheet addRows post error");
+            });
+
+            it("in case of worksheet.fetch ajax call failure", function() {
+                createWorksheetAndAssert("Worksheet fetch ajax call should fail", "Worksheet fetch error");
+            });
+        });
+
         it("on success notifies done callbacks with newly created worksheet with request as context", function() {
             expect(spreadSheet.worksheets.length).toBe(0);
             var worksheet,
@@ -67,10 +171,10 @@ describe("spreadsheet.js", function() {
                     worksheet = wSheet;
                     actualCalledWithContext = this;
                 }),
-                csReq = spreadSheet.createWorksheet("Worksheet Title").done(worksheetCallback);
+                cwReq = spreadSheet.createWorksheet("Worksheet Title").done(worksheetCallback);
 
             waitsFor(function() {
-                return (csReq.state() === "resolved");
+                return (cwReq.state() === "resolved");
             }, "Worksheet should be created", 200);
 
             runs(function() {
@@ -79,7 +183,7 @@ describe("spreadsheet.js", function() {
                 expect(worksheet.title).toBe("Worksheet Title");
                 expect(spreadSheet.worksheets.length).toBe(1);
                 expect(spreadSheet.worksheets[0]).toBe(worksheet);
-                expect(actualCalledWithContext).toBe(csReq);
+                expect(actualCalledWithContext).toBe(cwReq);
             });
         });
 
@@ -89,13 +193,13 @@ describe("spreadsheet.js", function() {
                 worksheetCallback = jasmine.createSpy("worksheetSuccess").andCallFake(function() {
                     actualCalledWithContext = this;
                 }),
-                csReq = spreadSheet.createWorksheet({
+                cwReq = spreadSheet.createWorksheet({
                     title: "Worksheet Title",
                     context: expectedCalledWithContext
                 }).done(worksheetCallback);
 
             waitsFor(function() {
-                return (csReq.state() === "resolved");
+                return (cwReq.state() === "resolved");
             }, "Worksheet should be created", 200);
 
             runs(function() {
@@ -103,153 +207,153 @@ describe("spreadsheet.js", function() {
                 expect(actualCalledWithContext).toBe(expectedCalledWithContext);
             });
         });
-    });
 
-    describe("createWorksheet with headerTitles and rowData", function() {
-        var cellFeed,
-            headerTitles = ["Id", "Summary", "Points", "Issue Type", "Status"],
-            rowData = [
-                ["JT:001", "Allow adding rows from object", "3", "Story", "Backlog"],
-                ["JT:002", "Cache user setting", "2", "Story", "Open"],
-                ["JT:003", "Add javascript minify", "1", "Story", "Open"],
-                ["JT:004", "Display spreadsheet list", "2", "Story", "Open"],
-                ["JT:005", "Display & render list", "2", "Story's points", '"Open"']
-            ],
-            spreadSheet;
+        describe("createWorksheet with headerTitles and rowData", function() {
+            var cellFeed,
+                headerTitles = ["Id", "Summary", "Points", "Issue Type", "Status"],
+                rowData = [
+                    ["JT:001", "Allow adding rows from object", "3", "Story", "Backlog"],
+                    ["JT:002", "Cache user setting", "2", "Story", "Open"],
+                    ["JT:003", "Add javascript minify", "1", "Story", "Open"],
+                    ["JT:004", "Display spreadsheet list", "2", "Story", "Open"],
+                    ["JT:005", "Display & render list", "2", "Story's points", '"Open"']
+                ],
+                spreadSheet;
 
-        beforeEach(function() {
-            spreadSheet = new Spreadsheet({
-                id: "spreadsheet02"
-            });
-            $.fixture("GET feeds/list/spreadsheet02/od7/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
-            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function() {
-                return [200, "success", "", {}];
-            });
-            cellFeed = "https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full";
-        });
-
-        afterEach(function() {
-            $.fixture("GET feeds/list/spreadsheet02/od7/private/full", null);
-            $.fixture("POST cells/spreadsheet02/od7/private/full/batch", null);
-        });
-
-        function checkCellEntry(entryObj, cellFeed, rowNo, colNo, value) {
-            var childs = {};
-            $(entryObj).children().each(function() {
-                childs[this.nodeName] = $(this);
-            });
-            var cellNo = "R{0}C{1}".format(rowNo, colNo);
-
-            expect(childs["BATCH:ID"].text()).toBe(cellNo);
-            expect(childs["BATCH:OPERATION"].attr("type")).toBe("update");
-            expect(childs["BATCH:OPERATION"].attr("type")).toBe("update");
-            expect(childs["ID"].text()).toBe(cellFeed + "/" + cellNo);
-            expect(childs["GS:CELL"].attr("row")).toBe(rowNo.toString());
-            expect(childs["GS:CELL"].attr("col")).toBe(colNo.toString());
-            expect(childs["GS:CELL"].attr("inputValue")).toBe(value);
-        }
-
-        it("creates header from headers and rowData by making ajax call", function() {
-            var worksheet;
-            expect(spreadSheet.worksheets.length).toBe(0);
-            spreadSheet.createWorksheet({
-                title: "Worksheet Title",
-                rows: 1,
-                cols: 5,
-                headers: headerTitles,
-                rowData: rowData
-            }).done(function(wSheet) {
-                worksheet = wSheet;
-            });
-
-            waitsFor(function() {
-                return worksheet;
-            }, "Worksheet is created", 500);
-            runs(function() {
-                expect(worksheet).toBeDefined();
-                expect(spyOnAjax.callCount).toBe(3);
-                var postCallArgs = spyOnAjax.calls[1].args[0];
-                expect(postCallArgs.type).toBe("POST");
-                expect(postCallArgs.contentType).toBe("application/atom+xml");
-                expect(postCallArgs.url).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full/batch");
-                expect(postCallArgs.headers["GData-Version"]).toBe("3.0");
-                expect(postCallArgs.headers["If-Match"]).toBe("*");
-                var jQuerypostData = $(postCallArgs.data);
-                expect(jQuerypostData.length).toBe(1);
-                expect(jQuerypostData[0].nodeName).toBe("FEED");
-                expect(jQuerypostData.children("id").text()).toBe(cellFeed);
-                var entries = jQuerypostData.children("entry");
-                expect(entries.length).toBe(30);
-                // At this time, rowData object is changed. Now it have header added to it;
-                var entryIdx = 0;
-                $.each(rowData, function(rNo, rData) {
-                    for (var c = 0; c < rData.length; c++) {
-                        checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c]);
-                        entryIdx++;
-                    }
+            beforeEach(function() {
+                spreadSheet = new Spreadsheet({
+                    id: "spreadsheet02"
                 });
-            });
-        });
-
-        it("don't post batch entry for null or undefined cell value", function() {
-            var worksheet;
-            rowData = [
-                ["", null, undefined, "Valid", false]
-            ];
-            spreadSheet.createWorksheet({
-                title: "Worksheet Title",
-                rows: 1,
-                cols: 5,
-                headers: headerTitles,
-                rowData: rowData
-            }).done(function(wSheet) {
-                worksheet = wSheet;
+                $.fixture("POST cells/spreadsheet02/od7/private/full/batch", function() {
+                    return [200, "success", "", {}];
+                });
+                $.fixture("GET feeds/list/spreadsheet02/od7/private/full", "jasmine/fixtures/Spreadsheet-02-od7.xml");
+                cellFeed = "https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full";
             });
 
-            waitsFor(function() {
-                return worksheet;
-            }, "Worksheet is created", 200);
-            runs(function() {
-                var postCallArgs = spyOnAjax.calls[1].args[0];
-                var jQuerypostData = $(postCallArgs.data);
-                expect(jQuerypostData.length).toBe(1);
-                expect(jQuerypostData[0].nodeName).toBe("FEED");
-                expect(jQuerypostData.children("id").text()).toBe(cellFeed);
-                var entries = jQuerypostData.children("entry");
-                expect(entries.length).toBe(8);
-                // At this time, rowData object is changed. Now it have header added to it;
-                var entryIdx = 0;
-                $.each(rowData, function(rNo, rData) {
-                    for (var c = 0; c < rData.length; c++) {
-                        if (rData[c] !== null && typeof rData[c] !== "undefined") {
-                            checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c].toString());
+            afterEach(function() {
+                $.fixture("POST cells/spreadsheet02/od7/private/full/batch", null);
+                $.fixture("GET feeds/list/spreadsheet02/od7/private/full", null);
+            });
+
+            function checkCellEntry(entryObj, cellFeed, rowNo, colNo, value) {
+                var childs = {};
+                $(entryObj).children().each(function() {
+                    childs[this.nodeName] = $(this);
+                });
+                var cellNo = "R{0}C{1}".format(rowNo, colNo);
+
+                expect(childs["BATCH:ID"].text()).toBe(cellNo);
+                expect(childs["BATCH:OPERATION"].attr("type")).toBe("update");
+                expect(childs["BATCH:OPERATION"].attr("type")).toBe("update");
+                expect(childs["ID"].text()).toBe(cellFeed + "/" + cellNo);
+                expect(childs["GS:CELL"].attr("row")).toBe(rowNo.toString());
+                expect(childs["GS:CELL"].attr("col")).toBe(colNo.toString());
+                expect(childs["GS:CELL"].attr("inputValue")).toBe(value);
+            }
+
+            it("creates header from headers and rowData by making ajax call", function() {
+                var worksheet;
+                expect(spreadSheet.worksheets.length).toBe(0);
+                spreadSheet.createWorksheet({
+                    title: "Worksheet Title",
+                    rows: 1,
+                    cols: 5,
+                    headers: headerTitles,
+                    rowData: rowData
+                }).done(function(wSheet) {
+                    worksheet = wSheet;
+                });
+
+                waitsFor(function() {
+                    return worksheet;
+                }, "Worksheet is created", 500);
+                runs(function() {
+                    expect(worksheet).toBeDefined();
+                    expect(spyOnAjax.callCount).toBe(3);
+                    var postCallArgs = spyOnAjax.calls[1].args[0];
+                    expect(postCallArgs.type).toBe("POST");
+                    expect(postCallArgs.contentType).toBe("application/atom+xml");
+                    expect(postCallArgs.url).toBe("https://spreadsheets.google.com/feeds/cells/spreadsheet02/od7/private/full/batch");
+                    expect(postCallArgs.headers["GData-Version"]).toBe("3.0");
+                    expect(postCallArgs.headers["If-Match"]).toBe("*");
+                    var jQuerypostData = $(postCallArgs.data);
+                    expect(jQuerypostData.length).toBe(1);
+                    expect(jQuerypostData[0].nodeName).toBe("FEED");
+                    expect(jQuerypostData.children("id").text()).toBe(cellFeed);
+                    var entries = jQuerypostData.children("entry");
+                    expect(entries.length).toBe(30);
+                    // At this time, rowData object is changed. Now it have header added to it;
+                    var entryIdx = 0;
+                    $.each(rowData, function(rNo, rData) {
+                        for (var c = 0; c < rData.length; c++) {
+                            checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c]);
                             entryIdx++;
                         }
-                    }
+                    });
                 });
             });
-        });
 
-        it("creates rows from passed data and fetch latest data", function() {
-            var worksheet;
-            spreadSheet.createWorksheet({
-                title: "Worksheet Title",
-                rows: 4,
-                cols: 5,
-                headers: headerTitles
-            }).done(function(wSheet) {
-                worksheet = wSheet;
+            it("don't post batch entry for null or undefined cell value", function() {
+                var worksheet;
+                rowData = [
+                    ["", null, undefined, "Valid", false]
+                ];
+                spreadSheet.createWorksheet({
+                    title: "Worksheet Title",
+                    rows: 1,
+                    cols: 5,
+                    headers: headerTitles,
+                    rowData: rowData
+                }).done(function(wSheet) {
+                    worksheet = wSheet;
+                });
+
+                waitsFor(function() {
+                    return worksheet;
+                }, "Worksheet is created", 200);
+                runs(function() {
+                    var postCallArgs = spyOnAjax.calls[1].args[0];
+                    var jQuerypostData = $(postCallArgs.data);
+                    expect(jQuerypostData.length).toBe(1);
+                    expect(jQuerypostData[0].nodeName).toBe("FEED");
+                    expect(jQuerypostData.children("id").text()).toBe(cellFeed);
+                    var entries = jQuerypostData.children("entry");
+                    expect(entries.length).toBe(8);
+                    // At this time, rowData object is changed. Now it have header added to it;
+                    var entryIdx = 0;
+                    $.each(rowData, function(rNo, rData) {
+                        for (var c = 0; c < rData.length; c++) {
+                            if (rData[c] !== null && typeof rData[c] !== "undefined") {
+                                checkCellEntry(entries.eq(entryIdx), cellFeed, rNo + 1, c + 1, rData[c].toString());
+                                entryIdx++;
+                            }
+                        }
+                    });
+                });
             });
-            waitsFor(function() {
-                return worksheet;
-            }, "Worksheet is created", 200);
-            runs(function() {
-                expect(worksheet).toBeDefined();
-                expect(worksheet.rows.length).toBe(4);
-                expect(spyOnAjax.callCount).toBe(3);
-                expect(spreadSheet.worksheets.length).toBe(1);
-                expect(spreadSheet.worksheets[0].rows.length).toBe(4);
-                expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full");
+
+            it("creates rows from passed data and fetch latest data", function() {
+                var worksheet;
+                spreadSheet.createWorksheet({
+                    title: "Worksheet Title",
+                    rows: 4,
+                    cols: 5,
+                    headers: headerTitles
+                }).done(function(wSheet) {
+                    worksheet = wSheet;
+                });
+                waitsFor(function() {
+                    return worksheet;
+                }, "Worksheet is created", 200);
+                runs(function() {
+                    expect(worksheet).toBeDefined();
+                    expect(worksheet.rows.length).toBe(4);
+                    expect(spyOnAjax.callCount).toBe(3);
+                    expect(spreadSheet.worksheets.length).toBe(1);
+                    expect(spreadSheet.worksheets[0].rows.length).toBe(4);
+                    expect(spyOnAjax.mostRecentCall.args[0].url).toBe("https://spreadsheets.google.com/feeds/list/spreadsheet02/od7/private/full");
+                });
             });
         });
     });

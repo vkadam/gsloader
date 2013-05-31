@@ -47,7 +47,7 @@
             var $entries = $(data).children("feed").children("entry");
             _this.rows = [];
             if ($entries.length === 0) {
-                GSLoader.logger.error("Missing data for " + _this.title + ", make sure you didn't forget column headers");
+                GSLoader.logger.warn("Missing data for " + _this.title + ", make sure you didn't forget column headers");
                 return;
             }
             var row;

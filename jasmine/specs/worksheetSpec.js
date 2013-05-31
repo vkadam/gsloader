@@ -22,6 +22,10 @@ describe("worksheet.js", function() {
             });
         });
 
+        afterEach(function() {
+            $.fixture("GET /worksheet/listFeed", null);
+        });
+
         it("call fail callback in case of ajax failure", function() {
             var worksheet = new Worksheet({
                 listFeed: "/worksheet/listFeed"
@@ -45,6 +49,9 @@ describe("worksheet.js", function() {
             $.fixture("POST /worksheet/cellsFeed/batch", function() {
                 return [400, "Worksheet addRows post error", "", {}];
             });
+        });
+        afterEach(function() {
+            $.fixture("POST /worksheet/cellsFeed/batch", null);
         });
 
         it("call fail callback in case of ajax failure", function() {
