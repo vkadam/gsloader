@@ -29,6 +29,9 @@ describe("gsloader.js", function() {
     beforeEach(function() {
         $.fixture("GET worksheets/spreadsheet01/private/full", "jasmine/fixtures/Spreadsheet-01.xml");
         $.fixture("GET worksheets/spreadsheet02/private/full", "jasmine/fixtures/Spreadsheet-02.xml");
+        $.fixture("GET worksheets/wrong_spreadsheet_id/private/full", function() {
+            return [400, "Spreadsheet wrong_spreadsheet_id fetch error", "", {}];
+        });
         $.ajaxSetup({
             async: false
         });
@@ -38,6 +41,7 @@ describe("gsloader.js", function() {
     afterEach(function() {
         $.fixture("GET worksheets/spreadsheet01/private/full", null);
         $.fixture("GET worksheets/spreadsheet02/private/full", null);
+        $.fixture("GET worksheets/wrong_spreadsheet_id/private/full", null);
         $.ajaxSetup({
             async: true
         });
@@ -65,7 +69,7 @@ describe("gsloader.js", function() {
             $.fixture("GET feeds/list/spreadsheet01/oda/private/full", null);
         });
 
-        it("GSLoader.loadSpreadsheet returns jQuery Deferred object", function() {
+        it("returns jQuery Deferred object", function() {
             var reqObj = GSLoader.loadSpreadsheet({
                 id: "spreadsheet01"
             });
@@ -75,14 +79,30 @@ describe("gsloader.js", function() {
             expect(reqObj.resolve).not.toBeDefined();
         });
 
-        it("GSLoader.loadSpreadsheet loads list of all worksheets", function() {
+        it("call fail callback in case of spreadsheet fetch ajax call failure", function() {
+            var errorCallback = jasmine.createSpy("GSLoader.loadSpreadsheet.errorCallback"),
+                loadReq = GSLoader.loadSpreadsheet({
+                    id: "wrong_spreadsheet_id"
+                }).fail(errorCallback);
+
+            waitsFor(function() {
+                return (loadReq.state() === "rejected");
+            }, "GSLoader.loadSpreadsheet should fail", 200);
+
+            runs(function() {
+                expect(errorCallback).toHaveBeenCalled();
+                expect(errorCallback.mostRecentCall.args[0]).toBe("Spreadsheet wrong_spreadsheet_id fetch error");
+            });
+        });
+
+        it("loads list of all worksheets", function() {
             var spreadSheet;
             GSLoader.loadSpreadsheet('spreadsheet01').done(function(sSheet) {
                 spreadSheet = sSheet;
             });
             waitsFor(function() {
                 return spreadSheet;
-            }, "Spreadsheet should be loaded", 1000);
+            }, "Spreadsheet should be loaded", 200);
 
             runs(function() {
                 expect(spreadSheet).toBeDefined();
@@ -103,13 +123,13 @@ describe("gsloader.js", function() {
 
             waitsFor(function() {
                 return returnObject.callWithContext;
-            }, "Spreadsheet should be loaded", 1000);
+            }, "Spreadsheet should be loaded", 200);
 
             returnObject["request"] = req;
             return returnObject;
         }
 
-        it("GSLoader.loadSpreadsheet calls callback with specified context", function() {
+        it("calls callback with specified context", function() {
             var expectedCalledWithContext = {};
             var req = loadSpreadsheet(expectedCalledWithContext);
             runs(function() {
@@ -117,7 +137,7 @@ describe("gsloader.js", function() {
             });
         });
 
-        it("GSLoader.loadSpreadsheet calls callback with deferred object when context is not specified", function() {
+        it("calls callback with deferred object when context is not specified", function() {
             var req = loadSpreadsheet();
             runs(function() {
                 expect(req.callWithContext).toBe(req.request);
@@ -139,14 +159,14 @@ describe("gsloader.js", function() {
             }
         }
 
-        it("GSLoader.loadSpreadsheet loads list of all worksheets with correct data", function() {
+        it("loads list of all worksheets with correct data", function() {
             var spreadSheet;
             GSLoader.loadSpreadsheet('spreadsheet01').done(function(sSheet) {
                 spreadSheet = sSheet;
             });
             waitsFor(function() {
                 return spreadSheet;
-            }, "Spreadsheet should be loaded", 1000);
+            }, "Spreadsheet should be loaded", 200);
 
             runs(function() {
                 expect(spreadSheet.worksheets.length).toBe(4);
@@ -155,7 +175,7 @@ describe("gsloader.js", function() {
             });
         });
 
-        it("GSLoader.loadSpreadsheet loads data for all worksheets", function() {
+        it("loads data for all worksheets", function() {
             var spreadSheet;
             GSLoader.loadSpreadsheet({
                 id: "spreadsheet01",
@@ -165,7 +185,7 @@ describe("gsloader.js", function() {
             });
             waitsFor(function() {
                 return spreadSheet;
-            }, "Spreadsheet should be loaded", 1000);
+            }, "Spreadsheet should be loaded", 200);
 
             runs(function() {
                 expect(spreadSheet.id).toBe("spreadsheet01");
@@ -187,7 +207,7 @@ describe("gsloader.js", function() {
             expect(row["olrwdslurl"]).toBe(olrwdslurl);
         }
 
-        it("GSLoader.loadSpreadsheet loads row array with all column data for specified worksheet", function() {
+        it("loads row array with all column data for specified worksheet", function() {
             var spreadSheet;
             var callbackCallCount = 0;
             GSLoader.loadSpreadsheet({
@@ -200,7 +220,7 @@ describe("gsloader.js", function() {
 
             waitsFor(function() {
                 return spreadSheet;
-            }, "Spreadsheet should be loaded", 1000);
+            }, "Spreadsheet should be loaded", 200);
 
             runs(function() {
                 expect(spreadSheet.worksheets.length).toBe(4);
@@ -213,20 +233,49 @@ describe("gsloader.js", function() {
     });
 
     describe("GSLoader.createSpreadsheet", function() {
-        var spyOnGSLoaderDrive;
-
         beforeEach(function() {
-            spyOnGSLoaderDrive = spyOn(GSLoader.drive, 'createSpreadsheet').andCallThrough();
+            gapi._returnFailure = false;
+            spyOn(GSLoader.drive, 'createSpreadsheet').andCallThrough();
         });
 
         afterEach(function() {
             delete gapi._requestCallBackData.id;
         });
 
-        it("GSLoader.createSpreadsheet returns jQuery Deferred object", function() {
+        it("returns jQuery Deferred object", function() {
             var reqObj = GSLoader.createSpreadsheet();
             expect(reqObj.done).toBeDefined();
             expect(reqObj.resolve).not.toBeDefined();
+        });
+
+        it("call fail callback in case of GSLoader.drive.createSpreadsheet call failure", function() {
+            gapi._returnFailure = true;
+            var errorCallback = jasmine.createSpy("GSLoader.createSpreadsheet.errorCallback"),
+                createReq = GSLoader.createSpreadsheet().fail(errorCallback);
+
+            waitsFor(function() {
+                return (createReq.state() === "rejected");
+            }, "GSLoader.createSpreadsheet should fail", 200);
+
+            runs(function() {
+                expect(errorCallback).toHaveBeenCalled();
+                expect(errorCallback.mostRecentCall.args[0]).toBeDefined();
+            });
+        });
+
+        it("call fail callback in case of spreadsheet fetch call failure", function() {
+            gapi._requestCallBackData.id = "wrong_spreadsheet_id";
+            var errorCallback = jasmine.createSpy("GSLoader.createSpreadsheet.errorCallback"),
+                createReq = GSLoader.createSpreadsheet().fail(errorCallback);
+
+            waitsFor(function() {
+                return (createReq.state() === "rejected");
+            }, "Spreadsheet fetch call should fail", 500);
+
+            runs(function() {
+                expect(errorCallback).toHaveBeenCalled();
+                expect(errorCallback.mostRecentCall.args[0]).toBeDefined();
+            });
         });
 
         function assertCreateSpreadsheet(expectedContext) {
@@ -241,7 +290,7 @@ describe("gsloader.js", function() {
 
             waitsFor(function() {
                 return reqObj.state() === "resolved";
-            }, "Request should be processed", 1000);
+            }, "Request should be processed", 200);
 
             returnObject = {
                 callback: callback,
@@ -250,7 +299,7 @@ describe("gsloader.js", function() {
             return returnObject;
         }
 
-        it("GSLoader.createSpreadsheet call GSLoader.drive.createSpreadsheet and execute callback with correct context", function() {
+        it("call GSLoader.drive.createSpreadsheet and execute callback with correct context", function() {
             gapi._requestCallBackData.id = "spreadsheet01";
             var req = assertCreateSpreadsheet();
             runs(function() {
@@ -262,7 +311,7 @@ describe("gsloader.js", function() {
             });
         });
 
-        it("GSLoader.createSpreadsheet execute callback with GSLoader as context when context is not specified", function() {
+        it("execute callback with GSLoader as context when context is not specified", function() {
             gapi._requestCallBackData.id = "spreadsheet01";
             var expectedCalledWithContext = {};
             var req = assertCreateSpreadsheet(expectedCalledWithContext);
@@ -272,7 +321,7 @@ describe("gsloader.js", function() {
             });
         });
 
-        it("GSLoader.createSpreadsheet loads only list of worksheets and not sheet data", function() {
+        it("loads only list of worksheets and not sheet data", function() {
             gapi._requestCallBackData.id = "spreadsheet01";
             var req = assertCreateSpreadsheet();
             runs(function() {
@@ -282,7 +331,7 @@ describe("gsloader.js", function() {
             });
         });
 
-        it("GSLoader.createSpreadsheet creates spreadsheet with title only", function() {
+        it("creates spreadsheet with title only", function() {
             gapi._requestCallBackData.id = "spreadsheet01";
             var spreadSheet;
             GSLoader.createSpreadsheet("Mindtap Environment Settings").done(function(sSheet) {
@@ -291,7 +340,7 @@ describe("gsloader.js", function() {
 
             waitsFor(function() {
                 return spreadSheet;
-            }, "Request should be processed", 1000);
+            }, "Request should be processed", 200);
 
             runs(function() {
                 expect(spreadSheet.id).toBe("spreadsheet01");

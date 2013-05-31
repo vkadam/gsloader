@@ -25,17 +25,20 @@
 
     SpreadsheetClass.prototype = {
 
-        fetch: function() {
+        fetch: function(options) {
             var _this = this,
                 deferred = $.Deferred(),
                 fetchReq = {};
+            options = $.extend({
+                context: fetchReq
+            }, options);
 
             deferred.promise(fetchReq);
 
             function errorCallback(jqXHR, textStatus, errorThrown) {
                 /* Incase of worksheet.fetch only 2 params will be passed,
                  * error message and worksheet object */
-                deferred.rejectWith(fetchReq, [errorThrown || jqXHR, _this]);
+                deferred.rejectWith(options.context, [errorThrown || jqXHR, _this]);
             }
 
             $.ajax({
@@ -45,10 +48,10 @@
                 var worksheetReqs = _this.fetchSheets();
                 if (worksheetReqs.length > 0) {
                     $.when.apply($, worksheetReqs).then(function() {
-                        deferred.resolveWith(fetchReq, [_this]);
+                        deferred.resolveWith(options.context, [_this]);
                     }, errorCallback);
                 } else {
-                    deferred.resolveWith(fetchReq, [_this]);
+                    deferred.resolveWith(options.context, [_this]);
                 }
             }, errorCallback);
             return fetchReq;

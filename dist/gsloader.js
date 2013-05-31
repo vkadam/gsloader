@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.2rc - 2013-05-30
+/* Gsloader - v0.0.2rc - 2013-05-31
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 /*
@@ -58,52 +58,36 @@
         },
 
         loadSpreadsheet: function(options) {
-            var lsRequest = {},
-                deferred = $.Deferred();
-            options = $.extend({
-                context: lsRequest
-            }, this.sanitizeOptions(options, "id"));
-            var spreadSheet = new Spreadsheet({
-                id: options.id,
-                wanted: options.wanted
+            options = this.sanitizeOptions(options, "id");
+
+            var spreadSheet = new Spreadsheet(options);
+
+            return spreadSheet.fetch({
+                context: options.context
             });
-
-            deferred.promise(lsRequest);
-
-            spreadSheet.fetch().done(function() {
-                deferred.resolveWith(options.context, [spreadSheet]);
-            });
-
-            return lsRequest;
         },
 
         /*
          * Needs GSLoader.drive api
          */
         createSpreadsheet: function(options) {
-            var csRequest = {},
-                _options = $.extend({
-                    title: "",
-                    context: csRequest
-                }, this.sanitizeOptions(options, "title")),
-                deferred = $.Deferred();
+            options = $.extend({
+                title: ""
+            }, this.sanitizeOptions(options, "title"));
 
-            function spreadSheetCreated(spreadSheetObj) {
+            var returnReq = this.drive.createSpreadsheet({
+                title: options.title,
+                context: options.context
+            }).then(function(spreadSheetObj) {
                 var spreadSheet = new Spreadsheet({
                     id: spreadSheetObj.id,
                     title: spreadSheetObj.title
                 });
-                spreadSheet.fetch().done(function() {
-                    deferred.resolveWith(_options.context, [spreadSheet]);
+                return spreadSheet.fetch({
+                    context: options.context || returnReq
                 });
-            }
-
-            this.drive.createSpreadsheet({
-                title: _options.title
-            }).done(spreadSheetCreated);
-
-            deferred.promise(csRequest);
-            return csRequest;
+            });
+            return returnReq;
         }
     };
 
@@ -143,17 +127,20 @@
 
     SpreadsheetClass.prototype = {
 
-        fetch: function() {
+        fetch: function(options) {
             var _this = this,
                 deferred = $.Deferred(),
                 fetchReq = {};
+            options = $.extend({
+                context: fetchReq
+            }, options);
 
             deferred.promise(fetchReq);
 
             function errorCallback(jqXHR, textStatus, errorThrown) {
                 /* Incase of worksheet.fetch only 2 params will be passed,
                  * error message and worksheet object */
-                deferred.rejectWith(fetchReq, [errorThrown || jqXHR, _this]);
+                deferred.rejectWith(options.context, [errorThrown || jqXHR, _this]);
             }
 
             $.ajax({
@@ -163,10 +150,10 @@
                 var worksheetReqs = _this.fetchSheets();
                 if (worksheetReqs.length > 0) {
                     $.when.apply($, worksheetReqs).then(function() {
-                        deferred.resolveWith(fetchReq, [_this]);
+                        deferred.resolveWith(options.context, [_this]);
                     }, errorCallback);
                 } else {
-                    deferred.resolveWith(fetchReq, [_this]);
+                    deferred.resolveWith(options.context, [_this]);
                 }
             }, errorCallback);
             return fetchReq;
