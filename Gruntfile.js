@@ -2,7 +2,7 @@
 module.exports = function(grunt) {
     "use strict";
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+        pkg: grunt.file.readJSON("package.json"),
         meta: {
             banner: "/* <%= pkg.title || pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today('yyyy-mm-dd') %>\n<%= pkg.homepage ? '* ' + pkg.homepage + '\\n' : '' %>* Copyright (c) <%= grunt.template.today('yyyy') %> <%= pkg.author.name %>; Licensed <%= _.pluck(pkg.licenses, 'type').join(', ') %> */\n"
         },
@@ -47,10 +47,26 @@ module.exports = function(grunt) {
         },
         jasmine: {
             all: {
-                src: ["src/lib/**/*.min.js", "src/js/**/*.js"],
                 options: {
-                    specs: ["jasmine/lib/**/*.js", "jasmine/specs/**/*Spec.js"],
-                    host: "http://127.0.0.1:<%= connect.jasmine.options.port %>/"
+                    specs: ["jasmine/specs/**/*Spec.js"],
+                    host: "http://127.0.0.1:<%= connect.jasmine.options.port %>/",
+                    template: require("grunt-template-jasmine-requirejs"),
+                    templateOptions: {
+                        requireConfigFile: "src/js/require-config.js",
+                        requireConfig: {
+                            baseUrl: "/src",
+                            paths: {
+                                "jquery-fixture": "../jasmine/lib/jquery-fixture/jquerymx-3.2.custom",
+                                "google-api-client": "../jasmine/lib/google-api-client"
+                            },
+                            shim: {
+                                "jquery-fixture": {
+                                    deps: ["jquery"]
+                                }
+                            },
+                            deps: ["jquery", "jquery-fixture"]
+                        }
+                    }
                 }
             }
         },
@@ -81,8 +97,9 @@ module.exports = function(grunt) {
                 debug: true,
                 camelcase: true,
                 globals: {
-                    jQuery: false,
-                    Logger: false,
+                    requirejs: false,
+                    require: false,
+                    define: false,
                     jasmine: false,
                     describe: false,
                     it: false,
@@ -98,13 +115,13 @@ module.exports = function(grunt) {
     });
 
     /* These plugins provide necessary tasks. */
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-jasmine');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-open');
+    grunt.loadNpmTasks("grunt-contrib-jshint");
+    grunt.loadNpmTasks("grunt-contrib-jasmine");
+    grunt.loadNpmTasks("grunt-contrib-concat");
+    grunt.loadNpmTasks("grunt-contrib-uglify");
+    grunt.loadNpmTasks("grunt-contrib-connect");
+    grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-open");
     grunt.loadNpmTasks("grunt-jsbeautifier");
 
     /* Register tasks. */

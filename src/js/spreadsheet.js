@@ -1,13 +1,18 @@
-(function(_attachTo, $) {
+/*
+ *    Author: Vishal Kadam
+ */
+define(["jquery", "js-logger", "js/utils", "js/worksheet"], function($, Logger, Utils, Worksheet) {
     "use strict";
     /*
      * Spreadsheet class
      */
-    /*global GSLoader:false, Worksheet:false*/
+    var WORKSHEET_CREATE_REQ = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><title>{0}</title><gs:rowCount>{1}</gs:rowCount><gs:colCount>{2}</gs:colCount></entry>';
+
     var SpreadsheetClass = function(options) {
-        options = GSLoader.sanitizeOptions(options, "id");
+        this.logger = Logger.get("Spreadsheet");
+        options = Utils.sanitizeOptions(options, "id");
         if (options && /id=/.test(options.id)) {
-            GSLoader.logger.info("You passed a id as a URL! Attempting to parse.");
+            this.logger.info("You passed a id as a URL! Attempting to parse.");
             options.id = options.id.match("id=([^&]*)")[1];
         }
         $.extend(this, {
@@ -19,12 +24,7 @@
         });
     };
 
-    SpreadsheetClass.PRIVATE_SHEET_URL = "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full";
-    SpreadsheetClass.WORKSHEET_ID_REGEX = /.{3}$/;
-    SpreadsheetClass.WORKSHEET_CREATE_REQ = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><title>{0}</title><gs:rowCount>{1}</gs:rowCount><gs:colCount>{2}</gs:colCount></entry>';
-
     SpreadsheetClass.prototype = {
-
         fetch: function(options) {
             var _this = this,
                 deferred = $.Deferred(),
@@ -42,7 +42,7 @@
             }
 
             $.ajax({
-                url: SpreadsheetClass.PRIVATE_SHEET_URL.format(this.id)
+                url: Utils.PRIVATE_SHEET_URL.format(this.id)
             }).then(function(data, textStatus, jqXHR) {
                 _this.parse(data, textStatus, jqXHR);
                 var worksheetReqs = _this.fetchSheets();
@@ -80,7 +80,7 @@
             var $worksheet = $(worksheetInfo);
             var title = $worksheet.children("title").text();
             var worksheet = new Worksheet({
-                id: $worksheet.children("id").text().match(SpreadsheetClass.WORKSHEET_ID_REGEX)[0],
+                id: $worksheet.children("id").text().match(Utils.WORKSHEET_ID_REGEX)[0],
                 title: title,
                 listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
                 cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
@@ -113,9 +113,9 @@
                 context: cwsReq,
                 headers: [],
                 rowData: []
-            }, GSLoader.sanitizeOptions(options, "title"));
+            }, Utils.sanitizeOptions(options, "title"));
 
-            GSLoader.logger.debug("Creating worksheet for spreadsheet", this, "with options =", options);
+            _this.logger.debug("Creating worksheet for spreadsheet", this, "with options =", options);
 
             function errorCallback(jqXHR, textStatus, errorThrown) {
                 /* Incase of worksheet.addRows, worksheet.fetch only 2 params will be passed,
@@ -124,13 +124,13 @@
             }
 
             $.ajax({
-                url: SpreadsheetClass.PRIVATE_SHEET_URL.format(this.id),
+                url: Utils.PRIVATE_SHEET_URL.format(this.id),
                 type: "POST",
                 contentType: "application/atom+xml",
                 headers: {
                     "GData-Version": "3.0"
                 },
-                data: SpreadsheetClass.WORKSHEET_CREATE_REQ.format(options.title, options.rows, options.cols)
+                data: WORKSHEET_CREATE_REQ.format(options.title, options.rows, options.cols)
             }).then(function(data, textStatus, jqXHR) {
                 var entryNode = $(jqXHR.responseText).filter(function() {
                     return this.nodeName === "ENTRY";
@@ -145,7 +145,7 @@
                     var rowData = options.rowData;
                     rowData.unshift(options.headers);
                     worksheet.addRows(rowData).then(function() {
-                        GSLoader.logger.debug("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
+                        _this.logger.debug("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
                         return worksheet.fetch();
                     }).then(function() {
                         deferred.resolveWith(options.context, [worksheet]);
@@ -174,7 +174,5 @@
             return matchingWorksheet;
         }
     };
-    $.extend(_attachTo, {
-        Spreadsheet: SpreadsheetClass
-    });
-}(window, jQuery));
+    return SpreadsheetClass;
+});

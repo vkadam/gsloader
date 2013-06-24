@@ -1,10 +1,7 @@
 /*
  *    Author: Vishal Kadam
  */
-/*global GSLoader:false, gapi:false*/
-
-(function(_attachTo, $) {
-
+define(["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, gapi, Auth) {
     "use strict";
     var GSDriveClass = function() {};
 
@@ -16,7 +13,7 @@
         },
 
         onLoad: function() {
-            _attachTo.auth.checkAuth();
+            Auth.checkAuth();
             return this;
         },
 
@@ -73,9 +70,5 @@
             return this;
         }*/
     };
-
-    $.extend(_attachTo, {
-        drive: new GSDriveClass()
-    });
-
-}(GSLoader, jQuery));
+    return new GSDriveClass();
+});

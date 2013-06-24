@@ -2,12 +2,12 @@
  * Author: Vishal Kadam
  */
 
-(function(_attachTo, $) {
+define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloader-drive"], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
     "use strict";
     /*
      * String.format method
      * Example:
-     *      "{0} is {1}".format("jQuery", "awesome")
+     * "{0} is {1}".format("jQuery", "awesome")
      * Output "jQuery is awesome"
      */
     if (!String.prototype.format) {
@@ -42,20 +42,10 @@
         this.logger = Logger.get("gsloader");
     };
 
-    /*global Spreadsheet:true*/
     GSLoaderClass.prototype = {
 
-        sanitizeOptions: function(options, attribName) {
-            var opts;
-            if (typeof(options) === "string") {
-                opts = {};
-                opts[attribName] = options;
-            }
-            return opts || options;
-        },
-
         loadSpreadsheet: function(options) {
-            options = this.sanitizeOptions(options, "id");
+            options = Utils.sanitizeOptions(options, "id");
 
             var spreadSheet = new Spreadsheet(options);
 
@@ -70,9 +60,9 @@
         createSpreadsheet: function(options) {
             options = $.extend({
                 title: ""
-            }, this.sanitizeOptions(options, "title"));
+            }, Utils.sanitizeOptions(options, "title"));
 
-            var returnReq = this.drive.createSpreadsheet({
+            var returnReq = GSLoaderDrive.createSpreadsheet({
                 title: options.title,
                 context: options.context
             }).then(function(spreadSheetObj) {
@@ -88,10 +78,5 @@
         }
     };
 
-    var GSLoader = new GSLoaderClass();
-
-    $.extend(_attachTo, {
-        GSLoader: GSLoader
-    });
-
-}(window, jQuery));
+    return new GSLoaderClass();
+});

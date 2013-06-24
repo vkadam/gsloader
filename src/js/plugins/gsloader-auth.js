@@ -1,10 +1,9 @@
 /*
  *    Author: Vishal Kadam
  */
-/*global GSLoader:false, gapi:false*/
-
-(function(_attachTo, $) {
+define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
     "use strict";
+
     var GSAuthClass = function() {
         Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsAuth");
@@ -38,9 +37,11 @@
 
         handleAuthResult: function(authResult) {
             var _this = this;
+            /* TODO: Remove GSLoader dependency */
             /* No idea but somewhere context is changed to window object so setting it back to auth object */
             if (!(_this instanceof GSAuthClass)) {
-                _this = _attachTo.auth;
+                // _this = GSLoader.auth;
+                return;
             }
             if (authResult && !authResult.error) {
                 _this.logger.debug("Google Api Authentication Succeed");
@@ -55,9 +56,5 @@
             return _this;
         }
     };
-
-    $.extend(_attachTo, {
-        auth: new GSAuthClass()
-    });
-
-}(GSLoader, jQuery));
+    return new GSAuthClass();
+});
