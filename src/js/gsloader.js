@@ -1,7 +1,3 @@
-/*
- * Author: Vishal Kadam
- */
-
 define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloader-drive"], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
     "use strict";
     /*

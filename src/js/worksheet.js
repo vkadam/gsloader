@@ -1,6 +1,3 @@
-/*
- *    Author: Vishal Kadam
- */
 define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
     "use strict";
     /*

@@ -8,12 +8,26 @@ module.exports = function(grunt) {
         },
         concat: {
             options: {
-                separator: ";\n/**********************************/\n",
                 banner: "<%= meta.banner %>"
             },
             dist: {
-                src: ["src/js/gsloader.js", "src/js/spreadsheet.js", "src/js/worksheet.js", "src/js/plugins/gsloader-drive.js", "src/js/plugins/gsloader-auth.js"],
+                src: ["dist/<%= pkg.name %>.js"],
                 dest: "dist/<%= pkg.name %>.js"
+            }
+        },
+        requirejs: {
+            "gsloader.js": {
+                options: {
+                    baseUrl: "src",
+                    out: "dist/gsloader.js",
+                    include: ["js/gsloader"],
+                    paths: {
+                        "jquery": "empty:",
+                        "js-logger": "empty:",
+                        "google-api-client": "empty:"
+                    },
+                    optimize: "none"
+                }
             }
         },
         uglify: {
@@ -22,7 +36,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    "dist/<%= pkg.name %>.min.js": ["<%= concat.dist.dest %>"]
+                    "dist/<%= pkg.name %>.min.js": ["dist/<%= pkg.name %>.js"]
                 }
             }
         },
@@ -52,7 +66,7 @@ module.exports = function(grunt) {
                     host: "http://127.0.0.1:<%= connect.jasmine.options.port %>/",
                     template: require("grunt-template-jasmine-requirejs"),
                     templateOptions: {
-                        requireConfigFile: "src/js/require-config.js",
+                        requireConfigFile: "src/require-config.js",
                         requireConfig: {
                             baseUrl: "/src",
                             paths: {
@@ -68,15 +82,6 @@ module.exports = function(grunt) {
                         }
                     }
                 }
-            }
-        },
-        watch: {
-            options: {
-                files: ["src/js/**/*.js", "src/views/**/*.hbs"],
-                tasks: ["dist", "uglify"],
-                interrupt: true,
-                debounceDelay: 5,
-                interval: 5
             }
         },
         jshint: {
@@ -118,14 +123,14 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-jshint");
     grunt.loadNpmTasks("grunt-contrib-jasmine");
     grunt.loadNpmTasks("grunt-contrib-concat");
+    grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-connect");
-    grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.loadNpmTasks("grunt-open");
     grunt.loadNpmTasks("grunt-jsbeautifier");
 
     /* Register tasks. */
-    grunt.registerTask("dist", ["concat", /*"handlebars", */ "uglify"]);
+    grunt.registerTask("dist", ["requirejs", "concat", "uglify"]);
     grunt.registerTask("default", ["jsbeautifier", "jshint", "dist", "connect", "jasmine"]);
     grunt.registerTask("test", ["dist", "connect", "jasmine"]);
     grunt.registerTask("jasmine-server", ["dist", "jasmine:all:build", "open:jasmine", "connect::keepalive"]);

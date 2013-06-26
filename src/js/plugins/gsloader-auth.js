@@ -1,6 +1,3 @@
-/*
- *    Author: Vishal Kadam
- */
 define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
     "use strict";
 

@@ -1,6 +1,3 @@
-/*
- *    Author: Vishal Kadam
- */
 define(["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, gapi, Auth) {
     "use strict";
     var GSDriveClass = function() {};
