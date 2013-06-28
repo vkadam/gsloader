@@ -20,11 +20,12 @@ module.exports = function(grunt) {
                 options: {
                     baseUrl: "src",
                     out: "dist/gsloader.js",
-                    include: ["js/gsloader"],
+                    include: ["gsloader"],
                     paths: {
                         "jquery": "empty:",
                         "js-logger": "empty:",
-                        "google-api-client": "empty:"
+                        "google-api-client": "empty:",
+                        "gsloader": "js/gsloader"
                     },
                     optimize: "none"
                 }

@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.3rc - 2013-06-26
+/* Gsloader - v0.0.3rc - 2013-06-28
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 
@@ -496,7 +496,7 @@ define('js/plugins/gsloader-drive',["jquery", "google-api-client", "js/plugins/g
     return new GSDriveClass();
 });
 
-define('js/gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloader-drive"], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
+define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloader-drive"], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
     
     /*
      * String.format method
