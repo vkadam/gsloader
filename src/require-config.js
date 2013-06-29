@@ -1,6 +1,3 @@
-/*
- *    Author: Vishal Kadam
- */
 requirejs.config({
     "baseUrl": "src",
     "paths": {

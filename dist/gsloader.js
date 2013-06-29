@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.3rc - 2013-06-28
+/* Gsloader - v0.0.3rc - 2013-06-29
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 
@@ -366,6 +366,9 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
     return SpreadsheetClass;
 });
 
+/*
+ * https://developers.google.com/api-client-library/javascript/start/start-js
+ */
 define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
     
 
@@ -384,7 +387,7 @@ define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], 
         },
 
         onLoad: function(callback, context) {
-            this.checkAuth();
+            // this.checkAuth();
             if (callback) {
                 callback.apply(context, this);
             }
@@ -396,29 +399,29 @@ define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], 
                 'client_id': this.CLIENT_ID,
                 'scope': this.SCOPES,
                 'immediate': true
-            }, this.handleAuthResult);
+            }, $.proxy(this, "handleAuthResult"));
             return this;
         },
 
         handleAuthResult: function(authResult) {
-            var _this = this;
             /* TODO: Remove GSLoader dependency */
             /* No idea but somewhere context is changed to window object so setting it back to auth object */
-            if (!(_this instanceof GSAuthClass)) {
-                // _this = GSLoader.auth;
-                return;
-            }
+            // if (!(this instanceof GSAuthClass)) {
+            //     this = GSLoader.auth;
+            //     return;
+            // }
             if (authResult && !authResult.error) {
-                _this.logger.debug("Google Api Authentication Succeed");
+                this.logger.debug("Google Api Authentication Succeed");
             } else {
-                _this.logger.debug("Authenticating Google Api");
-                gapi.auth.authorize({
-                    'client_id': _this.CLIENT_ID,
-                    'scope': _this.SCOPES,
+                this.logger.debug("Retrying to authenticating Google Api");
+                this.checkAuth();
+                /*gapi.auth.authorize({
+                    'client_id': this.CLIENT_ID,
+                    'scope': this.SCOPES,
                     'immediate': false
-                }, _this.handleAuthResult);
+                }, this.handleAuthResult);*/
             }
-            return _this;
+            return this;
         }
     };
     return new GSAuthClass();
