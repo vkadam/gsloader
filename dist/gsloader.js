@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.3rc - 2013-06-29
+/* Gsloader - v0.0.3rc - 2013-07-08
 * https://github.com/vkadam/gsloader
 * Copyright (c) 2013 Vishal Kadam; Licensed MIT */
 
@@ -22,7 +22,7 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
     /*
      * Worksheet class
      */
-    var WorksheetClass = function(options) {
+    var Worksheet = function(options) {
         this.logger = Logger.get("Worksheet");
         $.extend(this, {
             id: "",
@@ -39,7 +39,7 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
         CELL_FEED_HEADER = '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>{0}</id>{1}</feed>',
         CELL_FEED_ENTRY = '<entry><batch:id>R{1}C{2}</batch:id><batch:operation type="update"/><id>{0}/R{1}C{2}</id><gs:cell row="{1}" col="{2}" inputValue="{3}"/></entry>';
 
-    WorksheetClass.prototype = {
+    Worksheet.prototype = {
         fetch: function() {
             var _this = this,
                 deferred = $.Deferred(),
@@ -184,10 +184,7 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
             return metadataReq;
         }
     };
-    /*$.extend(_attachTo, {
-        Worksheet: WorksheetClass
-    });*/
-    return WorksheetClass;
+    return Worksheet;
 });
 
 define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], function($, Logger, Utils, Worksheet) {
@@ -197,7 +194,7 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
      */
     var WORKSHEET_CREATE_REQ = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><title>{0}</title><gs:rowCount>{1}</gs:rowCount><gs:colCount>{2}</gs:colCount></entry>';
 
-    var SpreadsheetClass = function(options) {
+    var Spreadsheet = function(options) {
         this.logger = Logger.get("Spreadsheet");
         options = Utils.sanitizeOptions(options, "id");
         if (options && /id=/.test(options.id)) {
@@ -213,7 +210,7 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
         });
     };
 
-    SpreadsheetClass.prototype = {
+    Spreadsheet.prototype = {
         fetch: function(options) {
             var _this = this,
                 deferred = $.Deferred(),
@@ -363,7 +360,7 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
             return matchingWorksheet;
         }
     };
-    return SpreadsheetClass;
+    return Spreadsheet;
 });
 
 /*
@@ -372,14 +369,14 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
 define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
     
 
-    var GSAuthClass = function() {
+    var GSAuth = function() {
         Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsAuth");
         this.CLIENT_ID = null;
         this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
     };
 
-    GSAuthClass.prototype = {
+    GSAuth.prototype = {
 
         setClientId: function(clientId) {
             this.CLIENT_ID = clientId;
@@ -406,7 +403,7 @@ define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], 
         handleAuthResult: function(authResult) {
             /* TODO: Remove GSLoader dependency */
             /* No idea but somewhere context is changed to window object so setting it back to auth object */
-            // if (!(this instanceof GSAuthClass)) {
+            // if (!(this instanceof GSAuth)) {
             //     this = GSLoader.auth;
             //     return;
             // }
@@ -424,14 +421,14 @@ define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], 
             return this;
         }
     };
-    return new GSAuthClass();
+    return new GSAuth();
 });
 
 define('js/plugins/gsloader-drive',["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, gapi, Auth) {
     
-    var GSDriveClass = function() {};
+    var GSDrive = function() {};
 
-    GSDriveClass.prototype = {
+    GSDrive.prototype = {
 
         load: function() {
             gapi.client.load("drive", "v2", this.onLoad);
@@ -496,7 +493,7 @@ define('js/plugins/gsloader-drive',["jquery", "google-api-client", "js/plugins/g
             return this;
         }*/
     };
-    return new GSDriveClass();
+    return new GSDrive();
 });
 
 define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloader-drive"], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
@@ -534,12 +531,12 @@ define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plug
     /*
      * GSLoader class
      */
-    var GSLoaderClass = function() {
+    var GSLoader = function() {
         Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsloader");
     };
 
-    GSLoaderClass.prototype = {
+    GSLoader.prototype = {
 
         loadSpreadsheet: function(options) {
             options = Utils.sanitizeOptions(options, "id");
@@ -575,5 +572,5 @@ define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plug
         }
     };
 
-    return new GSLoaderClass();
+    return new GSLoader();
 });

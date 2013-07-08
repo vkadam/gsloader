@@ -4,14 +4,14 @@
 define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
     "use strict";
 
-    var GSAuthClass = function() {
+    var GSAuth = function() {
         Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsAuth");
         this.CLIENT_ID = null;
         this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
     };
 
-    GSAuthClass.prototype = {
+    GSAuth.prototype = {
 
         setClientId: function(clientId) {
             this.CLIENT_ID = clientId;
@@ -38,7 +38,7 @@ define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
         handleAuthResult: function(authResult) {
             /* TODO: Remove GSLoader dependency */
             /* No idea but somewhere context is changed to window object so setting it back to auth object */
-            // if (!(this instanceof GSAuthClass)) {
+            // if (!(this instanceof GSAuth)) {
             //     this = GSLoader.auth;
             //     return;
             // }
@@ -56,5 +56,5 @@ define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
             return this;
         }
     };
-    return new GSAuthClass();
+    return new GSAuth();
 });

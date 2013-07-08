@@ -1,8 +1,8 @@
 define(["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, gapi, Auth) {
     "use strict";
-    var GSDriveClass = function() {};
+    var GSDrive = function() {};
 
-    GSDriveClass.prototype = {
+    GSDrive.prototype = {
 
         load: function() {
             gapi.client.load("drive", "v2", this.onLoad);
@@ -67,5 +67,5 @@ define(["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, 
             return this;
         }*/
     };
-    return new GSDriveClass();
+    return new GSDrive();
 });

@@ -3,7 +3,7 @@ define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
     /*
      * Worksheet class
      */
-    var WorksheetClass = function(options) {
+    var Worksheet = function(options) {
         this.logger = Logger.get("Worksheet");
         $.extend(this, {
             id: "",
@@ -20,7 +20,7 @@ define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
         CELL_FEED_HEADER = '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>{0}</id>{1}</feed>',
         CELL_FEED_ENTRY = '<entry><batch:id>R{1}C{2}</batch:id><batch:operation type="update"/><id>{0}/R{1}C{2}</id><gs:cell row="{1}" col="{2}" inputValue="{3}"/></entry>';
 
-    WorksheetClass.prototype = {
+    Worksheet.prototype = {
         fetch: function() {
             var _this = this,
                 deferred = $.Deferred(),
@@ -165,8 +165,5 @@ define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
             return metadataReq;
         }
     };
-    /*$.extend(_attachTo, {
-        Worksheet: WorksheetClass
-    });*/
-    return WorksheetClass;
+    return Worksheet;
 });

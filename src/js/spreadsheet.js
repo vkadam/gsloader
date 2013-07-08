@@ -5,7 +5,7 @@ define(["jquery", "js-logger", "js/utils", "js/worksheet"], function($, Logger, 
      */
     var WORKSHEET_CREATE_REQ = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><title>{0}</title><gs:rowCount>{1}</gs:rowCount><gs:colCount>{2}</gs:colCount></entry>';
 
-    var SpreadsheetClass = function(options) {
+    var Spreadsheet = function(options) {
         this.logger = Logger.get("Spreadsheet");
         options = Utils.sanitizeOptions(options, "id");
         if (options && /id=/.test(options.id)) {
@@ -21,7 +21,7 @@ define(["jquery", "js-logger", "js/utils", "js/worksheet"], function($, Logger, 
         });
     };
 
-    SpreadsheetClass.prototype = {
+    Spreadsheet.prototype = {
         fetch: function(options) {
             var _this = this,
                 deferred = $.Deferred(),
@@ -171,5 +171,5 @@ define(["jquery", "js-logger", "js/utils", "js/worksheet"], function($, Logger, 
             return matchingWorksheet;
         }
     };
-    return SpreadsheetClass;
+    return Spreadsheet;
 });

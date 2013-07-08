@@ -33,12 +33,12 @@ define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloade
     /*
      * GSLoader class
      */
-    var GSLoaderClass = function() {
+    var GSLoader = function() {
         Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsloader");
     };
 
-    GSLoaderClass.prototype = {
+    GSLoader.prototype = {
 
         loadSpreadsheet: function(options) {
             options = Utils.sanitizeOptions(options, "id");
@@ -74,5 +74,5 @@ define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloade
         }
     };
 
-    return new GSLoaderClass();
+    return new GSLoader();
 });
