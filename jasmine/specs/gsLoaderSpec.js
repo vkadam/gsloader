@@ -48,13 +48,6 @@ define(["js-logger", "js/gsloader", "google-api-client", "js/plugins/gsloader-dr
             });
         });
 
-        describe("GSLoader.logger", function() {
-            it("is default with WARN level", function() {
-                expect(GSLoader.logger).toBeDefined();
-                expect(GSLoader.logger.enabledFor(Logger.DEBUG)).toBeTruthy();
-            });
-        });
-
         describe("GSLoader.loadSpreadsheet", function() {
             beforeEach(function() {
                 $.fixture("GET feeds/list/spreadsheet01/od6/private/full", "jasmine/fixtures/Spreadsheet-01-od6.xml");

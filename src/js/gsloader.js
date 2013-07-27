@@ -34,7 +34,6 @@ define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloade
      * GSLoader class
      */
     var GSLoader = function() {
-        Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsloader");
     };
 

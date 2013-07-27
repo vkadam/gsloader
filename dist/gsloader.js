@@ -1,6 +1,6 @@
-/* Gsloader - v0.0.3rc - 2013-07-08
+/* Gsloader - v0.0.3rc
 * https://github.com/vkadam/gsloader
-* Copyright (c) 2013 Vishal Kadam; Licensed MIT */
+* Copyright (c) Vishal Kadam; Licensed MIT */
 
 define('js/utils',[],function() {
     return {
@@ -370,7 +370,6 @@ define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], 
     
 
     var GSAuth = function() {
-        Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsAuth");
         this.CLIENT_ID = null;
         this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
@@ -532,7 +531,6 @@ define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plug
      * GSLoader class
      */
     var GSLoader = function() {
-        Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsloader");
     };
 

@@ -5,7 +5,6 @@ define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
     "use strict";
 
     var GSAuth = function() {
-        Logger.useDefaults(Logger.DEBUG);
         this.logger = Logger.get("gsAuth");
         this.CLIENT_ID = null;
         this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
