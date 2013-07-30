@@ -117,6 +117,16 @@ module.exports = function(grunt) {
                     afterEach: false
                 }
             }
+        },
+        shell: {
+            npm: {
+                command: "npm install",
+                options: {
+                    failOnError: true,
+                    stdout: true,
+                    stderr: true
+                }
+            }
         }
     });
 
@@ -129,10 +139,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-connect");
     grunt.loadNpmTasks("grunt-open");
     grunt.loadNpmTasks("grunt-jsbeautifier");
+    grunt.loadNpmTasks("grunt-shell");
 
     /* Register tasks. */
     grunt.registerTask("dist", ["requirejs", "concat", "uglify"]);
-    grunt.registerTask("default", ["jsbeautifier", "jshint", "dist", "connect", "jasmine"]);
+    grunt.registerTask("default", ["shell:npm", "jsbeautifier", "jshint", "dist", "connect", "jasmine"]);
     grunt.registerTask("test", ["dist", "connect", "jasmine"]);
     grunt.registerTask("jasmine-server", ["dist", "jasmine:all:build", "open:jasmine", "connect::keepalive"]);
 };
