@@ -44,8 +44,10 @@ module.exports = function(grunt) {
         jsbeautifier: {
             files: "<%= jshint.files %>",
             options: {
-                "preserve_newlines": true,
-                "max_preserve_newlines": 2
+                "js": {
+                    "preserve_newlines": true,
+                    "max_preserve_newlines": 2
+                }
             }
         },
         connect: {
