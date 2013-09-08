@@ -138,18 +138,21 @@ define(["js-logger", "js/gsloader", "google-api-client", "js/plugins/gsloader-dr
                 });
             });
 
-            function checkWorksheet(worksheet, title, id, listFeed, cellsFeed) {
-                if (title) {
-                    expect(worksheet.title).toBe(title);
+            function checkWorksheet(worksheet, assertData) {
+                if (assertData.title) {
+                    expect(worksheet.title).toBe(assertData.title);
                 }
-                if (id) {
-                    expect(worksheet.id).toBe(id);
+                if (assertData.id) {
+                    expect(worksheet.id).toBe(assertData.id);
                 }
-                if (listFeed) {
-                    expect(worksheet.listFeed).toBe(listFeed);
+                if (assertData.listFeed) {
+                    expect(worksheet.listFeed).toBe(assertData.listFeed);
                 }
-                if (cellsFeed) {
-                    expect(worksheet.cellsFeed).toBe(cellsFeed);
+                if (assertData.cellsFeed) {
+                    expect(worksheet.cellsFeed).toBe(assertData.cellsFeed);
+                }
+                if (assertData.updatedOn) {
+                    expect(worksheet.updatedOn).toBe(assertData.updatedOn);
                 }
             }
 
@@ -164,8 +167,20 @@ define(["js-logger", "js/gsloader", "google-api-client", "js/plugins/gsloader-dr
 
                 runs(function() {
                     expect(spreadSheet.worksheets.length).toBe(4);
-                    checkWorksheet(spreadSheet.worksheets[0], "Environments", "od6", "https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full", "https://spreadsheets.google.com/feeds/cells/spreadsheet01/od6/private/full");
-                    checkWorksheet(spreadSheet.worksheets[3], "DEV", "oda", "https://spreadsheets.google.com/feeds/list/spreadsheet01/oda/private/full", "https://spreadsheets.google.com/feeds/cells/spreadsheet01/oda/private/full");
+                    checkWorksheet(spreadSheet.worksheets[0], {
+                        title: "Environments",
+                        id: "od6",
+                        listFeed: "https://spreadsheets.google.com/feeds/list/spreadsheet01/od6/private/full",
+                        cellsFeed: "https://spreadsheets.google.com/feeds/cells/spreadsheet01/od6/private/full",
+                        updatedOn: 1348467611000
+                    });
+                    checkWorksheet(spreadSheet.worksheets[3], {
+                        title: "DEV",
+                        id: "oda",
+                        listFeed: "https://spreadsheets.google.com/feeds/list/spreadsheet01/oda/private/full",
+                        cellsFeed: "https://spreadsheets.google.com/feeds/cells/spreadsheet01/oda/private/full",
+                        updatedOn: 1348603377000
+                    });
                 });
             });
 

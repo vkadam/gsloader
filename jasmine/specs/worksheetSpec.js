@@ -102,7 +102,7 @@ define(["js/gsloader", "js/worksheet"], function(GSLoader, Worksheet) {
                 });
             });
 
-            it("makes ajax call with corrent data to update title of worksheet and update worksheet metadata", function() {
+            it("makes ajax call with correct data to update title of worksheet and update worksheet metadata", function() {
                 GSLoader.loadSpreadsheet("spreadsheet01").done(function(spreadsheet) {
                     var worksheet = spreadsheet.worksheets[0];
                     var oldEditLink = worksheet.editLink;

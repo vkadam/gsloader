@@ -74,14 +74,20 @@ define(["jquery", "js-logger", "js/utils", "js/worksheet"], function($, Logger, 
         },
 
         parseWorksheet: function(worksheetInfo) {
-            var $worksheet = $(worksheetInfo);
-            var title = $worksheet.children("title").text();
+            var $worksheet = $(worksheetInfo),
+                title = $worksheet.children("title").text(),
+                updatedOnStr = $worksheet.children("updated").text();
+
+            updatedOnStr = (updatedOnStr).replace(/-/g, '/').replace(/[TZ]/g, ' ').trim();
+            updatedOnStr = updatedOnStr.substr(0, updatedOnStr.length - 4);
+
             var worksheet = new Worksheet({
                 id: $worksheet.children("id").text().match(Utils.WORKSHEET_ID_REGEX)[0],
                 title: title,
                 listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
                 cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
                 editLink: $worksheet.children("link[rel='edit']").attr("href"),
+                updatedOn: new Date(updatedOnStr).valueOf(),
                 metadata: $worksheet,
                 spreadsheet: this
             });
