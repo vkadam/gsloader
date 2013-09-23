@@ -1,16 +1,16 @@
-define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
-    "use strict";
+define(['jquery', 'logger', 'js/utils'], function($, Logger, Utils) {
+    'use strict';
     /*
      * Worksheet class
      */
     var Worksheet = function(options) {
-        this.logger = Logger.get("Worksheet");
+        this.logger = Logger.get('Worksheet');
         $.extend(this, {
-            id: "",
-            title: "",
-            listFeed: "",
-            cellsFeed: "",
-            editLink: "",
+            id: '',
+            title: '',
+            listFeed: '',
+            cellsFeed: '',
+            editLink: '',
             metadata: null,
             rows: [],
             spreadsheet: null
@@ -23,43 +23,49 @@ define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
     Worksheet.prototype = {
         fetch: function() {
             var _this = this,
-                deferred = $.Deferred(),
-                fetchReq = {};
-            deferred.promise(fetchReq);
+                deferred = $.Deferred();
+
+            if (_this._fetchReq) {
+                return _this._fetchReq;
+            }
+            var promisObj = deferred.promise();
+            _this._fetchReq = promisObj;
 
             $.ajax({
                 url: this.listFeed
             }).done(function(data, textStatus, jqXHR) {
                 _this.parse.apply(_this, [data, textStatus, jqXHR]);
-                deferred.resolveWith(fetchReq, [_this]);
+                deferred.resolveWith(promisObj, [_this]);
             }).fail(function(jqXHR, textStatus, errorThrown) {
-                deferred.rejectWith(fetchReq, [errorThrown, _this]);
+                deferred.rejectWith(promisObj, [errorThrown, _this]);
+            }).always(function() {
+                delete _this._fetchReq;
             });
 
-            return fetchReq;
+            return promisObj;
         },
 
         parse: function(data) {
             var _this = this;
-            var $entries = $(data).children("feed").children("entry");
+            var $entries = $(data).children('feed').children('entry');
             _this.rows = [];
             if ($entries.length === 0) {
-                _this.logger.warn("Missing data for " + _this.title + ", make sure you didn't forget column headers");
+                _this.logger.warn('Missing data for ' + _this.title + ', make sure you didn\'t forget column headers');
                 return;
             }
             var row;
             $entries.each(function(idx) {
                 row = {
-                    "rowNumber": (idx + 1)
+                    'rowNumber': (idx + 1)
                 };
                 $(this).children().each(function() {
                     if (COLUMN_NAME_REGEX.test(this.tagName)) {
-                        row[this.tagName.replace(COLUMN_NAME_REGEX, "")] = this.textContent;
+                        row[this.tagName.replace(COLUMN_NAME_REGEX, '')] = this.textContent;
                     }
                 });
                 _this.rows.push(row);
             });
-            _this.logger.debug("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
+            _this.logger.debug('Total rows in worksheet "' + this.title + '" = ' + _this.rows.length);
         },
 
         addRows: function(rowData) {
@@ -78,22 +84,22 @@ define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
                 rowNo = rowIdx + 1;
                 $.each(rowObj, function(colIdx, colObj) {
                     colNo = colIdx + 1;
-                    if (colObj !== null && typeof colObj !== "undefined") {
-                        cellValue = typeof colObj === "string" ? colObj.encodeXML() : colObj;
+                    if (colObj !== null && typeof colObj !== 'undefined') {
+                        cellValue = typeof colObj === 'string' ? colObj.encodeXML() : colObj;
                         entries.push(CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, cellValue));
                     }
                 });
             });
 
-            postData = CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
+            postData = CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(''));
 
             $.ajax({
-                url: this.cellsFeed + "/batch",
-                type: "POST",
-                contentType: "application/atom+xml",
+                url: this.cellsFeed + '/batch',
+                type: 'POST',
+                contentType: 'application/atom+xml',
                 headers: {
-                    "GData-Version": "3.0",
-                    "If-Match": "*"
+                    'GData-Version': '3.0',
+                    'If-Match': '*'
                 },
                 data: postData
             }).done(function(data, textStatus, jqXHR) {
@@ -116,7 +122,7 @@ define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
             deferred.promise(metadataReq);
 
             /* Make ajax call to get latest metadata of worksheet */
-            _this.logger.debug("Getting spreadsheet metadata before renaming worksheet");
+            _this.logger.debug('Getting spreadsheet metadata before renaming worksheet');
 
             function errorCallback(jqXHR, textStatus, errorThrown) {
                 deferred.rejectWith(metadataReq, [errorThrown, _this]);
@@ -126,11 +132,11 @@ define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
                 /* Get all worksheet details using spreadsheet url */
                 url: Utils.PRIVATE_SHEET_URL.format(this.spreadsheet.id)
             }).then(function(data) {
-                _this.logger.debug("Merging spreadsheet metadata before renaming worksheet");
-                var $feed = $(data).children("feed");
+                _this.logger.debug('Merging spreadsheet metadata before renaming worksheet');
+                var $feed = $(data).children('feed');
                 /* Filter to get details of this worksheet only */
-                $feed.children("entry").filter(function() {
-                    var worksheetId = $(this).children("id").text().match(Utils.WORKSHEET_ID_REGEX)[0];
+                $feed.children('entry').filter(function() {
+                    var worksheetId = $(this).children('id').text().match(Utils.WORKSHEET_ID_REGEX)[0];
                     return worksheetId === _this.id;
                 }).each(function() {
                     /* Parse worksheet and then update current worksheet.metadata */
@@ -138,28 +144,28 @@ define(["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
                     _this.metadata = worksheet.metadata;
                 });
             }, errorCallback).then(function() {
-                _this.logger.debug("Renaming worksheet with title =", title);
+                _this.logger.debug('Renaming worksheet with title =', title);
 
                 var tmpMetadata = _this.metadata.clone();
-                tmpMetadata.children("title").text(title);
+                tmpMetadata.children('title').text(title);
 
                 var reqData = (new XMLSerializer()).serializeToString(tmpMetadata[0]);
 
                 return $.ajax({
                     url: _this.editLink,
-                    type: "PUT",
-                    contentType: "application/atom+xml",
+                    type: 'PUT',
+                    contentType: 'application/atom+xml',
                     data: reqData
                 });
             }).then(function(data) {
                 /* Parse worksheet and then update current worksheet.metadata */
-                var worksheet = _this.spreadsheet.parseWorksheet($(data).children("entry"));
+                var worksheet = _this.spreadsheet.parseWorksheet($(data).children('entry'));
                 _this.metadata = worksheet.metadata;
                 _this.title = worksheet.title;
                 _this.listFeed = worksheet.listFeed;
                 _this.cellsFeed = worksheet.cellsFeed;
                 _this.editLink = worksheet.editLink;
-                _this.logger.debug("Worksheet renamed successfully with title =", _this.title);
+                _this.logger.debug('Worksheet renamed successfully with title =', _this.title);
                 deferred.resolveWith(metadataReq, [_this]);
             }, errorCallback);
             return metadataReq;

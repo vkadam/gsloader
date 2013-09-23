@@ -1,11 +1,11 @@
-define(["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, gapi, Auth) {
-    "use strict";
+define(['jquery', 'google-api-client', 'js/plugins/gsloader-auth'], function($, gapi, Auth) {
+    'use strict';
     var GSDrive = function() {};
 
     GSDrive.prototype = {
 
         load: function() {
-            gapi.client.load("drive", "v2", this.onLoad);
+            gapi.client.load('drive', 'v2', this.onLoad);
             return this;
         },
 
@@ -17,17 +17,17 @@ define(["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, 
         createSpreadsheet: function(options) {
             var csRequest = {},
                 _options = $.extend({
-                    title: "",
+                    title: '',
                     context: csRequest
                 }, options),
                 deferred = $.Deferred();
 
             var request = gapi.client.request({
-                "path": "/drive/v2/files",
-                "method": "POST",
-                "body": {
-                    "title": _options.title,
-                    "mimeType": "application/vnd.google-apps.spreadsheet"
+                'path': '/drive/v2/files',
+                'method': 'POST',
+                'body': {
+                    'title': _options.title,
+                    'mimeType': 'application/vnd.google-apps.spreadsheet'
                 }
             });
 
@@ -51,7 +51,7 @@ define(["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, 
                         var nextPageToken = jsonResp.nextPageToken;
                         if (nextPageToken) {
                             request = gapi.client.drive.files.list({
-                                "pageToken": nextPageToken
+                                'pageToken': nextPageToken
                             });
                             retrievePageOfFiles(request, result);
                         } else {

@@ -1,13 +1,13 @@
 /*
  * https://developers.google.com/api-client-library/javascript/start/start-js
  */
-define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
-    "use strict";
+define(['jquery', 'logger', 'google-api-client'], function($, Logger, gapi) {
+    'use strict';
 
     var GSAuth = function() {
-        this.logger = Logger.get("gsAuth");
+        this.logger = Logger.get('gsAuth');
         this.CLIENT_ID = null;
-        this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
+        this.SCOPES = ['https://www.googleapis.com/auth/drive', 'https://spreadsheets.google.com/feeds'].join(' ');
     };
 
     GSAuth.prototype = {
@@ -30,7 +30,7 @@ define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
                 'client_id': this.CLIENT_ID,
                 'scope': this.SCOPES,
                 'immediate': true
-            }, $.proxy(this, "handleAuthResult"));
+            }, $.proxy(this, 'handleAuthResult'));
             return this;
         },
 
@@ -42,9 +42,9 @@ define(["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
             //     return;
             // }
             if (authResult && !authResult.error) {
-                this.logger.debug("Google Api Authentication Succeed");
+                this.logger.debug('Google Api Authentication Succeed');
             } else {
-                this.logger.debug("Retrying to authenticating Google Api");
+                this.logger.debug('Retrying to authenticating Google Api');
                 this.checkAuth();
                 /*gapi.auth.authorize({
                     'client_id': this.CLIENT_ID,

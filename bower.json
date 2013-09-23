@@ -1,0 +1,39 @@
+{
+    "name": "gsloader",
+    "version": "v0.0.1-rc.1",
+    "homepage": "https://github.com/vkadam/gsloader",
+    "authors": [
+        "vkadam <vishal.4kadam@gmail.com>"
+    ],
+    "description": "Javascript library to read/write google spreadsheet into json object",
+    "main": "dist/gsloader.min.js",
+    "keywords": [
+        "google spreadsheet",
+        "google spreadsheet json"
+    ],
+    "license": "MIT",
+    "private": true,
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "jquery": "2.0.3",
+        "logger": "https://github.com/jonnyreeves/js-logger.git#master",
+        "requirejs": "2.1.8"
+    },
+    "exportsOverride": {
+        "jquery": {
+            "./": ["jquery.js", "jquery.min.js", "jquery.min.map"]
+        },
+        "logger": {
+            "./": ["src/logger.js", "src/logger.min.js"]
+        },
+        "requirejs": {
+            "./": "require.js"
+        }
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "curly": true,
+    "eqeqeq": true,
+    "immed": true,
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "sub": true,
+    "undef": true,
+    "boss": true,
+    "eqnull": true,
+    "browser": true,
+    "unused": true,
+    "debug": true,
+    "camelcase": true,
+    "globals": {
+        "requirejs": false,
+        "require": false,
+        "define": false,
+        "jasmine": false,
+        "describe": false,
+        "it": false,
+        "spyOn": false,
+        "expect": false,
+        "waitsFor": false,
+        "runs": false,
+        "beforeEach": false,
+        "afterEach": false
+    }
+}

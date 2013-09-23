@@ -1,16 +1,16 @@
-define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloader-drive"], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
-    "use strict";
+define(['jquery', 'logger', 'js/utils', 'js/spreadsheet', 'js/plugins/gsloader-drive'], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
+    'use strict';
     /*
      * String.format method
      * Example:
-     * "{0} is {1}".format("jQuery", "awesome")
-     * Output "jQuery is awesome"
+     * '{0} is {1}'.format('jQuery', 'awesome')
+     * Output 'jQuery is awesome'
      */
     if (!String.prototype.format) {
         String.prototype.format = function() {
             var str = this.toString();
             for (var i = 0; i < arguments.length; i++) {
-                var reg = new RegExp("\\{" + i + "\\}", "gm");
+                var reg = new RegExp('\\{' + i + '\\}', 'gm');
                 str = str.replace(reg, arguments[i]);
             }
             return str;
@@ -20,9 +20,9 @@ define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloade
     /*
      * String.emcodeXML method
      * Example:
-     * "String.encodeXML replace & \"\ '
-     *  < >".encodeXML()
-     * Output "String.encodeXML replace &amp; &quot; &apos; &#10; &lt; &gt;"
+     * 'String.encodeXML replace & \'\ '
+     *  < >'.encodeXML()
+     * Output 'String.encodeXML replace &amp; &quot; &apos; &#10; &lt; &gt;'
      */
     if (!String.prototype.encodeXML) {
         String.prototype.encodeXML = function() {
@@ -34,13 +34,13 @@ define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloade
      * GSLoader class
      */
     var GSLoader = function() {
-        this.logger = Logger.get("gsloader");
+        this.logger = Logger.get('gsloader');
     };
 
     GSLoader.prototype = {
 
         loadSpreadsheet: function(options) {
-            options = Utils.sanitizeOptions(options, "id");
+            options = Utils.sanitizeOptions(options, 'id');
 
             var spreadSheet = new Spreadsheet(options);
 
@@ -54,8 +54,8 @@ define(["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloade
          */
         createSpreadsheet: function(options) {
             options = $.extend({
-                title: ""
-            }, Utils.sanitizeOptions(options, "title"));
+                title: ''
+            }, Utils.sanitizeOptions(options, 'title'));
 
             var returnReq = GSLoaderDrive.createSpreadsheet({
                 title: options.title,

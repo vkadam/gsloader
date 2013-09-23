@@ -1,4 +1,4 @@
-/* Gsloader - v0.0.3rc
+/* Gsloader - vv0.0.1-rc.1
 * https://github.com/vkadam/gsloader
 * Copyright (c) Vishal Kadam; Licensed MIT */
 
@@ -6,30 +6,30 @@ define('js/utils',[],function() {
     return {
         sanitizeOptions: function(options, attribName) {
             var opts;
-            if (typeof(options) === "string") {
+            if (typeof(options) === 'string') {
                 opts = {};
                 opts[attribName] = options;
             }
             return opts || options;
         },
-        PRIVATE_SHEET_URL: "https://spreadsheets.google.com/feeds/worksheets/{0}/private/full",
+        PRIVATE_SHEET_URL: 'https://spreadsheets.google.com/feeds/worksheets/{0}/private/full',
         WORKSHEET_ID_REGEX: /.{3}$/
     };
 });
 
-define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, Utils) {
+define('js/worksheet',['jquery', 'logger', 'js/utils'], function($, Logger, Utils) {
     
     /*
      * Worksheet class
      */
     var Worksheet = function(options) {
-        this.logger = Logger.get("Worksheet");
+        this.logger = Logger.get('Worksheet');
         $.extend(this, {
-            id: "",
-            title: "",
-            listFeed: "",
-            cellsFeed: "",
-            editLink: "",
+            id: '',
+            title: '',
+            listFeed: '',
+            cellsFeed: '',
+            editLink: '',
             metadata: null,
             rows: [],
             spreadsheet: null
@@ -42,43 +42,49 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
     Worksheet.prototype = {
         fetch: function() {
             var _this = this,
-                deferred = $.Deferred(),
-                fetchReq = {};
-            deferred.promise(fetchReq);
+                deferred = $.Deferred();
+
+            if (_this._fetchReq) {
+                return _this._fetchReq;
+            }
+            var promisObj = deferred.promise();
+            _this._fetchReq = promisObj;
 
             $.ajax({
                 url: this.listFeed
             }).done(function(data, textStatus, jqXHR) {
                 _this.parse.apply(_this, [data, textStatus, jqXHR]);
-                deferred.resolveWith(fetchReq, [_this]);
+                deferred.resolveWith(promisObj, [_this]);
             }).fail(function(jqXHR, textStatus, errorThrown) {
-                deferred.rejectWith(fetchReq, [errorThrown, _this]);
+                deferred.rejectWith(promisObj, [errorThrown, _this]);
+            }).always(function() {
+                delete _this._fetchReq;
             });
 
-            return fetchReq;
+            return promisObj;
         },
 
         parse: function(data) {
             var _this = this;
-            var $entries = $(data).children("feed").children("entry");
+            var $entries = $(data).children('feed').children('entry');
             _this.rows = [];
             if ($entries.length === 0) {
-                _this.logger.warn("Missing data for " + _this.title + ", make sure you didn't forget column headers");
+                _this.logger.warn('Missing data for ' + _this.title + ', make sure you didn\'t forget column headers');
                 return;
             }
             var row;
             $entries.each(function(idx) {
                 row = {
-                    "rowNumber": (idx + 1)
+                    'rowNumber': (idx + 1)
                 };
                 $(this).children().each(function() {
                     if (COLUMN_NAME_REGEX.test(this.tagName)) {
-                        row[this.tagName.replace(COLUMN_NAME_REGEX, "")] = this.textContent;
+                        row[this.tagName.replace(COLUMN_NAME_REGEX, '')] = this.textContent;
                     }
                 });
                 _this.rows.push(row);
             });
-            _this.logger.debug("Total rows in worksheet '" + this.title + "' = " + _this.rows.length);
+            _this.logger.debug('Total rows in worksheet "' + this.title + '" = ' + _this.rows.length);
         },
 
         addRows: function(rowData) {
@@ -97,22 +103,22 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
                 rowNo = rowIdx + 1;
                 $.each(rowObj, function(colIdx, colObj) {
                     colNo = colIdx + 1;
-                    if (colObj !== null && typeof colObj !== "undefined") {
-                        cellValue = typeof colObj === "string" ? colObj.encodeXML() : colObj;
+                    if (colObj !== null && typeof colObj !== 'undefined') {
+                        cellValue = typeof colObj === 'string' ? colObj.encodeXML() : colObj;
                         entries.push(CELL_FEED_ENTRY.format(_this.cellsFeed, rowNo, colNo, cellValue));
                     }
                 });
             });
 
-            postData = CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(""));
+            postData = CELL_FEED_HEADER.format(_this.cellsFeed, entries.join(''));
 
             $.ajax({
-                url: this.cellsFeed + "/batch",
-                type: "POST",
-                contentType: "application/atom+xml",
+                url: this.cellsFeed + '/batch',
+                type: 'POST',
+                contentType: 'application/atom+xml',
                 headers: {
-                    "GData-Version": "3.0",
-                    "If-Match": "*"
+                    'GData-Version': '3.0',
+                    'If-Match': '*'
                 },
                 data: postData
             }).done(function(data, textStatus, jqXHR) {
@@ -135,7 +141,7 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
             deferred.promise(metadataReq);
 
             /* Make ajax call to get latest metadata of worksheet */
-            _this.logger.debug("Getting spreadsheet metadata before renaming worksheet");
+            _this.logger.debug('Getting spreadsheet metadata before renaming worksheet');
 
             function errorCallback(jqXHR, textStatus, errorThrown) {
                 deferred.rejectWith(metadataReq, [errorThrown, _this]);
@@ -145,11 +151,11 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
                 /* Get all worksheet details using spreadsheet url */
                 url: Utils.PRIVATE_SHEET_URL.format(this.spreadsheet.id)
             }).then(function(data) {
-                _this.logger.debug("Merging spreadsheet metadata before renaming worksheet");
-                var $feed = $(data).children("feed");
+                _this.logger.debug('Merging spreadsheet metadata before renaming worksheet');
+                var $feed = $(data).children('feed');
                 /* Filter to get details of this worksheet only */
-                $feed.children("entry").filter(function() {
-                    var worksheetId = $(this).children("id").text().match(Utils.WORKSHEET_ID_REGEX)[0];
+                $feed.children('entry').filter(function() {
+                    var worksheetId = $(this).children('id').text().match(Utils.WORKSHEET_ID_REGEX)[0];
                     return worksheetId === _this.id;
                 }).each(function() {
                     /* Parse worksheet and then update current worksheet.metadata */
@@ -157,28 +163,28 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
                     _this.metadata = worksheet.metadata;
                 });
             }, errorCallback).then(function() {
-                _this.logger.debug("Renaming worksheet with title =", title);
+                _this.logger.debug('Renaming worksheet with title =', title);
 
                 var tmpMetadata = _this.metadata.clone();
-                tmpMetadata.children("title").text(title);
+                tmpMetadata.children('title').text(title);
 
                 var reqData = (new XMLSerializer()).serializeToString(tmpMetadata[0]);
 
                 return $.ajax({
                     url: _this.editLink,
-                    type: "PUT",
-                    contentType: "application/atom+xml",
+                    type: 'PUT',
+                    contentType: 'application/atom+xml',
                     data: reqData
                 });
             }).then(function(data) {
                 /* Parse worksheet and then update current worksheet.metadata */
-                var worksheet = _this.spreadsheet.parseWorksheet($(data).children("entry"));
+                var worksheet = _this.spreadsheet.parseWorksheet($(data).children('entry'));
                 _this.metadata = worksheet.metadata;
                 _this.title = worksheet.title;
                 _this.listFeed = worksheet.listFeed;
                 _this.cellsFeed = worksheet.cellsFeed;
                 _this.editLink = worksheet.editLink;
-                _this.logger.debug("Worksheet renamed successfully with title =", _this.title);
+                _this.logger.debug('Worksheet renamed successfully with title =', _this.title);
                 deferred.resolveWith(metadataReq, [_this]);
             }, errorCallback);
             return metadataReq;
@@ -187,7 +193,7 @@ define('js/worksheet',["jquery", "js-logger", "js/utils"], function($, Logger, U
     return Worksheet;
 });
 
-define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], function($, Logger, Utils, Worksheet) {
+define('js/spreadsheet',['jquery', 'logger', 'js/utils', 'js/worksheet'], function($, Logger, Utils, Worksheet) {
     
     /*
      * Spreadsheet class
@@ -195,15 +201,15 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
     var WORKSHEET_CREATE_REQ = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><title>{0}</title><gs:rowCount>{1}</gs:rowCount><gs:colCount>{2}</gs:colCount></entry>';
 
     var Spreadsheet = function(options) {
-        this.logger = Logger.get("Spreadsheet");
-        options = Utils.sanitizeOptions(options, "id");
+        this.logger = Logger.get('Spreadsheet');
+        options = Utils.sanitizeOptions(options, 'id');
         if (options && /id=/.test(options.id)) {
-            this.logger.info("You passed a id as a URL! Attempting to parse.");
-            options.id = options.id.match("id=([^&]*)")[1];
+            this.logger.info('You passed a id as a URL! Attempting to parse.');
+            options.id = options.id.match('id=([^&]*)')[1];
         }
         $.extend(this, {
-            id: "",
-            title: ""
+            id: '',
+            title: ''
         }, options, {
             sheetsToLoad: [],
             worksheets: []
@@ -244,16 +250,16 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
         },
 
         isWanted: function(sheetName) {
-            return (this.wanted === "*" || (this.wanted instanceof Array && this.wanted.indexOf(sheetName) !== -1));
+            return (this.wanted === '*' || (this.wanted instanceof Array && this.wanted.indexOf(sheetName) !== -1));
         },
 
         parse: function(data) {
             var _this = this;
-            var $feed = $(data).children("feed");
-            _this.title = $feed.children("title").text();
+            var $feed = $(data).children('feed');
+            _this.title = $feed.children('title').text();
             var worksheet;
             _this.worksheets = [];
-            $feed.children("entry").each(function() {
+            $feed.children('entry').each(function() {
                 worksheet = _this.parseWorksheet(this);
                 _this.worksheets.push(worksheet);
                 if (_this.isWanted(worksheet.title)) {
@@ -264,18 +270,18 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
 
         parseWorksheet: function(worksheetInfo) {
             var $worksheet = $(worksheetInfo),
-                title = $worksheet.children("title").text(),
-                updatedOnStr = $worksheet.children("updated").text();
+                title = $worksheet.children('title').text(),
+                updatedOnStr = $worksheet.children('updated').text();
 
             updatedOnStr = (updatedOnStr).replace(/-/g, '/').replace(/[TZ]/g, ' ').trim();
             updatedOnStr = updatedOnStr.substr(0, updatedOnStr.length - 4);
 
             var worksheet = new Worksheet({
-                id: $worksheet.children("id").text().match(Utils.WORKSHEET_ID_REGEX)[0],
+                id: $worksheet.children('id').text().match(Utils.WORKSHEET_ID_REGEX)[0],
                 title: title,
-                listFeed: $worksheet.children("link[rel*='#listfeed']").attr("href"),
-                cellsFeed: $worksheet.children("link[rel*='#cellsfeed']").attr("href"),
-                editLink: $worksheet.children("link[rel='edit']").attr("href"),
+                listFeed: $worksheet.children('link[rel*="#listfeed"]').attr('href'),
+                cellsFeed: $worksheet.children('link[rel*="#cellsfeed"]').attr('href'),
+                editLink: $worksheet.children('link[rel="edit"]').attr('href'),
                 updatedOn: new Date(updatedOnStr).valueOf(),
                 metadata: $worksheet,
                 spreadsheet: this
@@ -299,15 +305,15 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
             deferred.promise(cwsReq);
 
             options = $.extend({
-                title: "",
+                title: '',
                 rows: 20,
                 cols: 20,
                 context: cwsReq,
                 headers: [],
                 rowData: []
-            }, Utils.sanitizeOptions(options, "title"));
+            }, Utils.sanitizeOptions(options, 'title'));
 
-            _this.logger.debug("Creating worksheet for spreadsheet", this, "with options =", options);
+            _this.logger.debug('Creating worksheet for spreadsheet', this, 'with options =', options);
 
             function errorCallback(jqXHR, textStatus, errorThrown) {
                 /* Incase of worksheet.addRows, worksheet.fetch only 2 params will be passed,
@@ -317,27 +323,27 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
 
             $.ajax({
                 url: Utils.PRIVATE_SHEET_URL.format(this.id),
-                type: "POST",
-                contentType: "application/atom+xml",
+                type: 'POST',
+                contentType: 'application/atom+xml',
                 headers: {
-                    "GData-Version": "3.0"
+                    'GData-Version': '3.0'
                 },
                 data: WORKSHEET_CREATE_REQ.format(options.title, options.rows, options.cols)
             }).then(function(data, textStatus, jqXHR) {
                 var entryNode = $(jqXHR.responseText).filter(function() {
-                    return this.nodeName === "ENTRY";
+                    return this.nodeName === 'ENTRY';
                 });
                 /* Right now creating worksheet don't return the list feed url, so cretating it using cells feed */
                 var wSheet = _this.parseWorksheet(entryNode);
                 _this.worksheets.push(wSheet);
-                wSheet.listFeed = wSheet.cellsFeed.replace("/cells/", "/list/");
+                wSheet.listFeed = wSheet.cellsFeed.replace('/cells/', '/list/');
                 return wSheet;
             }).then(function(worksheet) {
                 if (options.headers.length > 0 || options.rowData.length > 0) {
                     var rowData = options.rowData;
                     rowData.unshift(options.headers);
                     worksheet.addRows(rowData).then(function() {
-                        _this.logger.debug("Rows added to worksheet.", worksheet, "Fetching latest data for worksheet");
+                        _this.logger.debug('Rows added to worksheet.', worksheet, 'Fetching latest data for worksheet');
                         return worksheet.fetch();
                     }).then(function() {
                         deferred.resolveWith(options.context, [worksheet]);
@@ -372,13 +378,13 @@ define('js/spreadsheet',["jquery", "js-logger", "js/utils", "js/worksheet"], fun
 /*
  * https://developers.google.com/api-client-library/javascript/start/start-js
  */
-define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], function($, Logger, gapi) {
+define('js/plugins/gsloader-auth',['jquery', 'logger', 'google-api-client'], function($, Logger, gapi) {
     
 
     var GSAuth = function() {
-        this.logger = Logger.get("gsAuth");
+        this.logger = Logger.get('gsAuth');
         this.CLIENT_ID = null;
-        this.SCOPES = ["https://www.googleapis.com/auth/drive", "https://spreadsheets.google.com/feeds"].join(" ");
+        this.SCOPES = ['https://www.googleapis.com/auth/drive', 'https://spreadsheets.google.com/feeds'].join(' ');
     };
 
     GSAuth.prototype = {
@@ -401,7 +407,7 @@ define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], 
                 'client_id': this.CLIENT_ID,
                 'scope': this.SCOPES,
                 'immediate': true
-            }, $.proxy(this, "handleAuthResult"));
+            }, $.proxy(this, 'handleAuthResult'));
             return this;
         },
 
@@ -413,9 +419,9 @@ define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], 
             //     return;
             // }
             if (authResult && !authResult.error) {
-                this.logger.debug("Google Api Authentication Succeed");
+                this.logger.debug('Google Api Authentication Succeed');
             } else {
-                this.logger.debug("Retrying to authenticating Google Api");
+                this.logger.debug('Retrying to authenticating Google Api');
                 this.checkAuth();
                 /*gapi.auth.authorize({
                     'client_id': this.CLIENT_ID,
@@ -429,14 +435,14 @@ define('js/plugins/gsloader-auth',["jquery", "js-logger", "google-api-client"], 
     return new GSAuth();
 });
 
-define('js/plugins/gsloader-drive',["jquery", "google-api-client", "js/plugins/gsloader-auth"], function($, gapi, Auth) {
+define('js/plugins/gsloader-drive',['jquery', 'google-api-client', 'js/plugins/gsloader-auth'], function($, gapi, Auth) {
     
     var GSDrive = function() {};
 
     GSDrive.prototype = {
 
         load: function() {
-            gapi.client.load("drive", "v2", this.onLoad);
+            gapi.client.load('drive', 'v2', this.onLoad);
             return this;
         },
 
@@ -448,17 +454,17 @@ define('js/plugins/gsloader-drive',["jquery", "google-api-client", "js/plugins/g
         createSpreadsheet: function(options) {
             var csRequest = {},
                 _options = $.extend({
-                    title: "",
+                    title: '',
                     context: csRequest
                 }, options),
                 deferred = $.Deferred();
 
             var request = gapi.client.request({
-                "path": "/drive/v2/files",
-                "method": "POST",
-                "body": {
-                    "title": _options.title,
-                    "mimeType": "application/vnd.google-apps.spreadsheet"
+                'path': '/drive/v2/files',
+                'method': 'POST',
+                'body': {
+                    'title': _options.title,
+                    'mimeType': 'application/vnd.google-apps.spreadsheet'
                 }
             });
 
@@ -482,7 +488,7 @@ define('js/plugins/gsloader-drive',["jquery", "google-api-client", "js/plugins/g
                         var nextPageToken = jsonResp.nextPageToken;
                         if (nextPageToken) {
                             request = gapi.client.drive.files.list({
-                                "pageToken": nextPageToken
+                                'pageToken': nextPageToken
                             });
                             retrievePageOfFiles(request, result);
                         } else {
@@ -501,19 +507,19 @@ define('js/plugins/gsloader-drive',["jquery", "google-api-client", "js/plugins/g
     return new GSDrive();
 });
 
-define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plugins/gsloader-drive"], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
+define('gsloader',['jquery', 'logger', 'js/utils', 'js/spreadsheet', 'js/plugins/gsloader-drive'], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
     
     /*
      * String.format method
      * Example:
-     * "{0} is {1}".format("jQuery", "awesome")
-     * Output "jQuery is awesome"
+     * '{0} is {1}'.format('jQuery', 'awesome')
+     * Output 'jQuery is awesome'
      */
     if (!String.prototype.format) {
         String.prototype.format = function() {
             var str = this.toString();
             for (var i = 0; i < arguments.length; i++) {
-                var reg = new RegExp("\\{" + i + "\\}", "gm");
+                var reg = new RegExp('\\{' + i + '\\}', 'gm');
                 str = str.replace(reg, arguments[i]);
             }
             return str;
@@ -523,9 +529,9 @@ define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plug
     /*
      * String.emcodeXML method
      * Example:
-     * "String.encodeXML replace & \"\ '
-     *  < >".encodeXML()
-     * Output "String.encodeXML replace &amp; &quot; &apos; &#10; &lt; &gt;"
+     * 'String.encodeXML replace & \'\ '
+     *  < >'.encodeXML()
+     * Output 'String.encodeXML replace &amp; &quot; &apos; &#10; &lt; &gt;'
      */
     if (!String.prototype.encodeXML) {
         String.prototype.encodeXML = function() {
@@ -537,13 +543,13 @@ define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plug
      * GSLoader class
      */
     var GSLoader = function() {
-        this.logger = Logger.get("gsloader");
+        this.logger = Logger.get('gsloader');
     };
 
     GSLoader.prototype = {
 
         loadSpreadsheet: function(options) {
-            options = Utils.sanitizeOptions(options, "id");
+            options = Utils.sanitizeOptions(options, 'id');
 
             var spreadSheet = new Spreadsheet(options);
 
@@ -557,8 +563,8 @@ define('gsloader',["jquery", "js-logger", "js/utils", "js/spreadsheet", "js/plug
          */
         createSpreadsheet: function(options) {
             options = $.extend({
-                title: ""
-            }, Utils.sanitizeOptions(options, "title"));
+                title: ''
+            }, Utils.sanitizeOptions(options, 'title'));
 
             var returnReq = GSLoaderDrive.createSpreadsheet({
                 title: options.title,

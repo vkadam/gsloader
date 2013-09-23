@@ -4,3 +4,5 @@ target/
 _SpecRunner.html
 *.log
 .grunt/
+bower_components
+src/lib
