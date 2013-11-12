@@ -1,19 +1,15 @@
-define(['jquery', 'google-api-client', 'js/plugins/gsloader-auth'], function($, gapi, Auth) {
+define(['jquery',
+    'google-api-client',
+    'js/plugins/gsloader-auth'
+], function($, gapi, GoogleAuth) {
     'use strict';
-    var GSDrive = function() {};
+    var GoogleDrive = function(clientId) {
+        var scopes = 'https://www.googleapis.com/auth/drive https://spreadsheets.google.com/feeds',
+            googleAuth = new GoogleAuth(clientId, scopes);
+        gapi.client.load('drive', 'v2', googleAuth.checkAuth);
+    };
 
-    GSDrive.prototype = {
-
-        load: function() {
-            gapi.client.load('drive', 'v2', this.onLoad);
-            return this;
-        },
-
-        onLoad: function() {
-            Auth.checkAuth();
-            return this;
-        },
-
+    GoogleDrive.prototype = {
         createSpreadsheet: function(options) {
             var csRequest = {},
                 _options = $.extend({
@@ -67,5 +63,5 @@ define(['jquery', 'google-api-client', 'js/plugins/gsloader-auth'], function($, 
             return this;
         }*/
     };
-    return new GSDrive();
+    return GoogleDrive;
 });

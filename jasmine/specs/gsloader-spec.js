@@ -1,5 +1,10 @@
-/*global $:false*/
-define(['logger', 'js/gsloader', 'google-api-client', 'js/plugins/gsloader-drive'], function(Logger, GSLoader, gapi, GSLoaderDrive) {
+require(['jquery',
+    'logger',
+    'requirejs-injector',
+    'js/gsloader',
+    'google-api-client',
+    'js/plugins/gsloader-drive'
+], function($, Logger, RequirejsInjector, GSLoader, gapi, GSLoaderDrive) {
     describe('String Prototype', function() {
         it('String.format returns formatted test', function() {
             expect('Some String'.format).toBeDefined();
@@ -241,10 +246,36 @@ define(['logger', 'js/gsloader', 'google-api-client', 'js/plugins/gsloader-drive
             });
         });
 
+        describe('GSLoader.setClientId', function() {
+            var GSLoaderDriveSpy,
+                GSLoaderSpy;
+            beforeEach(function() {
+                GSLoaderDriveSpy = RequirejsInjector.mock(GSLoaderDrive);
+                GSLoaderSpy = RequirejsInjector.inject('js/gsloader', {
+                    'js/plugins/gsloader-drive': GSLoaderDriveSpy
+                });
+            });
+
+            it('create instance of google drive by using passed client', function() {
+                expect(GSLoader.googleDrive).toBeNull();
+
+                GSLoaderSpy.setClientId('MyClientId');
+
+                expect(GSLoaderDriveSpy).toHaveBeenCalledWith('MyClientId');
+                expect(GSLoaderSpy.googleDrive).not.toBeNull();
+            });
+
+            it('returns GSLoader for chaining', function() {
+                expect(GSLoaderSpy.setClientId('MyClientId')).toBe(GSLoaderSpy);
+            });
+        });
+
         describe('GSLoader.createSpreadsheet', function() {
             beforeEach(function() {
+                spyOn(gapi.client, 'load');
+                GSLoader.setClientId();
                 gapi._returnFailure = false;
-                spyOn(GSLoaderDrive, 'createSpreadsheet').andCallThrough();
+                spyOn(GSLoaderDrive.prototype, 'createSpreadsheet').andCallThrough();
             });
 
             afterEach(function() {

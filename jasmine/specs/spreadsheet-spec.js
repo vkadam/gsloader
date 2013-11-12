@@ -1,16 +1,17 @@
-/*global $:false*/
-define(['js/gsloader', 'js/spreadsheet', 'js/plugins/gsloader-drive'], function(GSLoader, Spreadsheet, GSLoaderDrive) {
+require(['jquery',
+    'js/gsloader',
+    'js/spreadsheet',
+    'js/plugins/gsloader-drive'
+], function($, GSLoader, Spreadsheet) {
     describe('spreadsheet.js', function() {
         var spyOnAjax,
-            spreadSheet,
-            spyOnGSLoaderDrive;
+            spreadSheet;
 
         beforeEach(function() {
             $.ajaxSetup({
                 async: false
             });
             spyOnAjax = spyOn($, 'ajax').andCallThrough();
-            spyOnGSLoaderDrive = spyOn(GSLoaderDrive, 'createSpreadsheet').andCallThrough();
         });
 
         afterEach(function() {

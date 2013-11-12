@@ -1,6 +1,6 @@
 {
     "name": "gsloader",
-    "version": "v0.0.1-rc.1",
+    "version": "0.0.1-rc.1",
     "homepage": "https://github.com/vkadam/gsloader",
     "authors": [
         "vkadam <vishal.4kadam@gmail.com>"
@@ -16,24 +16,36 @@
     "ignore": [
         "**/.*",
         "node_modules",
-        "bower_components",
-        "test",
-        "tests"
+        "bower_components"
     ],
     "dependencies": {
-        "jquery": "2.0.3",
+        "jquery": "latest",
         "logger": "https://github.com/jonnyreeves/js-logger.git#master",
-        "requirejs": "2.1.8"
+        "requirejs": "latest",
+        "jasmine-injector": "latest"
     },
     "exportsOverride": {
         "jquery": {
-            "./": ["jquery.js", "jquery.min.js", "jquery.min.map"]
+            "./": [
+                "jquery.js",
+                "jquery.min.js",
+                "jquery.min.map"
+            ]
         },
         "logger": {
-            "./": ["src/logger.js", "src/logger.min.js"]
+            "./": [
+                "src/logger.js",
+                "src/logger.min.js"
+            ]
         },
         "requirejs": {
             "./": "require.js"
+        },
+        "jasmine-injector": {
+            "./": [
+                "jasmine-injector.js",
+                "resolvers/requirejs-resolver.js"
+            ]
         }
     }
 }

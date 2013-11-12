@@ -1,20 +1,37 @@
-define(['google-api-client', 'js/plugins/gsloader-auth', 'js/plugins/gsloader-drive'], function(gapi, GSLoaderAuth, GSLoaderDrive) {
+require(['requirejs-injector',
+    'google-api-client',
+    'js/plugins/gsloader-auth',
+    'js/plugins/gsloader-drive'
+], function(RequirejsInjector, gapi, GSLoaderAuth, GSLoaderDrive) {
     describe('gsloader-drive.js', function() {
-        it('load method loads drive api using gapi client and does Google Auth Check', function() {
-            spyOn(GSLoaderAuth, 'checkAuth');
-            spyOn(gapi.client, 'load').andCallThrough();
+        describe('constructor', function() {
+            var GSLoaderAuthSpy, GSLoaderDriveSpy;
+            beforeEach(function() {
+                GSLoaderAuthSpy = RequirejsInjector.mock(GSLoaderAuth);
+                GSLoaderDriveSpy = RequirejsInjector.inject('js/plugins/gsloader-drive', {
+                    'js/plugins/gsloader-auth': GSLoaderAuthSpy
+                });
+            });
 
-            GSLoaderDrive.load();
+            it('loads drive api using gapi client and does Google Auth Check', function() {
+                var clientId = 'my app client id';
+                spyOn(gapi.client, 'load').andCallThrough();
 
-            expect(gapi.client.load).toHaveBeenCalledWith('drive', 'v2', jasmine.any(Function));
-            expect(GSLoaderAuth.checkAuth).toHaveBeenCalled();
+                new GSLoaderDriveSpy(clientId);
+
+                expect(gapi.client.load).toHaveBeenCalledWith('drive', 'v2', GSLoaderAuthSpy.prototype.checkAuth);
+                expect(GSLoaderAuthSpy).toHaveBeenCalledWith(clientId, 'https://www.googleapis.com/auth/drive https://spreadsheets.google.com/feeds');
+            });
         });
 
         describe('createSpreadsheet', function() {
             var actualCalledWithContext,
-                createCallback;
+                createCallback,
+                gsLoaderDriveInst;
 
             beforeEach(function() {
+                spyOn(gapi.client, 'load');
+                gsLoaderDriveInst = new GSLoaderDrive();
                 gapi._returnFailure = false;
                 createCallback = jasmine.createSpy('Some Spy').andCallFake(function() {
                     actualCalledWithContext = this;
@@ -22,13 +39,13 @@ define(['google-api-client', 'js/plugins/gsloader-auth', 'js/plugins/gsloader-dr
             });
 
             it('createSpreadsheet return deferred request object', function() {
-                var reqObj = GSLoaderDrive.createSpreadsheet();
+                var reqObj = gsLoaderDriveInst.createSpreadsheet();
                 expect(reqObj.done).toBeDefined();
                 expect(reqObj.resolve).not.toBeDefined();
             });
 
             it('createSpreadsheet accepts options object with title and calls successCallback with request as context when context is not passed', function() {
-                var reqObj = GSLoaderDrive.createSpreadsheet({
+                var reqObj = gsLoaderDriveInst.createSpreadsheet({
                     title: 'Spreadsheet title'
                 }).done(createCallback);
 
@@ -45,7 +62,7 @@ define(['google-api-client', 'js/plugins/gsloader-auth', 'js/plugins/gsloader-dr
 
             it('createSpreadsheet calls successCallback with correct context when context is passed', function() {
                 var expectedCalledWithContext = {},
-                    reqObj = GSLoaderDrive.createSpreadsheet({
+                    reqObj = gsLoaderDriveInst.createSpreadsheet({
                         context: expectedCalledWithContext
                     }).done(createCallback);
 
@@ -62,7 +79,7 @@ define(['google-api-client', 'js/plugins/gsloader-auth', 'js/plugins/gsloader-dr
             it('createSpreadsheet calls failureCallback with correct context in case of failure', function() {
                 gapi._returnFailure = true;
                 var expectedCalledWithContext = {};
-                var reqObj = GSLoaderDrive.createSpreadsheet({
+                var reqObj = gsLoaderDriveInst.createSpreadsheet({
                     context: expectedCalledWithContext
                 }).fail(createCallback);
 

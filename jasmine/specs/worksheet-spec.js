@@ -1,5 +1,7 @@
-/*global $:false*/
-define(['js/gsloader', 'js/worksheet'], function(GSLoader, Worksheet) {
+require(['jquery',
+    'js/gsloader',
+    'js/worksheet'
+], function($, GSLoader, Worksheet) {
     describe('worksheet.js', function() {
         var spyOnAjax;
 

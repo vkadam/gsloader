@@ -1,4 +1,9 @@
-define(['jquery', 'logger', 'js/utils', 'js/spreadsheet', 'js/plugins/gsloader-drive'], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
+define(['jquery',
+    'logger',
+    'js/utils',
+    'js/spreadsheet',
+    'js/plugins/gsloader-drive'
+], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
     'use strict';
     /*
      * String.format method
@@ -35,9 +40,15 @@ define(['jquery', 'logger', 'js/utils', 'js/spreadsheet', 'js/plugins/gsloader-d
      */
     var GSLoader = function() {
         this.logger = Logger.get('gsloader');
+        this.googleDrive = null;
     };
 
     GSLoader.prototype = {
+
+        setClientId: function(clientId) {
+            this.googleDrive = new GSLoaderDrive(clientId);
+            return this;
+        },
 
         loadSpreadsheet: function(options) {
             options = Utils.sanitizeOptions(options, 'id');
@@ -57,7 +68,7 @@ define(['jquery', 'logger', 'js/utils', 'js/spreadsheet', 'js/plugins/gsloader-d
                 title: ''
             }, Utils.sanitizeOptions(options, 'title'));
 
-            var returnReq = GSLoaderDrive.createSpreadsheet({
+            var returnReq = this.googleDrive.createSpreadsheet({
                 title: options.title,
                 context: options.context
             }).then(function(spreadSheetObj) {

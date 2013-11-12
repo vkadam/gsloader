@@ -16,12 +16,10 @@ define(function() {
                                     title: options.body.title
                                 });
                                 if (gapi._returnFailure) {
-                                    // in case of failuer jsonRes is false.
+                                    // in case of failure jsonRes is false.
                                     // Second paramter is rawRes
                                     callBack.apply(this, [false, {}]);
                                 } else {
-                                    // in case of failuer jsonRes is object
-                                    // Second paramter is rawRes
                                     callBack.apply(this, [data, {}]);
                                 }
                             }, 100);
@@ -29,6 +27,19 @@ define(function() {
                     }
                 }
                 return new RequestClass(opts);
+            }
+        },
+        auth: {
+            authorize: function(options, callBack) {
+                setTimeout(function() {
+                    if (gapi._returnFailure) {
+                        callBack({
+                            error: 'someError'
+                        });
+                    } else {
+                        callBack({});
+                    }
+                }, 100);
             }
         }
     }

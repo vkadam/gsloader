@@ -381,76 +381,54 @@ define('js/spreadsheet',['jquery', 'logger', 'js/utils', 'js/worksheet'], functi
 define('js/plugins/gsloader-auth',['jquery', 'logger', 'google-api-client'], function($, Logger, gapi) {
     
 
-    var GSAuth = function() {
-        this.logger = Logger.get('gsAuth');
-        this.CLIENT_ID = null;
-        this.SCOPES = ['https://www.googleapis.com/auth/drive', 'https://spreadsheets.google.com/feeds'].join(' ');
-    };
+    function GoogleAuth(clientId, scopes) {
+        this.authTryCount = 0;
+        this.logger = Logger.get('GDAuth');
+        this.clientId = clientId;
+        this.scopes = scopes;
+    }
 
-    GSAuth.prototype = {
-
-        setClientId: function(clientId) {
-            this.CLIENT_ID = clientId;
-            return this;
-        },
-
-        onLoad: function(callback, context) {
-            // this.checkAuth();
-            if (callback) {
-                callback.apply(context, this);
-            }
-            return this;
-        },
-
-        checkAuth: function() {
+    GoogleAuth.prototype = {
+        checkAuth: function(immediate, defObj) {
+            this.authTryCount++;
+            var deferred = defObj || new $.Deferred();
             gapi.auth.authorize({
-                'client_id': this.CLIENT_ID,
-                'scope': this.SCOPES,
-                'immediate': true
-            }, $.proxy(this, 'handleAuthResult'));
-            return this;
+                'client_id': this.clientId,
+                'scope': this.scopes,
+                'immediate': false !== immediate
+            }, $.proxy(this, 'handleAuthResult', deferred));
+            return deferred.promise();
         },
 
-        handleAuthResult: function(authResult) {
-            /* TODO: Remove GSLoader dependency */
-            /* No idea but somewhere context is changed to window object so setting it back to auth object */
-            // if (!(this instanceof GSAuth)) {
-            //     this = GSLoader.auth;
-            //     return;
-            // }
+        handleAuthResult: function(deferred, authResult) {
             if (authResult && !authResult.error) {
                 this.logger.debug('Google Api Authentication Succeed');
-            } else {
+                this.authTryCount = 0;
+                deferred.resolve();
+            } else if (this.authTryCount < 2) {
                 this.logger.debug('Retrying to authenticating Google Api');
-                this.checkAuth();
-                /*gapi.auth.authorize({
-                    'client_id': this.CLIENT_ID,
-                    'scope': this.SCOPES,
-                    'immediate': false
-                }, this.handleAuthResult);*/
+                this.checkAuth(false, deferred);
+            } else {
+                this.authTryCount = 0;
+                deferred.reject();
             }
-            return this;
         }
     };
-    return new GSAuth();
+    return GoogleAuth;
 });
 
-define('js/plugins/gsloader-drive',['jquery', 'google-api-client', 'js/plugins/gsloader-auth'], function($, gapi, Auth) {
+define('js/plugins/gsloader-drive',['jquery',
+    'google-api-client',
+    'js/plugins/gsloader-auth'
+], function($, gapi, GoogleAuth) {
     
-    var GSDrive = function() {};
+    var GoogleDrive = function(clientId) {
+        var scopes = 'https://www.googleapis.com/auth/drive https://spreadsheets.google.com/feeds',
+            googleAuth = new GoogleAuth(clientId, scopes);
+        gapi.client.load('drive', 'v2', googleAuth.checkAuth);
+    };
 
-    GSDrive.prototype = {
-
-        load: function() {
-            gapi.client.load('drive', 'v2', this.onLoad);
-            return this;
-        },
-
-        onLoad: function() {
-            Auth.checkAuth();
-            return this;
-        },
-
+    GoogleDrive.prototype = {
         createSpreadsheet: function(options) {
             var csRequest = {},
                 _options = $.extend({
@@ -504,10 +482,15 @@ define('js/plugins/gsloader-drive',['jquery', 'google-api-client', 'js/plugins/g
             return this;
         }*/
     };
-    return new GSDrive();
+    return GoogleDrive;
 });
 
-define('gsloader',['jquery', 'logger', 'js/utils', 'js/spreadsheet', 'js/plugins/gsloader-drive'], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
+define('gsloader',['jquery',
+    'logger',
+    'js/utils',
+    'js/spreadsheet',
+    'js/plugins/gsloader-drive'
+], function($, Logger, Utils, Spreadsheet, GSLoaderDrive) {
     
     /*
      * String.format method
@@ -544,9 +527,15 @@ define('gsloader',['jquery', 'logger', 'js/utils', 'js/spreadsheet', 'js/plugins
      */
     var GSLoader = function() {
         this.logger = Logger.get('gsloader');
+        this.googleDrive = null;
     };
 
     GSLoader.prototype = {
+
+        setClientId: function(clientId) {
+            this.googleDrive = new GSLoaderDrive(clientId);
+            return this;
+        },
 
         loadSpreadsheet: function(options) {
             options = Utils.sanitizeOptions(options, 'id');
@@ -566,7 +555,7 @@ define('gsloader',['jquery', 'logger', 'js/utils', 'js/spreadsheet', 'js/plugins
                 title: ''
             }, Utils.sanitizeOptions(options, 'title'));
 
-            var returnReq = GSLoaderDrive.createSpreadsheet({
+            var returnReq = this.googleDrive.createSpreadsheet({
                 title: options.title,
                 context: options.context
             }).then(function(spreadSheetObj) {

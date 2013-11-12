@@ -65,23 +65,23 @@ module.exports = function(grunt) {
         jasmine: {
             all: {
                 options: {
-                    specs: ['jasmine/specs/**/*Spec.js'],
+                    specs: ['jasmine/specs/**/*spec.js'],
                     host: 'http://127.0.0.1:<%= connect.jasmine.options.port %>/',
                     template: require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
                         requireConfigFile: 'src/require-config.js',
                         requireConfig: {
-                            baseUrl: '/src',
+                            baseUrl: 'src',
                             paths: {
                                 'jquery-fixture': '../jasmine/lib/jquery-fixture/jquerymx-3.2.custom',
-                                'google-api-client': '../jasmine/lib/google-api-client'
+                                'google-api-client': '../jasmine/lib/google-api-client',
+                                'jasmine-injector': 'lib/jasmine-injector/jasmine-injector',
+                                'requirejs-injector': 'lib/jasmine-injector/requirejs-resolver'
                             },
                             shim: {
-                                'jquery-fixture': {
-                                    deps: ['jquery']
-                                }
+                                'jquery-fixture': 'jquery'
                             },
-                            deps: ['jquery', 'jquery-fixture']
+                            deps: ['jquery', 'jquery-fixture', 'requirejs-injector']
                         }
                     }
                 }
@@ -107,8 +107,10 @@ module.exports = function(grunt) {
             install: {
                 options: {
                     targetDir: 'src/lib',
+                    layout: 'byComponent',
+                    verbose: true,
                     cleanTargetDir: true,
-                    layout: 'byComponent'
+                    cleanBowerDir: true
                 }
             }
         }
@@ -127,7 +129,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-bower-task');
 
     /* Register tasks. */
-    grunt.registerTask('default', ['shell:npm', 'bower:install', 'jsbeautifier', 'jshint', 'dist', 'connect', 'jasmine']);
+    grunt.registerTask('default', ['shell:npm', 'jsbeautifier', 'jshint', 'dist', 'connect', 'jasmine']);
     grunt.registerTask('dist', ['bower:install', 'requirejs', 'concat', 'uglify']);
     grunt.registerTask('test', ['dist', 'connect', 'jasmine']);
     grunt.registerTask('jasmine-server', ['dist', 'jasmine:all:build', 'open:jasmine', 'connect::keepalive']);
