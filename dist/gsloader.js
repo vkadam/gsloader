@@ -1,4 +1,4 @@
-/* Gsloader - vv0.0.1-rc.1
+/* Gsloader - v0.0.1-rc.2
 * https://github.com/vkadam/gsloader
 * Copyright (c) Vishal Kadam; Licensed MIT */
 
@@ -425,7 +425,7 @@ define('js/plugins/gsloader-drive',['jquery',
     var GoogleDrive = function(clientId) {
         var scopes = 'https://www.googleapis.com/auth/drive https://spreadsheets.google.com/feeds',
             googleAuth = new GoogleAuth(clientId, scopes);
-        gapi.client.load('drive', 'v2', googleAuth.checkAuth);
+        gapi.client.load('drive', 'v2', $.proxy(googleAuth, 'checkAuth'));
     };
 
     GoogleDrive.prototype = {

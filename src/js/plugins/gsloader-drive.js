@@ -6,7 +6,7 @@ define(['jquery',
     var GoogleDrive = function(clientId) {
         var scopes = 'https://www.googleapis.com/auth/drive https://spreadsheets.google.com/feeds',
             googleAuth = new GoogleAuth(clientId, scopes);
-        gapi.client.load('drive', 'v2', googleAuth.checkAuth);
+        gapi.client.load('drive', 'v2', $.proxy(googleAuth, 'checkAuth'));
     };
 
     GoogleDrive.prototype = {

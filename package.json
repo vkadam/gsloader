@@ -2,7 +2,7 @@
     "name": "gsloader",
     "title": "Gsloader",
     "description": "Javascript library to read/write google spreadsheet into json object",
-    "version": "0.0.1-rc.1",
+    "version": "0.0.1-rc.2",
     "homepage": "https://github.com/vkadam/gsloader",
     "author": {
         "name": "Vishal Kadam",

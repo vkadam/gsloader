@@ -1,6 +1,6 @@
 {
     "name": "gsloader",
-    "version": "0.0.1-rc.1",
+    "version": "0.0.1-rc.2",
     "homepage": "https://github.com/vkadam/gsloader",
     "authors": [
         "vkadam <vishal.4kadam@gmail.com>"
@@ -22,7 +22,10 @@
         "jquery": "latest",
         "logger": "https://github.com/jonnyreeves/js-logger.git#master",
         "requirejs": "latest",
-        "jasmine-injector": "latest"
+        "jasmine-injector": "0.0.3-rc.1"
+    },
+    "scripts": {
+        "test": "grunt test -v"
     },
     "exportsOverride": {
         "jquery": {

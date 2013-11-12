@@ -19,8 +19,27 @@ require(['requirejs-injector',
 
                 new GSLoaderDriveSpy(clientId);
 
-                expect(gapi.client.load).toHaveBeenCalledWith('drive', 'v2', GSLoaderAuthSpy.prototype.checkAuth);
+                expect(gapi.client.load).toHaveBeenCalledWith('drive', 'v2', jasmine.any(Function));
                 expect(GSLoaderAuthSpy).toHaveBeenCalledWith(clientId, 'https://www.googleapis.com/auth/drive https://spreadsheets.google.com/feeds');
+            });
+
+            it('call google authcheck method with correct context', function() {
+                var clientId = 'my app client id',
+                    resultContext;
+                GSLoaderAuthSpy.prototype.checkAuth.andCallFake(function() {
+                    resultContext = this;
+                });
+                spyOn(gapi.client, 'load').andCallThrough();
+
+                new GSLoaderDriveSpy(clientId);
+
+                waitsFor(function() {
+                    return resultContext;
+                });
+
+                runs(function() {
+                    expect(resultContext).toEqual(jasmine.any(GSLoaderAuthSpy));
+                });
             });
         });
 
